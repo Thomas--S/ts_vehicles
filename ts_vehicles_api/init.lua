@@ -18,3 +18,12 @@ dofile(modpath.."/handlers.lua")
 dofile(modpath.."/textures.lua")
 dofile(modpath.."/movement.lua")
 dofile(modpath.."/registration.lua")
+
+if not math.round then
+    function math.round(x)
+        if x >= 0 then
+            return math.floor(x + .5)
+        end
+        return math.ceil(x - .5)
+    end
+end
