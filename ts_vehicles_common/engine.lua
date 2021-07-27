@@ -49,6 +49,29 @@ ts_vehicles.register_part("ts_vehicles_common:gasoline_engine_8_cylinders", {
     gasoline_consumption = 0.125,
 })
 
+minetest.register_craft({
+    output = "ts_vehicles_common:gasoline_engine_4_cylinders",
+    recipe = {
+        {"basic_materials:ic", "ts_vehicles_common:composite_material", "techage:ta3_pipeS"},
+        {"basic_materials:steel_bar", "techage:ta3_motor_off", "basic_materials:gear_steel"},
+        {"default:mese_crystal", "ts_vehicles_common:composite_material", "default:mese_crystal"},
+    },
+})
+
+minetest.register_craft({
+    output = "ts_vehicles_common:gasoline_engine_6_cylinders",
+    type = "shapeless",
+    recipe = {"ts_vehicles_common:gasoline_engine_4_cylinders", "ts_vehicles_common:gasoline_engine_4_cylinders"},
+})
+
+minetest.register_craft({
+    output = "ts_vehicles_common:gasoline_engine_8_cylinders",
+    type = "shapeless",
+    recipe = {"ts_vehicles_common:gasoline_engine_6_cylinders", "ts_vehicles_common:gasoline_engine_6_cylinders"},
+})
+
+
+
 ts_vehicles.register_part("ts_vehicles_common:hydrogen_engine_small", {
     description = "Hydrogen Engine (small)",
     inventory_image = "ts_vehicles_common_hydrogen_engine_small.png",
@@ -88,6 +111,29 @@ ts_vehicles.register_part("ts_vehicles_common:hydrogen_engine_large", {
     hydrogen_consumption = 0.875,
 })
 
+minetest.register_craft({
+    output = "ts_vehicles_common:hydrogen_engine_small",
+    recipe = {
+        {"basic_materials:ic", "ts_vehicles_common:composite_material", "techage:ta3_pipeS"},
+        {"basic_materials:steel_bar", "techage:ta4_fuelcellstack", "basic_materials:gear_steel"},
+        {"default:mese_crystal", "ts_vehicles_common:composite_material", "default:mese_crystal"},
+    },
+})
+
+minetest.register_craft({
+    output = "ts_vehicles_common:hydrogen_engine_medium",
+    type = "shapeless",
+    recipe = {"ts_vehicles_common:hydrogen_engine_small", "ts_vehicles_common:hydrogen_engine_small"},
+})
+
+minetest.register_craft({
+    output = "ts_vehicles_common:hydrogen_engine_large",
+    type = "shapeless",
+    recipe = {"ts_vehicles_common:hydrogen_engine_medium", "ts_vehicles_common:hydrogen_engine_medium"},
+})
+
+
+
 ts_vehicles.register_part("ts_vehicles_common:electric_engine_small", {
     description = "Electric Engine (small)",
     inventory_image = "ts_vehicles_common_electric_engine_small.png",
@@ -125,4 +171,25 @@ ts_vehicles.register_part("ts_vehicles_common:electric_engine_large", {
     end,
     groups = { engine = 1, },
     electricity_consumption = 1.75,
+})
+
+minetest.register_craft({
+    output = "ts_vehicles_common:electric_engine_small",
+    recipe = {
+        {"basic_materials:ic", "ts_vehicles_common:composite_material", "techage:electric_cableS"},
+        {"basic_materials:steel_bar", "basic_materials:motor", "basic_materials:gear_steel"},
+        {"default:mese_crystal", "ts_vehicles_common:composite_material", "default:mese_crystal"},
+    },
+})
+
+minetest.register_craft({
+    output = "ts_vehicles_common:electric_engine_medium",
+    type = "shapeless",
+    recipe = {"ts_vehicles_common:electric_engine_small", "ts_vehicles_common:electric_engine_small"},
+})
+
+minetest.register_craft({
+    output = "ts_vehicles_common:electric_engine_large",
+    type = "shapeless",
+    recipe = {"ts_vehicles_common:electric_engine_medium", "ts_vehicles_common:electric_engine_medium"},
 })

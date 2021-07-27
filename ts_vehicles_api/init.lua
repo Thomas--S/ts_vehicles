@@ -1,4 +1,5 @@
 ts_vehicles = {}
+ts_vehicles.priv = minetest.settings:get("ts_vehicles.priv") or "ban"
 ts_vehicles.mod_storage = minetest.get_mod_storage()
 
 ts_vehicles.writing = minetest.global_exists("font_api")

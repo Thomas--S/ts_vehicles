@@ -82,8 +82,18 @@ minetest.register_node("ts_vehicles_common:gasoline_station", {
     on_receive_fields = ts_vehicles.hose.station_receive_fields
 })
 
-
 Pipe:add_secondary_node_names({"ts_vehicles_common:gasoline_station"})
+
+minetest.register_craft({
+    output = "ts_vehicles_common:gasoline_station",
+    recipe = {
+        {"ts_vehicles_common:composite_material", "basic_materials:ic", ""},
+        {"techage:ta3_pipeS", "basic_materials:concrete_block", "techage:ta3_barrel_empty"},
+        {"", "techage:ta3_pipeS", ""},
+    },
+})
+
+
 
 minetest.register_node("ts_vehicles_common:hydrogen_station", {
     description = "Hydrogen Station",
@@ -161,6 +171,15 @@ minetest.register_node("ts_vehicles_common:hydrogen_station", {
 
 Pipe:add_secondary_node_names({"ts_vehicles_common:hydrogen_station"})
 
+minetest.register_craft({
+    output = "ts_vehicles_common:hydrogen_station",
+    recipe = {
+        {"ts_vehicles_common:composite_material", "basic_materials:ic", ""},
+        {"techage:ta3_pipeS", "basic_materials:concrete_block", "techage:ta3_cylinder_large"},
+        {"", "techage:ta3_pipeS", ""},
+    },
+})
+
 
 
 local electricity_tiles = {
@@ -235,4 +254,13 @@ techage.register_consumer("electricity_station", "Charging Station", { act = ele
             return fs
         end,
     },
-}, {false, false, true, false}, "ts_vehicles_common:ta")
+}, {false, false, false, true}, "ts_vehicles_common:ta")
+
+minetest.register_craft({
+    output = node_name_ta4,
+    recipe = {
+        {"ts_vehicles_common:composite_material", "basic_materials:ic", ""},
+        {"techage:electric_cableS", "basic_materials:concrete_block", "basic_materials:copper_wire"},
+        {"", "techage:electric_cableS", ""},
+    },
+})

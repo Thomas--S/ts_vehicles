@@ -100,8 +100,18 @@ ts_vehicles.show_formspec = function(self, player)
                     fs = fs.."style_type[box;colors=]"
                     fs = fs.."box[.5,"..(y-.3125)..";16,.625;#fff2]"
                 end
-                fs = fs.."item_image[.5,"..(y-.25)..";.5,.5;"..item.itemstring.."]"
-                fs = fs.."label[1.125,"..y..";"..E(ItemStack(item.itemstring):get_description()).."]"
+                local itemstack = ItemStack(item.itemstring)
+                local new_meta = {}
+                for _, key in ipairs({"description", "short_description", "color", "palette_index"}) do
+                    if itemstack:get_meta():contains(key) then
+                        new_meta[key] = itemstack:get_meta():get_string(key)
+                    end
+                end
+                itemstack:get_meta():from_table(new_meta)
+                local itemstring = itemstack:to_string()
+
+                fs = fs.."item_image[.5,"..(y-.25)..";.5,.5;"..itemstring.."]"
+                fs = fs.."label[1.125,"..y..";"..E(itemstack:get_description()).."]"
                 fs = fs.."label[9,"..y..";"..tostring(item.count).."]"
                 fs = fs.."button[11,"..(y-.25)..";1.5,.5;storage_take_one_"..idx..";Take 1]"
                 fs = fs.."button[12.625,"..(y-.25)..";1.5,.5;storage_take_ten_"..idx..";Take 10]"
