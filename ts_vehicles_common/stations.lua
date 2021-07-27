@@ -1,5 +1,5 @@
 local Pipe = techage.LiquidPipe
-local liquid = techage.liquid
+local liquid = networks.liquid
 
 -- Consumer Related Data
 local CRD = function(pos) return (minetest.registered_nodes[techage.get_node_lvm(pos).name] or {}).consumer end
@@ -23,9 +23,6 @@ minetest.register_node("ts_vehicles_common:gasoline_station", {
     after_place_node = function(pos)
         Pipe:after_place_node(pos)
     end,
-    tubelib2_on_update2 = function(pos, dir, tlib2, node)
-        liquid.update_network(pos)
-    end,
     after_dig_node = function(pos, oldnode, oldmetadata, digger)
         Pipe:after_dig_node(pos)
         liquid.after_dig_pump(pos)
@@ -43,34 +40,6 @@ minetest.register_node("ts_vehicles_common:gasoline_station", {
     groups = {cracky=2},
     is_ground_content = false,
     sounds = default.node_sound_metal_defaults(),
-    liquid = {
-        capa = 1000000,
-        peek = function(...) return nil end,
-        put = function(pos, indir, name, amount)
-            if name ~= "techage:gasoline" then
-                return amount
-            end
-            local object = ts_vehicles.hose.get_connected_vehicle(pos)
-            if not object then
-                return amount
-            end
-            local entity = object:get_luaentity()
-            local max = ts_vehicles.helpers.get_total_value(entity, "gasoline_capacity")
-            local to_be_added = math.max(math.min(amount, max - (entity._data.gasoline or 0)), 0)
-            entity._data.gasoline = (entity._data.gasoline or 0) + to_be_added
-            return amount - to_be_added
-        end,
-        take = function(...) return 0 end,
-        untake = function(pos, outdir, name, amount, player_name)
-            return amount
-        end,
-    },
-    networks = {
-        pipe2 = {
-            sides = {D = 1}, -- Pipe connection sides
-            ntype = "tank",
-        },
-    },
     _station = {
         hose_offset = vector.new(.25, .25, -0.55),
         title = "Gasoline Station",
@@ -82,7 +51,28 @@ minetest.register_node("ts_vehicles_common:gasoline_station", {
     on_receive_fields = ts_vehicles.hose.station_receive_fields
 })
 
-Pipe:add_secondary_node_names({"ts_vehicles_common:gasoline_station"})
+liquid.register_nodes({"ts_vehicles_common:gasoline_station"}, Pipe, "tank", {"D"}, {
+    capa = 1000000,
+    peek = function(...) return nil end,
+    put = function(pos, indir, name, amount)
+        if name ~= "techage:gasoline" then
+            return amount
+        end
+        local object = ts_vehicles.hose.get_connected_vehicle(pos)
+        if not object then
+            return amount
+        end
+        local entity = object:get_luaentity()
+        local max = ts_vehicles.helpers.get_total_value(entity, "gasoline_capacity")
+        local to_be_added = math.max(math.min(amount, max - (entity._data.gasoline or 0)), 0)
+        entity._data.gasoline = (entity._data.gasoline or 0) + to_be_added
+        return amount - to_be_added
+    end,
+    take = function(...) return 0 end,
+    untake = function(pos, outdir, name, amount, player_name)
+        return amount
+    end,
+})
 
 minetest.register_craft({
     output = "ts_vehicles_common:gasoline_station",
@@ -110,9 +100,6 @@ minetest.register_node("ts_vehicles_common:hydrogen_station", {
     after_place_node = function(pos)
         Pipe:after_place_node(pos)
     end,
-    tubelib2_on_update2 = function(pos, dir, tlib2, node)
-        liquid.update_network(pos)
-    end,
     after_dig_node = function(pos, oldnode, oldmetadata, digger)
         Pipe:after_dig_node(pos)
         liquid.after_dig_pump(pos)
@@ -130,34 +117,6 @@ minetest.register_node("ts_vehicles_common:hydrogen_station", {
     groups = {cracky=2},
     is_ground_content = false,
     sounds = default.node_sound_metal_defaults(),
-    liquid = {
-        capa = 1000000,
-        peek = function(...) return nil end,
-        put = function(pos, indir, name, amount)
-            if name ~= "techage:hydrogen" then
-                return amount
-            end
-            local object = ts_vehicles.hose.get_connected_vehicle(pos)
-            if not object then
-                return amount
-            end
-            local entity = object:get_luaentity()
-            local max = ts_vehicles.helpers.get_total_value(entity, "hydrogen_capacity")
-            local to_be_added = math.max(math.min(amount, max - (entity._data.hydrogen or 0)), 0)
-            entity._data.hydrogen = (entity._data.hydrogen or 0) + to_be_added
-            return amount - to_be_added
-        end,
-        take = function(...) return 0 end,
-        untake = function(pos, outdir, name, amount, player_name)
-            return amount
-        end,
-    },
-    networks = {
-        pipe2 = {
-            sides = {D = 1}, -- Pipe connection sides
-            ntype = "tank",
-        },
-    },
     _station = {
         hose_offset = vector.new(.25, .25, -0.55),
         title = "Hydrogen Station",
@@ -169,7 +128,28 @@ minetest.register_node("ts_vehicles_common:hydrogen_station", {
     on_receive_fields = ts_vehicles.hose.station_receive_fields
 })
 
-Pipe:add_secondary_node_names({"ts_vehicles_common:hydrogen_station"})
+liquid.register_nodes({"ts_vehicles_common:hydrogen_station"}, Pipe, "tank", {"D"}, {
+    capa = 1000000,
+    peek = function(...) return nil end,
+    put = function(pos, indir, name, amount)
+        if name ~= "techage:hydrogen" then
+            return amount
+        end
+        local object = ts_vehicles.hose.get_connected_vehicle(pos)
+        if not object then
+            return amount
+        end
+        local entity = object:get_luaentity()
+        local max = ts_vehicles.helpers.get_total_value(entity, "hydrogen_capacity")
+        local to_be_added = math.max(math.min(amount, max - (entity._data.hydrogen or 0)), 0)
+        entity._data.hydrogen = (entity._data.hydrogen or 0) + to_be_added
+        return amount - to_be_added
+    end,
+    take = function(...) return 0 end,
+    untake = function(pos, outdir, name, amount, player_name)
+        return amount
+    end,
+})
 
 minetest.register_craft({
     output = "ts_vehicles_common:hydrogen_station",
