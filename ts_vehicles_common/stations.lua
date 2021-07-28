@@ -25,7 +25,6 @@ minetest.register_node("ts_vehicles_common:gasoline_station", {
     end,
     after_dig_node = function(pos, oldnode, oldmetadata, digger)
         Pipe:after_dig_node(pos)
-        liquid.after_dig_pump(pos)
         techage.del_mem(pos)
     end,
     on_construct = function(pos)
@@ -102,7 +101,6 @@ minetest.register_node("ts_vehicles_common:hydrogen_station", {
     end,
     after_dig_node = function(pos, oldnode, oldmetadata, digger)
         Pipe:after_dig_node(pos)
-        liquid.after_dig_pump(pos)
         techage.del_mem(pos)
     end,
     on_construct = function(pos)
