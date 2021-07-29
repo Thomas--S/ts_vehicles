@@ -30,10 +30,10 @@ minetest.register_craftitem(":techage:rubber_powder", {
 })
 
 techage.recipes.add("ta4_doser", {
-    output = "techage:rubber_powder",
+    output = "techage:rubber_powder 1",
     input = {
-        "techage:fueloil",
-        "techage:leave_powder",
+        "techage:fueloil 1",
+        "techage:leave_powder 1",
     }
 })
 
