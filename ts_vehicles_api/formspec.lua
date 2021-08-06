@@ -206,22 +206,25 @@ ts_vehicles.show_formspec = function(self, player)
         if storage_capacity > 0 then
             fs = fs.."item_image[.5,"..(y-.25)..";.5,.5;default:chest]"
             fs = fs.."label[1.125,"..y..";Storage: "..ts_vehicles.storage.get_total_count(self).." / "..storage_capacity.."]"
-            fs = fs.."button[5,"..(y-.25)..";2.5,.5;open_storage;Open Storage]"
+            fs = fs.."button[5,"..(y-.25)..";4,.5;open_storage;Open Storage]"
             y = y + .625
         end
         if gasoline_capacity > 0 then
             fs = fs.."item_image[.5,"..(y-.25)..";.5,.5;techage:gasoline]"
             fs = fs.."label[1.125,"..y..";Fuel (Gasoline): "..E(math.round((self._data.gasoline or 0)*100)/100).." / "..gasoline_capacity.."]"
+            fs = fs.."button[5,"..(y-.25)..";4,.5;void_gasoline_tank;Void gasoline tank contents]"
             y = y + .625
         end
         if hydrogen_capacity > 0 then
             fs = fs.."item_image[.5,"..(y-.25)..";.5,.5;techage:hydrogen]"
             fs = fs.."label[1.125,"..y..";Fuel (Hydrogen): "..E(math.round((self._data.hydrogen or 0)*100)/100).." / "..hydrogen_capacity.."]"
+            fs = fs.."button[5,"..(y-.25)..";4,.5;void_hydrogen_tank;Void hydrogen tank contents]"
             y = y + .625
         end
         if electricity_capacity > 0 then
             fs = fs.."image[.5,"..(y-.25)..";.5,.5;techage_battery_inventory.png]"
             fs = fs.."label[1.125,"..y..";Battery: "..E(math.round((self._data.electricity or 0)*100)/100).." / ".. electricity_capacity .."]"
+            fs = fs.."button[5,"..(y-.25)..";4,.5;void_battery;Void battery charge]"
             y = y + .625
         end
         fs = fs.."container_end[]"
@@ -283,6 +286,12 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         entity._tmp.fs_storage_page = math.min(math.ceil(#entity._storage/items_per_page), ((entity._tmp.fs_storage_page or 1) + 1))
     elseif fields.passengers_closed then
         entity._passengers_closed = fields.passengers_closed == "true"
+    elseif fields.void_gasoline_tank then
+        entity._data.gasoline = 0
+    elseif fields.void_hydrogen_tank then
+        entity._data.hydrogen = 0
+    elseif fields.void_battery then
+        entity._data.electricity = 0
     else
         for k,v in pairs(fields) do
             if ts_vehicles.helpers.starts_with(k, "remove_owner_") then

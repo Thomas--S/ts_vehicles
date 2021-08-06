@@ -43,6 +43,7 @@ minetest.register_craft({
         {"techage:ta4_carbon_fiber", "techage:canister_epoxy", "techage:ta4_carbon_fiber"},
     },
     replacements = {
+        {"techage:canister_epoxy", "techage:ta3_canister_empty"},
         {"techage:canister_epoxy", "techage:ta3_canister_empty"}
     }
 })

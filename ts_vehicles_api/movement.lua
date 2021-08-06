@@ -75,13 +75,13 @@ end
 minetest.after(.1, function()
     for node_name, def in pairs(minetest.registered_nodes) do
         if def.mod_origin == "autobahn" then
-            ground_factors[node_name] = 1.2
-        elseif def.groups.cracky then -- Most likely something stonelike
             ground_factors[node_name] = 1
+        elseif def.groups.cracky then -- Most likely something stonelike
+            ground_factors[node_name] = .85
         elseif node_name:find("gravel") then
-            ground_factors[node_name] = .75
+            ground_factors[node_name] = .7
         elseif def.groups.wood or def.groups.tree then
-            ground_factors[node_name] = .6
+            ground_factors[node_name] = .55
         elseif node_name:find("dirt") then
             ground_factors[node_name] = .35
         end

@@ -5,9 +5,13 @@ ts_vehicles.handle_rightclick = function(self, player, def)
     if control.sneak then
         ts_vehicles.show_formspec(self, player, def)
     elseif ts_vehicles.registered_parts[wielded_item:get_name()] and ts_vehicles.registered_compatibilities[self.name][wielded_item:get_name()] then
-        local got_added, reason = ts_vehicles.add_part(self, wielded_item, player)
-        if not got_added then
-            minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] Can't add part: "..reason))
+        if ts_vehicles.helpers.contains(self._owners, player_name) then
+            local got_added, reason = ts_vehicles.add_part(self, wielded_item, player)
+            if not got_added then
+                minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] Can't add part: "..reason))
+            end
+        else
+            minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] You don't have access to this vehicle."))
         end
     elseif self._driver == nil then
         if ts_vehicles.helpers.contains(self._owners, player_name) then
@@ -47,15 +51,20 @@ ts_vehicles.handle_rightclick = function(self, player, def)
 end
 
 ts_vehicles.handle_leftclick = function(self, player, def)
-    if #self._parts == 0 then
-        local inv = player:get_inventory()
-        local leftover = inv:add_item("main", self.name)
-        if leftover:get_count() > 0 then
-            minetest.add_item(player:get_pos(), self.name)
+    local player_name = player:get_player_name()
+    if ts_vehicles.helpers.contains(self._owners, player_name) then
+        if #self._parts == 0 then
+            local inv = player:get_inventory()
+            local leftover = inv:add_item("main", self.name)
+            if leftover:get_count() > 0 then
+                minetest.add_item(player:get_pos(), self.name)
+            end
+            self.object:remove()
+        else
+            ts_vehicles.storage.add_by_player(self, player)
         end
-        self.object:remove()
     else
-        ts_vehicles.storage.add_by_player(self, player)
+        minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] You don't have access to this vehicle."))
     end
 end
 
@@ -81,14 +90,14 @@ ts_vehicles.handle_turn = function(self, driver, control, dtime)
     local yaw = vehicle:get_yaw() % (math.pi * 2)
     if control then
         if control.left then
-            local delta = (dtime * self._v / 10)
+            local delta = (dtime * self._v / 5)
             yaw = yaw + delta
             ts_vehicles.helpers.turn_player(driver, delta)
             ts_vehicles.passengers.turn(self, delta)
             vehicle:set_yaw(yaw)
         end
         if control.right then
-            local delta = (dtime * self._v / 10)
+            local delta = (dtime * self._v / 5)
             yaw = yaw - delta
             ts_vehicles.helpers.turn_player(driver, -delta)
             ts_vehicles.passengers.turn(self, delta)
