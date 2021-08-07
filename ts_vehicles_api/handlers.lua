@@ -1,14 +1,51 @@
 ts_vehicles.handle_rightclick = function(self, player, def)
     local player_name = player:get_player_name()
     local wielded_item = player:get_wielded_item()
+    local item_name = wielded_item:get_name()
     local control = player:get_player_control()
+    local refill_tanks = {
+        "techage:ta3_barrel_gasoline", "techage:ta3_canister_gasoline",
+        "techage:cylinder_small_hydrogen", "techage:cylinder_large_hydrogen",
+        "techage:ta3_akku"
+    }
     if control.sneak then
         ts_vehicles.show_formspec(self, player, def)
-    elseif ts_vehicles.registered_parts[wielded_item:get_name()] and ts_vehicles.registered_compatibilities[self.name][wielded_item:get_name()] then
+    elseif ts_vehicles.registered_parts[item_name] and ts_vehicles.registered_compatibilities[self.name][item_name] then
         if ts_vehicles.helpers.contains(self._owners, player_name) then
             local got_added, reason = ts_vehicles.add_part(self, wielded_item, player)
             if not got_added then
                 minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] Can't add part: "..reason))
+            end
+        else
+            minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] You don't have access to this vehicle."))
+        end
+    elseif ts_vehicles.helpers.contains(refill_tanks, item_name) then
+        if ts_vehicles.helpers.contains(self._owners, player_name) then
+            if item_name == "techage:ta3_barrel_gasoline" or item_name == "techage:ta3_canister_gasoline" then
+                local amount = item_name == "techage:ta3_barrel_gasoline" and 10 or 1
+                local free = ts_vehicles.helpers.get_total_value(self, "gasoline_capacity") - (self._data.gasoline or 0)
+                if amount <= free then
+                    self._data.gasoline = (self._data.gasoline or 0) + amount
+                    player:set_wielded_item(item_name == "techage:ta3_barrel_gasoline" and "techage:ta3_barrel_empty" or "techage:ta3_canister_empty")
+                end
+            elseif item_name == "techage:cylinder_large_hydrogen" or item_name == "techage:cylinder_small_hydrogen" then
+                local amount = item_name == "techage:cylinder_large_hydrogen" and 6 or 1
+                local free = ts_vehicles.helpers.get_total_value(self, "hydrogen_capacity") - (self._data.hydrogen or 0)
+                if amount <= free then
+                    self._data.hydrogen = (self._data.hydrogen or 0) + amount
+                    player:set_wielded_item(item_name == "techage:cylinder_large_hydrogen" and "techage:ta3_cylinder_large" or "techage:ta3_cylinder_small")
+                end
+            elseif item_name == "techage:ta3_akku" then
+                local meta = wielded_item:get_meta()
+                local count = wielded_item:get_count()
+                local free = ts_vehicles.helpers.get_total_value(self, "electricity_capacity") - (self._data.electricity or 0)
+                local capa = meta:get_int("capa") * count
+                local amount = math.min(free, capa)
+                self._data.electricity = (self._data.electricity or 0) + amount
+                local new_capa = math.floor(((capa - amount) / count) / 5) * 5
+                meta:set_int("capa", new_capa)
+                meta:set_string("description", techage.S("TA3 Accu Box").." ("..new_capa.." %)")
+                player:set_wielded_item(wielded_item)
             end
         else
             minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] You don't have access to this vehicle."))
