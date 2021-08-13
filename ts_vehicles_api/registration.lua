@@ -58,7 +58,7 @@ ts_vehicles.register_vehicle_base = function(name, def)
             visual_size = { x = scale_factor, y = scale_factor, z = scale_factor },
             physical = true,
             collide_with_objects = true,
-            stepheight = def.stepheight or 0.5,
+            stepheight = def.stepheight or 0.55,
         },
         on_rightclick = function(self, player)
             ts_vehicles.handle_rightclick(self, player, def)
