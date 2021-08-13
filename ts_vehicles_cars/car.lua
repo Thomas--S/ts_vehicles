@@ -8,6 +8,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:car", {
     item_description = "Car Construction Stand",
     collisionbox = {-1.375, -0.5, -1.25, 1.375, 1.5, 1.375},
     selectionbox = {-1.375, -0.5, -1.25, 1.375, 1.5, 1.375},
+    scale_factor = .8,
     mesh = "ts_vehicles_cars_car.obj",
     -- The names are intentional; the mapping to the actual textures should happen in API,
     -- according to the get_texture functions of the registered compatibilities.

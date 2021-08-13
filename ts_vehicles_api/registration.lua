@@ -16,6 +16,15 @@ end
 
 ts_vehicles.register_vehicle_base = function(name, def)
     def.name = name
+    local scale_factor = def.scale_factor or 1
+    for i = 1,6 do
+        def.collisionbox[i] = def.collisionbox[i] * scale_factor
+        def.selectionbox[i] = def.selectionbox[i] * scale_factor
+    end
+    def.gasoline_hose_offset = vector.multiply(def.gasoline_hose_offset, scale_factor)
+    def.hydrogen_hose_offset = vector.multiply(def.hydrogen_hose_offset, scale_factor)
+    def.electricity_hose_offset = vector.multiply(def.electricity_hose_offset, scale_factor)
+
     ts_vehicles.registered_vehicle_bases[name] = def
     ts_vehicles.registered_compatibilities[name] = {}
     minetest.register_craftitem(":"..name, {
@@ -46,6 +55,7 @@ ts_vehicles.register_vehicle_base = function(name, def)
             selectionbox = def.selectionbox,
             visual = "mesh",
             mesh = def.mesh,
+            visual_size = { x = scale_factor, y = scale_factor, z = scale_factor },
             physical = true,
             collide_with_objects = true,
             stepheight = def.stepheight or 0.5,
