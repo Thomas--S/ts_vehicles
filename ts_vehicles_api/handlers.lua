@@ -212,6 +212,14 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
     ts_vehicles.apply_textures(self, ts_vehicles.build_textures(def.name, def.textures, self._parts, self))
     ts_vehicles.car_light_beam(self)
 
+    local tire_pos, car_length = ts_vehicles.helpers.get_rotated_collisionbox_corners(self)
+    local max_depth = def.stepheight * car_length
+
+    local front_downwards_space = math.min(ts_vehicles.helpers.downwards_space(tire_pos[1], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[2], max_depth))
+    local back_downwards_space = math.min(ts_vehicles.helpers.downwards_space(tire_pos[3], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[4], max_depth))
+    local delta_y = front_downwards_space - back_downwards_space
+
+    ts_vehicles.helpers.pitch_vehicle(self, delta_y, car_length, def)
 end
 
 ts_vehicles.remove_part = function(self, part_name, player)

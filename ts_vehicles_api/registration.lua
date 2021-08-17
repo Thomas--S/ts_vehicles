@@ -16,11 +16,14 @@ end
 
 ts_vehicles.register_vehicle_base = function(name, def)
     def.name = name
+    def.stepheight = def.stepheight or 0.55
     local scale_factor = def.scale_factor or 1
     for i = 1,6 do
         def.collisionbox[i] = def.collisionbox[i] * scale_factor
         def.selectionbox[i] = def.selectionbox[i] * scale_factor
     end
+    def.scaled_collisionbox = table.copy(def.collisionbox)
+    def.scaled_selectionbox = table.copy(def.selectionbox)
     def.gasoline_hose_offset = vector.multiply(def.gasoline_hose_offset, scale_factor)
     def.hydrogen_hose_offset = vector.multiply(def.hydrogen_hose_offset, scale_factor)
     def.electricity_hose_offset = vector.multiply(def.electricity_hose_offset, scale_factor)
@@ -58,7 +61,7 @@ ts_vehicles.register_vehicle_base = function(name, def)
             visual_size = { x = scale_factor, y = scale_factor, z = scale_factor },
             physical = true,
             collide_with_objects = true,
-            stepheight = def.stepheight or 0.55,
+            stepheight = def.stepheight,
         },
         on_rightclick = function(self, player)
             ts_vehicles.handle_rightclick(self, player, def)

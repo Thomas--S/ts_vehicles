@@ -115,3 +115,45 @@ ts_vehicles.helpers.create_texture_for_fs_mesh = function(textures)
     end
     return texture_string
 end
+
+ts_vehicles.helpers.pitch_vehicle = function(self, delta_y, length, def)
+    local obj = self.object
+    local collisionbox = obj:get_properties().collisionbox
+    local selectionbox = obj:get_properties().selectionbox
+    local rotation = obj:get_rotation()
+    local pitch = math.atan(delta_y/length)
+    obj:set_properties({
+        collisionbox = {
+            collisionbox[1], def.scaled_collisionbox[2] + delta_y/2, collisionbox[3],
+            collisionbox[4], def.scaled_collisionbox[5] + delta_y/2, collisionbox[6],
+        },
+        selectionbox = {
+            selectionbox[1], def.scaled_selectionbox[2] + delta_y/2, selectionbox[3],
+            selectionbox[4], def.scaled_selectionbox[5] + delta_y/2, selectionbox[6],
+        }
+    })
+    obj:set_rotation(vector.new(pitch, rotation.y, rotation.z))
+end
+
+ts_vehicles.helpers.downwards_space = function(pos, max_depth)
+    local collision = minetest.raycast(pos, vector.new(pos.x, pos.y - max_depth, pos.z), false, false):next()
+    if collision then
+        return collision.intersection_point.y - pos.y
+    else
+        return max_depth
+    end
+end
+
+ts_vehicles.helpers.get_rotated_collisionbox_corners = function(self)
+    local obj = self.object
+    local collisionbox = obj:get_properties().collisionbox
+    local rotation = obj:get_rotation()
+    local pos = obj:get_pos()
+    local yaw_rotation = vector.new(0,rotation.y,0)
+    return {
+        vector.add(pos, vector.rotate(vector.new(collisionbox[1], collisionbox[2], collisionbox[6]), yaw_rotation)),
+        vector.add(pos, vector.rotate(vector.new(collisionbox[4], collisionbox[2], collisionbox[6]), yaw_rotation)),
+        vector.add(pos, vector.rotate(vector.new(collisionbox[1], collisionbox[2], collisionbox[3]), yaw_rotation)),
+        vector.add(pos, vector.rotate(vector.new(collisionbox[4], collisionbox[2], collisionbox[3]), yaw_rotation)),
+    }, collisionbox[6] - collisionbox[3]
+end
