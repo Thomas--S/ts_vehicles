@@ -26,6 +26,7 @@ ts_vehicles.get_car_velocity = function(self, dtime, control, moveresult, is_ful
 
     local vehicle = self.object
     local velocity = vehicle:get_velocity()
+    velocity.y = 0
     local v = ts_vehicles.helpers.sign(self._v) * vector.length(velocity)
     local new_velocity = v * (self._data.velocity_efficiency or .7) ^ dtime
 

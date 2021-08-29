@@ -213,7 +213,7 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
     ts_vehicles.car_light_beam(self)
 
     local tire_pos, car_length = ts_vehicles.helpers.get_rotated_collisionbox_corners(self)
-    local max_depth = def.stepheight * car_length
+    local max_depth = def.stepheight * car_length * 1.5
 
     local front_downwards_space = math.min(ts_vehicles.helpers.downwards_space(tire_pos[1], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[2], max_depth))
     local back_downwards_space = math.min(ts_vehicles.helpers.downwards_space(tire_pos[3], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[4], max_depth))
