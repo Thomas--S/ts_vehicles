@@ -122,14 +122,15 @@ ts_vehicles.helpers.pitch_vehicle = function(self, delta_y, length, def)
     local selectionbox = obj:get_properties().selectionbox
     local rotation = obj:get_rotation()
     local pitch = math.atan(delta_y/length)
+    local box_offset = math.abs(delta_y/2)
     obj:set_properties({
         collisionbox = {
-            collisionbox[1], def.scaled_collisionbox[2] + delta_y/2, collisionbox[3],
-            collisionbox[4], def.scaled_collisionbox[5] + delta_y/2, collisionbox[6],
+            collisionbox[1], def.scaled_collisionbox[2] + box_offset, collisionbox[3],
+            collisionbox[4], def.scaled_collisionbox[5] + box_offset, collisionbox[6],
         },
         selectionbox = {
-            selectionbox[1], def.scaled_selectionbox[2] + delta_y/2, selectionbox[3],
-            selectionbox[4], def.scaled_selectionbox[5] + delta_y/2, selectionbox[6],
+            selectionbox[1], def.scaled_selectionbox[2] + box_offset, selectionbox[3],
+            selectionbox[4], def.scaled_selectionbox[5] + box_offset, selectionbox[6],
         }
     })
     obj:set_rotation(vector.new(pitch, rotation.y, rotation.z))
