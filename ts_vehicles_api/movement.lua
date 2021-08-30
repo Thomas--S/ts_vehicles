@@ -4,7 +4,7 @@ local ground_factors = ts_vehicles.ground_factors
 
 ts_vehicles.get_car_velocity = function(self, dtime, control, moveresult, is_full_second)
     local engine_power = self._data.engine_power or 0
-    local max_velocity = engine_power
+    local max_velocity = engine_power * .5
     local max_backwards_velocity = max_velocity / 2
     local brake_deceleration = engine_power
     local acceleration = engine_power / 4
@@ -84,7 +84,7 @@ minetest.after(.1, function()
         elseif def.groups.wood or def.groups.tree then
             ground_factors[node_name] = .55
         elseif node_name:find("dirt") then
-            ground_factors[node_name] = .35
+            ground_factors[node_name] = .45
         end
     end
 end)

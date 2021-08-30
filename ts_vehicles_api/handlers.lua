@@ -197,7 +197,7 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
     end
 
     local velocity = vehicle:get_velocity()
-    if velocity.y < -10 then
+    if velocity.y < -20 then
         ts_vehicles.disperse(self)
         return
     end
@@ -328,6 +328,7 @@ ts_vehicles.disperse = function(entity)
             ts_vehicles.up(player)
             entity._driver = nil
             player:set_detach()
+            ts_vehicles.hud.remove(player)
         end
     end
     ts_vehicles.passengers.throw_all_out(entity, "[Vehicle] The vehicle got destroyed")
