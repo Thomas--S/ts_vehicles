@@ -127,14 +127,14 @@ ts_vehicles.handle_turn = function(self, driver, control, dtime)
     local yaw = vehicle:get_yaw() % (math.pi * 2)
     if control then
         if control.left then
-            local delta = (dtime * self._v / 5)
+            local delta = dtime * math.log(math.abs(self._v) + 1) * ts_vehicles.helpers.sign(self._v) / 2
             yaw = yaw + delta
             ts_vehicles.helpers.turn_player(driver, delta)
             ts_vehicles.passengers.turn(self, delta)
             vehicle:set_yaw(yaw)
         end
         if control.right then
-            local delta = (dtime * self._v / 5)
+            local delta = dtime * math.log(math.abs(self._v) + 1) * ts_vehicles.helpers.sign(self._v) / 2
             yaw = yaw - delta
             ts_vehicles.helpers.turn_player(driver, -delta)
             ts_vehicles.passengers.turn(self, delta)

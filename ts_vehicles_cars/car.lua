@@ -718,9 +718,9 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:cha
     get_overlay_textures = function(self)
         local color = self._data.chassis_stripe_color or "#fff"
         return {
-            front = "ts_vehicles_api_blank.png^(ts_vehicles_cars_car_chassis_stripe_front.png^[colorize:"..color..")",
-            side = "ts_vehicles_api_blank.png^(ts_vehicles_cars_car_chassis_stripe_side.png^[colorize:"..color..")",
-            back = "ts_vehicles_api_blank.png^(ts_vehicles_cars_car_chassis_stripe_back.png^[colorize:"..color..")",
+            front = "ts_vehicles_api_blank.png^(ts_vehicles_cars_car_chassis_stripe_front.png^[multiply:"..color..")",
+            side = "ts_vehicles_api_blank.png^(ts_vehicles_cars_car_chassis_stripe_side.png^[multiply:"..color..")",
+            back = "ts_vehicles_api_blank.png^(ts_vehicles_cars_car_chassis_stripe_back.png^[multiply:"..color..")",
         }
     end,
 })
