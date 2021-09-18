@@ -144,21 +144,15 @@ ts_vehicles.handle_turn = function(self, driver, control, dtime)
     return yaw
 end
 
-ts_vehicles.handle_car_light_controls = function(self, control, get_horn)
+ts_vehicles.handle_car_light_controls = function(self, control)
     if control then
         if not control.sneak then
             self._last_light_time = nil
         elseif self._last_light_time == nil then
-            if control.up and control.down then
+            if control.aux1 then
                 self._lights.special = not self._lights.special
                 self._last_light_time = 0
-            elseif control.aux1 and get_horn then
-                minetest.sound_play(get_horn(self), {
-                    object = self.object,
-                    gain = 1.0,
-                    max_hear_distance = 1,
-                })
-            elseif control.left and control.right then
+            elseif control.down then
                 self._lights.warn = not self._lights.warn
                 self._last_light_time = 0
             elseif control.up then
@@ -208,7 +202,7 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
     local dir = minetest.yaw_to_dir(yaw)
     vehicle:set_velocity({x = dir.x * new_velocity, y = velocity.y, z = dir.z * new_velocity})
 
-    ts_vehicles.handle_car_light_controls(self, control, def.get_horn)
+    ts_vehicles.handle_car_light_controls(self, control)
     ts_vehicles.apply_textures(self, ts_vehicles.build_textures(def.name, def.textures, self._parts, self))
     ts_vehicles.car_light_beam(self)
 

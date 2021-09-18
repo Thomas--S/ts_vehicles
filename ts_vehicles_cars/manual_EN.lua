@@ -31,8 +31,8 @@ techage.add_to_manual('EN', {
   "Shift + W: Front lights\n"..
   "Shift + A: Direction indicator (left)\n"..
   "Shift + D: Direction indicator (right)\n"..
-  "Shift + A + D: Warning lights\n"..
-  "Shift + W + S: Special lights (if installed)\n"..
+  "Shift + S: Warning lights\n"..
+  "Shift + E: Special lights (if installed)\n"..
   "\n"..
   "The reversing lights will automatically turn on when driving backwards.\n"..
   "\n",

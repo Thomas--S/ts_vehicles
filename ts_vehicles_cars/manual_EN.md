@@ -28,8 +28,8 @@ The lights can be toggled with the following key combinations:
 Shift + W: Front lights
 Shift + A: Direction indicator (left)
 Shift + D: Direction indicator (right)
-Shift + A + D: Warning lights
-Shift + W + S: Special lights (if installed)
+Shift + S: Warning lights
+Shift + E: Special lights (if installed)
 
 The reversing lights will automatically turn on when driving backwards.
 

@@ -28,8 +28,8 @@ Die Leuchteinrichtungen können mit folgenden Tastenkombinationen ein- und ausge
 Shift + W: Frontlicht
 Shift + A: Blinker (links)
 Shift + D: Blinker (rechts)
-Shift + A + D: Warnblinkanlage
-Shift + W + S: Sondersignal (falls vorhanden)
+Shift + S: Warnblinkanlage
+Shift + E: Sondersignal (falls vorhanden)
 
 Die Rückfahrscheinwerfer schalten sich automatisch ein, sobald man rückwärts fährt.
 

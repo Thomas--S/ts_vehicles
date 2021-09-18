@@ -31,8 +31,8 @@ techage.add_to_manual('DE', {
   "Shift + W: Frontlicht\n"..
   "Shift + A: Blinker (links)\n"..
   "Shift + D: Blinker (rechts)\n"..
-  "Shift + A + D: Warnblinkanlage\n"..
-  "Shift + W + S: Sondersignal (falls vorhanden)\n"..
+  "Shift + S: Warnblinkanlage\n"..
+  "Shift + E: Sondersignal (falls vorhanden)\n"..
   "\n"..
   "Die Rückfahrscheinwerfer schalten sich automatisch ein\\, sobald man rückwärts fährt.\n"..
   "\n",
