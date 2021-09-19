@@ -50,29 +50,25 @@ ts_vehicles.handle_rightclick = function(self, player, def)
         else
             minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] You don't have access to this vehicle."))
         end
-    elseif self._driver == nil then
-        if ts_vehicles.helpers.contains(self._owners, player_name) then
-            local is_driveable, reason = def.is_driveable(self)
-            if is_driveable then
-                local pos = self.object:get_pos()
-                self._driver = player_name
-                ts_vehicles.sit(pos, player, def.driver_pos)
-                player:set_attach(self.object, nil, def.driver_pos, {x=0,y=0,z=0})
-                player:set_look_horizontal(self.object:get_yaw() % (math.pi * 2))
-                ts_vehicles.hud.create(player)
-            else
-                minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] "..reason))
-            end
+    elseif ts_vehicles.passengers.is_passenger(self, player) then
+        ts_vehicles.passengers.up(self, player)
+    elseif self._driver == nil and ts_vehicles.helpers.contains(self._owners, player_name) then
+        local is_driveable, reason = def.is_driveable(self)
+        if is_driveable then
+            local pos = self.object:get_pos()
+            self._driver = player_name
+            ts_vehicles.sit(pos, player, def.driver_pos)
+            player:set_attach(self.object, nil, def.driver_pos, {x=0,y=0,z=0})
+            player:set_look_horizontal(self.object:get_yaw() % (math.pi * 2))
+            ts_vehicles.hud.create(player)
         else
-            minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] You don't have access to this vehicle."))
+            minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] "..reason))
         end
     elseif self._driver == player_name then
         ts_vehicles.up(player)
         self._driver = nil
         player:set_detach()
         ts_vehicles.hud.remove(player)
-    elseif ts_vehicles.passengers.is_passenger(self, player) then
-        ts_vehicles.passengers.up(self, player)
     elseif ts_vehicles.passengers.get_num_free_seats(self, def) > 0 then
         if not self._passengers_closed or ts_vehicles.helpers.contains(self._owners, player_name) then
             local is_driveable, reason = def.is_driveable(self)
@@ -125,18 +121,20 @@ end
 ts_vehicles.handle_turn = function(self, driver, control, dtime)
     local vehicle = self.object
     local yaw = vehicle:get_yaw() % (math.pi * 2)
-    if control then
-        if control.left then
+    if control and (control.left or control.right) then
+        if (self._data.turn_snap or 0) > 0 then
+            self._data.turn_snap = (self._data.turn_snap or 0) - dtime
+        else
             local delta = dtime * math.log(math.abs(self._v) + 1) * ts_vehicles.helpers.sign(self._v) / 2
+            if control.right then delta = -delta end
+            local snap_delta = (yaw + (math.pi / 8)) % (math.pi / 4) - math.pi / 8
+            if math.abs(snap_delta) < math.abs(delta * .9) and math.abs(snap_delta) > 0.001 then
+                delta = -snap_delta
+                self._data.turn_snap = .4
+            end
             yaw = yaw + delta
+            minetest.chat_send_all(yaw * 180 / math.pi)
             ts_vehicles.helpers.turn_player(driver, delta)
-            ts_vehicles.passengers.turn(self, delta)
-            vehicle:set_yaw(yaw)
-        end
-        if control.right then
-            local delta = dtime * math.log(math.abs(self._v) + 1) * ts_vehicles.helpers.sign(self._v) / 2
-            yaw = yaw - delta
-            ts_vehicles.helpers.turn_player(driver, -delta)
             ts_vehicles.passengers.turn(self, delta)
             vehicle:set_yaw(yaw)
         end
