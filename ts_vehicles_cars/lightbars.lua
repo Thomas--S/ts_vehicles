@@ -35,9 +35,6 @@ ts_vehicles_cars.lightbars = {
     }
 }
 
-local restricted_items = {}
-
-
 for _,def in ipairs(ts_vehicles_cars.lightbars) do
     ts_vehicles.register_part("ts_vehicles_cars:"..def.id.."_light", {
         description = def.name.." Light",
@@ -74,22 +71,6 @@ for _,def in ipairs(ts_vehicles_cars.lightbars) do
     })
 
     if def.restricted then
-        restricted_items["ts_vehicles_cars:"..def.id.."_light"] = 1
-        techage.register_uncraftable_items("ts_vehicles_cars:"..def.id.."_light")
+        ts_vehicles_common.register_restricted_item("ts_vehicles_cars:"..def.id.."_light")
     end
 end
-
-local craft_function = function(itemstack, player, old_craft_grid, craft_inv)
-    local itemname = itemstack:get_name()
-    if restricted_items[itemname] then
-        local playername = player:get_player_name()
-        if not minetest.check_player_privs(playername, priv) then
-            minetest.chat_send_player(playername, minetest.colorize("#ff8800", "Only staff members can craft this item."))
-            return ItemStack()
-        end
-    end
-    return itemstack
-end
-
-minetest.register_on_craft(craft_function)
-minetest.register_craft_predict(craft_function)

@@ -19,6 +19,8 @@ ts_vehicles.handle_rightclick = function(self, player, def)
         else
             minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] You don't have access to this vehicle."))
         end
+    elseif item_name == "ts_vehicles_common:universal_key" and minetest.check_player_privs(player_name, ts_vehicles.priv) and not ts_vehicles.helpers.contains(self._owners, player_name) then
+        table.insert(self._owners, player_name)
     elseif ts_vehicles.helpers.contains(refill_tanks, item_name) then
         if ts_vehicles.helpers.contains(self._owners, player_name) then
             if item_name == "techage:ta3_barrel_gasoline" or item_name == "techage:ta3_canister_gasoline" then
