@@ -135,7 +135,6 @@ ts_vehicles.handle_turn = function(self, driver, control, dtime)
                 self._data.turn_snap = .4
             end
             yaw = yaw + delta
-            minetest.chat_send_all(yaw * 180 / math.pi)
             ts_vehicles.helpers.turn_player(driver, delta)
             ts_vehicles.passengers.turn(self, delta)
             vehicle:set_yaw(yaw)
