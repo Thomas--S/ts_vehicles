@@ -8,6 +8,7 @@ techage.add_to_manual('DE', {
   "3,Tankstellen",
   "3,Reservekanister",
   "2,Passagiere",
+  "2,Wagenheber",
 }, {
   "Autos können verwendet werden\\, um Spieler und Waren auf ebenem Terrain über lange Strecken zu befördern.\n"..
   "\n",
@@ -53,6 +54,10 @@ techage.add_to_manual('DE', {
   "\n"..
   "Man kann auswählen\\, ob jeder als Passagier einsteigen kann oder nur Besitzer mitfahren dürfen.\n"..
   "\n",
+  "Manchmal bleiben Autos im Boden stecken.\n"..
+  "In diesem Fall hilft ein Linksklick mit dem Wagenheber auf das Fahrzeug.\n"..
+  "Dadurch wird das Auto einen Block nach oben versetzt.\n"..
+  "\n",
 }, {
   "",
   "",
@@ -63,7 +68,9 @@ techage.add_to_manual('DE', {
   "",
   "",
   "",
+  "",
 }, {
+  "",
   "",
   "",
   "",

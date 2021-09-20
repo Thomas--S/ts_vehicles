@@ -61,4 +61,10 @@ Just enter the car after the driver.
 
 You can choose if you want to open the car for everyone as a passenger or if only owners should be allowed as passengers.
 
+## Lifting Jack
+
+Sometimes, cars get stuck in the ground.
+In this case it helps to left-click the vehicle with a lifting jack.
+This will move the car one block up.
+
 

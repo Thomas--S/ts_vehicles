@@ -268,6 +268,7 @@ ts_vehicles.ensure_is_driveable = function(self)
                 ts_vehicles.up(player)
                 self._driver = nil
                 player:set_detach()
+                ts_vehicles.hud.remove(player)
             end
         end
         ts_vehicles.passengers.throw_all_out(self, reason)
@@ -287,6 +288,7 @@ ts_vehicles.ensure_attachments = function(self)
         if player then
             ts_vehicles.up(player)
             player:set_detach()
+            ts_vehicles.hud.remove(player)
         end
         self._driver = nil
     end

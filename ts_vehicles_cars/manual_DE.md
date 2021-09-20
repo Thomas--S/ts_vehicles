@@ -60,4 +60,9 @@ Einfach nach dem Fahrer einsteigen.
 
 Man kann auswählen, ob jeder als Passagier einsteigen kann oder nur Besitzer mitfahren dürfen.
 
+## Wagenheber
+
+Manchmal bleiben Autos im Boden stecken.
+In diesem Fall hilft ein Linksklick mit dem Wagenheber auf das Fahrzeug.
+Dadurch wird das Auto einen Block nach oben versetzt.
 

@@ -8,6 +8,7 @@ techage.add_to_manual('EN', {
   "3,Stations",
   "3,Emergency fuelling",
   "2,Passengers",
+  "2,Lifting Jack",
 }, {
   "Cars can be used to transport players and goods over long distances on even terrain.\n"..
   "\n",
@@ -54,6 +55,10 @@ techage.add_to_manual('EN', {
   "\n"..
   "You can choose if you want to open the car for everyone as a passenger or if only owners should be allowed as passengers.\n"..
   "\n",
+  "Sometimes\\, cars get stuck in the ground.\n"..
+  "In this case it helps to left-click the vehicle with a lifting jack.\n"..
+  "This will move the car one block up.\n"..
+  "\n",
 }, {
   "",
   "",
@@ -64,7 +69,9 @@ techage.add_to_manual('EN', {
   "",
   "",
   "",
+  "",
 }, {
+  "",
   "",
   "",
   "",

@@ -42,7 +42,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:car", {
     is_driveable = function(self)
         local has = function(group) return ts_vehicles.helpers.any_has_group(self._parts, group) end
         if not has("base_plate") then return false, "A car needs a base plate." end
-        if not has("tires") then return false, "A car needs a tires." end
+        if not has("tires") then return false, "A car needs tires." end
         if not (has("chassis_front") and has("chassis_back") and has("doors")) then
             return false, "A car needs a chassis (incl. doors)."
         end
