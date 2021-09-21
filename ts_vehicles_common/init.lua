@@ -89,7 +89,6 @@ minetest.register_tool("ts_vehicles_common:lifting_jack", {
     on_use = function(itemstack, player, pointed_thing)
         if pointed_thing.type == "object" then
             local object = pointed_thing.ref
-            minetest.chat_send_all(dump(object))
             if object.get_luaentity and object:get_luaentity().name and ts_vehicles.registered_vehicle_bases[object:get_luaentity().name] then
                 object:move_to(vector.add(object:get_pos(), vector.new(0, 1.1, 0)))
                 itemstack:add_wear(1000)
