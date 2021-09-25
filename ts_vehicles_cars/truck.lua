@@ -6,7 +6,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:truck", {
     inventory_image = "ts_vehicles_cars_truck_construction_stand_inv.png",
     description = "Truck",
     item_description = "Truck Construction Stand",
-    collisionbox = {-1.65, -0.5, -1.65, 1.65, 2, 1.65},
+    collisionbox = {-1.55, -0.5, -1.55, 1.55, 2, 1.55},
     selectionbox = {-1.65, -0.5, -1.65, 1.65, 2, 1.65},
     mesh = "ts_vehicles_cars_truck.obj",
     -- The names are intentional; the mapping to the actual textures should happen in API,
