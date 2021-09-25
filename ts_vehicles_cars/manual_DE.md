@@ -1,6 +1,9 @@
-# Fahrzeuge: Autos
+# Fahrzeuge: Autos und Lastwagen
 
-Autos können verwendet werden, um Spieler und Waren auf ebenem Terrain über lange Strecken zu befördern.
+Autos und Lastwagen können verwendet werden, um Spieler und Waren auf ebenem Terrain über lange Strecken zu befördern.
+
+Im Folgenden werden die Einzelheiten am Beispiel des Autos erklärt.
+Lastwagen funktionieren entsprechend.
 
 ## Herstellung
 
@@ -65,4 +68,11 @@ Man kann auswählen, ob jeder als Passagier einsteigen kann oder nur Besitzer mi
 Manchmal bleiben Autos im Boden stecken.
 In diesem Fall hilft ein Linksklick mit dem Wagenheber auf das Fahrzeug.
 Dadurch wird das Auto einen Block nach oben versetzt.
+
+## Tanklastwagen
+
+Lastwagen können mit einem Tank ausgestattet werden, um große Mengen an Flüssigkeiten zu transportieren.
+
+Zum Befüllen und Entleeren des Tanks wird ein "Tank Terminal" benötigt, welches ähnlich wie eine Zapfsäule funktioniert.
+Der Unterschied ist, dass sich der Pumpenanschluss auf der Rückseite befindet und beide Pumprichtungen möglich sind.
 

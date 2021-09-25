@@ -43,7 +43,7 @@ ts_vehicles.show_formspec = function(self, player)
             function(...) return nil end
     )(self, player)
     local storage_capacity = ts_vehicles.helpers.get_total_value(self, "storage_capacity")
-    local tank_capacity = ts_vehicles.helpers.get_total_value(self, "tank_capacity")
+    local payload_tank_capacity = ts_vehicles.helpers.get_total_value(self, "payload_tank_capacity")
     local gasoline_capacity = ts_vehicles.helpers.get_total_value(self, "gasoline_capacity")
     local hydrogen_capacity = ts_vehicles.helpers.get_total_value(self, "hydrogen_capacity")
     local electricity_capacity = ts_vehicles.helpers.get_total_value(self, "electricity_capacity")
@@ -203,28 +203,47 @@ ts_vehicles.show_formspec = function(self, player)
         fs = fs.."style_type[label;font_size=*1]"
         fs = fs.."style_type[label;font=normal]"
         y = 1.25
+        fs = fs.."style[show_void;bgcolor=red]"
+        fs = fs.."button[9.5,"..(y-.25)..";6,.5;show_void;Show buttons to empty tanks (Danger!)]"
         if storage_capacity > 0 then
             fs = fs.."item_image[.5,"..(y-.25)..";.5,.5;default:chest]"
             fs = fs.."label[1.125,"..y..";Storage: "..ts_vehicles.storage.get_total_count(self).." / "..storage_capacity.."]"
             fs = fs.."button[5,"..(y-.25)..";4,.5;open_storage;Open Storage]"
             y = y + .625
         end
+        if payload_tank_capacity > 0 then
+            local itemname = ts_vehicles.helpers.get_payload_tank_content_name(self)
+            local desc = (minetest.registered_items[itemname] or {}).description or "empty"
+            fs = fs.."item_image[.5,"..(y-.25)..";.5,.5;"..(itemname or "techage:oiltank").."]"
+            local amount = math.round((self._data.payload_tank_amount or 0)*100)/100
+            fs = fs.."label[1.125,"..y..";Payload Tank ("..desc.."): "..E(amount).." / "..payload_tank_capacity.."]"
+            if self._tmp.show_void then
+                fs = fs.."button[9.5,"..(y-.25)..";4,.5;void_payload_tank;Void payload tank contents]"
+            end
+            y = y + .625
+        end
         if gasoline_capacity > 0 then
             fs = fs.."item_image[.5,"..(y-.25)..";.5,.5;techage:gasoline]"
             fs = fs.."label[1.125,"..y..";Fuel (Gasoline): "..E(math.round((self._data.gasoline or 0)*100)/100).." / "..gasoline_capacity.."]"
-            fs = fs.."button[5,"..(y-.25)..";4,.5;void_gasoline_tank;Void gasoline tank contents]"
+            if self._tmp.show_void then
+                fs = fs.."button[9.5,"..(y-.25)..";4,.5;void_gasoline_tank;Void gasoline tank contents]"
+            end
             y = y + .625
         end
         if hydrogen_capacity > 0 then
             fs = fs.."item_image[.5,"..(y-.25)..";.5,.5;techage:hydrogen]"
             fs = fs.."label[1.125,"..y..";Fuel (Hydrogen): "..E(math.round((self._data.hydrogen or 0)*100)/100).." / "..hydrogen_capacity.."]"
-            fs = fs.."button[5,"..(y-.25)..";4,.5;void_hydrogen_tank;Void hydrogen tank contents]"
+            if self._tmp.show_void then
+                fs = fs.."button[9.5,"..(y-.25)..";4,.5;void_hydrogen_tank;Void hydrogen tank contents]"
+            end
             y = y + .625
         end
         if electricity_capacity > 0 then
             fs = fs.."image[.5,"..(y-.25)..";.5,.5;techage_battery_inventory.png]"
             fs = fs.."label[1.125,"..y..";Battery: "..E(math.round((self._data.electricity or 0)*100)/100).." / ".. electricity_capacity .."]"
-            fs = fs.."button[5,"..(y-.25)..";4,.5;void_battery;Void battery charge]"
+            if self._tmp.show_void then
+                fs = fs.."button[9.5,"..(y-.25)..";4,.5;void_battery;Void battery charge]"
+            end
             y = y + .625
         end
         fs = fs.."container_end[]"
@@ -246,6 +265,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         end
     end
     if not entity or fields.quit or not ts_vehicles.helpers.contains(entity._owners, player_name) then
+        if entity then
+            entity._tmp.show_void = false
+        end
         player_currently_editing_entity[player_name] = nil
         player_currently_editing_part[player_name] = nil
         return
@@ -286,6 +308,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         entity._tmp.fs_storage_page = math.min(math.ceil(#entity._storage/items_per_page), ((entity._tmp.fs_storage_page or 1) + 1))
     elseif fields.passengers_closed then
         entity._passengers_closed = fields.passengers_closed == "true"
+    elseif fields.show_void then
+        entity._tmp.show_void = not entity._tmp.show_void
+    elseif fields.void_payload_tank then
+        entity._data.payload_tank_amount = 0
     elseif fields.void_gasoline_tank then
         entity._data.gasoline = 0
     elseif fields.void_hydrogen_tank then
@@ -321,6 +347,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 player_currently_editing_part[player_name] = part
             end
         end
+    end
+    if not fields.show_void then
+        entity._tmp.show_void = false
     end
     ts_vehicles.show_formspec(entity, player)
 end)

@@ -1,5 +1,5 @@
 techage.add_to_manual('EN', {
-  "1,Vehicles: Cars",
+  "1,Vehicles: Cars and Trucks",
   "2,Construction",
   "2,Control",
   "3,Lights",
@@ -9,8 +9,12 @@ techage.add_to_manual('EN', {
   "3,Emergency fuelling",
   "2,Passengers",
   "2,Lifting Jack",
+  "2,Tanker Truck",
 }, {
-  "Cars can be used to transport players and goods over long distances on even terrain.\n"..
+  "Cars and trucks can be used to transport players and goods over long distances on even terrain.\n"..
+  "\n"..
+  "In the following\\, the details will be explained using the car as an example.\n"..
+  "Trucks work similarly.\n"..
   "\n",
   "First of all\\, you have to place a car construction stand.\n"..
   "You can then add parts to your car by right-clicking it with them.\n"..
@@ -59,6 +63,11 @@ techage.add_to_manual('EN', {
   "In this case it helps to left-click the vehicle with a lifting jack.\n"..
   "This will move the car one block up.\n"..
   "\n",
+  "Trucks can be equipped with a payload tank to transport large amounts of liquids.\n"..
+  "\n"..
+  "The tanks can be filled and emptied by using a tank terminal\\, which works similar to the fuel stations.\n"..
+  "The main difference is\\, that the tank terminal connects to the pump from the back side and pumping is possible in both directions.\n"..
+  "\n",
 }, {
   "",
   "",
@@ -70,7 +79,9 @@ techage.add_to_manual('EN', {
   "",
   "",
   "",
+  "",
 }, {
+  "",
   "",
   "",
   "",

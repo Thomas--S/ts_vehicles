@@ -37,7 +37,7 @@ ts_vehicles_cars.lightbars = {
 
 for _,def in ipairs(ts_vehicles_cars.lightbars) do
     ts_vehicles.register_part("ts_vehicles_cars:"..def.id.."_light", {
-        description = def.name.." Light",
+        description = def.name.." Light"..(def.restricted and " (Authorized Personell Only)" or ""),
         inventory_image = def.on1.."^[mask:ts_vehicles_cars_roof_attachment_inv_mask.png",
         groups = { roof_attachment = 1, },
         get_formspec = function(self, player)

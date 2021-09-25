@@ -1,5 +1,5 @@
 techage.add_to_manual('DE', {
-  "1,Fahrzeuge: Autos",
+  "1,Fahrzeuge: Autos und Lastwagen",
   "2,Herstellung",
   "2,Steuerung",
   "3,Licht",
@@ -9,8 +9,12 @@ techage.add_to_manual('DE', {
   "3,Reservekanister",
   "2,Passagiere",
   "2,Wagenheber",
+  "2,Tanklastwagen",
 }, {
-  "Autos können verwendet werden\\, um Spieler und Waren auf ebenem Terrain über lange Strecken zu befördern.\n"..
+  "Autos und Lastwagen können verwendet werden\\, um Spieler und Waren auf ebenem Terrain über lange Strecken zu befördern.\n"..
+  "\n"..
+  "Im Folgenden werden die Einzelheiten am Beispiel des Autos erklärt.\n"..
+  "Lastwagen funktionieren entsprechend.\n"..
   "\n",
   "Zunächst muss ein \"Car Construction Stand\" platziert werden.\n"..
   "Anschließend kannst du per Rechtsklick Teile zum Fahrzeug hinzufügen.\n"..
@@ -58,6 +62,11 @@ techage.add_to_manual('DE', {
   "In diesem Fall hilft ein Linksklick mit dem Wagenheber auf das Fahrzeug.\n"..
   "Dadurch wird das Auto einen Block nach oben versetzt.\n"..
   "\n",
+  "Lastwagen können mit einem Tank ausgestattet werden\\, um große Mengen an Flüssigkeiten zu transportieren.\n"..
+  "\n"..
+  "Zum Befüllen und Entleeren des Tanks wird ein \"Tank Terminal\" benötigt\\, welches ähnlich wie eine Zapfsäule funktioniert.\n"..
+  "Der Unterschied ist\\, dass sich der Pumpenanschluss auf der Rückseite befindet und beide Pumprichtungen möglich sind.\n"..
+  "\n",
 }, {
   "",
   "",
@@ -69,7 +78,9 @@ techage.add_to_manual('DE', {
   "",
   "",
   "",
+  "",
 }, {
+  "",
   "",
   "",
   "",

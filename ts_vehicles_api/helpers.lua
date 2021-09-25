@@ -141,7 +141,7 @@ ts_vehicles.helpers.downwards_space = function(pos, max_depth)
     if collision then
         return collision.intersection_point.y - pos.y
     else
-        return max_depth
+        return -max_depth
     end
 end
 
@@ -157,4 +157,15 @@ ts_vehicles.helpers.get_rotated_collisionbox_corners = function(self)
         vector.add(pos, vector.rotate(vector.new(collisionbox[1], collisionbox[2], collisionbox[3]), yaw_rotation)),
         vector.add(pos, vector.rotate(vector.new(collisionbox[4], collisionbox[2], collisionbox[3]), yaw_rotation)),
     }, collisionbox[6] - collisionbox[3]
+end
+
+
+ts_vehicles.helpers.get_payload_tank_content_name = function(entity)
+    if entity._data.payload_tank_amount == 0 then
+        return nil
+    end
+    if entity._data.payload_tank_name then
+        return entity._data.payload_tank_name
+    end
+    return nil
 end

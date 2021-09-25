@@ -242,3 +242,125 @@ minetest.register_craft({
         {"", "techage:electric_cableS", ""},
     },
 })
+
+
+
+
+
+
+minetest.register_node("ts_vehicles_common:tank_terminal", {
+    description = "Tank Terminal",
+    tiles = {
+        -- up, down, right, left, back, front
+        "basic_materials_concrete_block.png",
+        "basic_materials_concrete_block.png",
+        "basic_materials_concrete_block.png",
+        "basic_materials_concrete_block.png",
+        "basic_materials_concrete_block.png^techage_gaspipe_hole.png",
+        "basic_materials_concrete_block.png^(ts_vehicles_common_station.png^[multiply:#ccc)",
+    },
+    drawtype = "normal",
+    after_place_node = function(pos)
+        Pipe:after_place_node(pos)
+    end,
+    after_dig_node = function(pos, oldnode, oldmetadata, digger)
+        Pipe:after_dig_node(pos)
+        techage.del_mem(pos)
+    end,
+    on_construct = function(pos)
+        update_fs(pos)
+    end,
+    on_rightclick = function(pos)
+        update_fs(pos)
+    end,
+    paramtype = "light",
+    paramtype2 = "facedir",
+    on_rotate = screwdriver.disallow,
+    groups = {cracky=2},
+    is_ground_content = false,
+    sounds = default.node_sound_metal_defaults(),
+    _station = {
+        hose_offset = vector.new(.25, .25, -0.55),
+        title = "Tank Terminal",
+        help_text = "Select a vehicle to connect to.",
+        color = "#ccc",
+        type = "payload_tank",
+        maxlength = 3,
+    },
+    on_receive_fields = ts_vehicles.hose.station_receive_fields
+})
+
+liquid.register_nodes({"ts_vehicles_common:tank_terminal"}, Pipe, "tank", {"B"}, {
+    capa = 1000000,
+    peek = function(pos, indir)
+        local object = ts_vehicles.hose.get_connected_vehicle(pos)
+        if not object then
+            return nil
+        end
+        local entity = object:get_luaentity()
+        return ts_vehicles.helpers.get_payload_tank_content_name(entity)
+    end,
+    put = function(pos, indir, name, amount)
+        local object = ts_vehicles.hose.get_connected_vehicle(pos)
+        if not object then
+            return amount
+        end
+        local entity = object:get_luaentity()
+        local tank_content_name = ts_vehicles.helpers.get_payload_tank_content_name(entity)
+        if tank_content_name ~= nil and name ~= tank_content_name then
+            return amount
+        end
+        local max = ts_vehicles.helpers.get_total_value(entity, "payload_tank_capacity")
+        local to_be_added = math.max(math.min(amount, max - (entity._data.payload_tank_amount or 0)), 0)
+        entity._data.payload_tank_amount = (entity._data.payload_tank_amount or 0) + to_be_added
+        entity._data.payload_tank_name = name
+        return amount - to_be_added
+    end,
+    take = function(pos, indir, name, amount)
+        local object = ts_vehicles.hose.get_connected_vehicle(pos)
+        if not object then
+            return 0
+        end
+        local entity = object:get_luaentity()
+        local tank_content_name = ts_vehicles.helpers.get_payload_tank_content_name(entity)
+
+        if not name or tank_content_name == name then
+            name = tank_content_name
+            local src_amount = entity._data.payload_tank_amount or 0
+            if src_amount > amount then
+                entity._data.payload_tank_amount = entity._data.payload_tank_amount - amount
+                return amount, name
+            else
+                entity._data.payload_tank_amount = 0
+                entity._data.payload_tank_name = nil
+                return src_amount, tank_content_name
+            end
+        end
+        return 0
+    end,
+    untake = function(pos, outdir, name, amount, player_name)
+        local object = ts_vehicles.hose.get_connected_vehicle(pos)
+        if not object then
+            return amount
+        end
+        local entity = object:get_luaentity()
+        local tank_content_name = ts_vehicles.helpers.get_payload_tank_content_name(entity)
+        if tank_content_name ~= nil and name ~= tank_content_name then
+            return amount
+        end
+        local max = ts_vehicles.helpers.get_total_value(entity, "payload_tank_capacity")
+        local to_be_added = math.max(math.min(amount, max - (entity._data.payload_tank_amount or 0)), 0)
+        entity._data.payload_tank_amount = (entity._data.payload_tank_amount or 0) + to_be_added
+        entity._data.payload_tank_name = name
+        return amount - to_be_added
+    end,
+})
+
+minetest.register_craft({
+    output = "ts_vehicles_common:tank_terminal",
+    recipe = {
+        {"ts_vehicles_common:composite_material", "basic_materials:ic", ""},
+        {"techage:ta3_pipeS", "basic_materials:concrete_block", "default:mese_crystal"},
+        {"", "techage:ta3_pipeS", ""},
+    },
+})

@@ -2,8 +2,8 @@ ts_vehicles.ground_factors = {}
 
 local ground_factors = ts_vehicles.ground_factors
 
-ts_vehicles.get_car_velocity = function(self, dtime, control, moveresult, is_full_second)
-    local engine_power = self._data.engine_power or 0
+ts_vehicles.get_car_velocity = function(self, dtime, control, moveresult, def, is_full_second)
+    local engine_power = (self._data.engine_power or 0) * (def.efficiency or 1)
     local max_velocity = engine_power * .5
     local max_backwards_velocity = max_velocity / 2
     local brake_deceleration = engine_power

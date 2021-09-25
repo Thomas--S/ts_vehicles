@@ -1,6 +1,9 @@
-# Vehicles: Cars
+# Vehicles: Cars and Trucks
 
-Cars can be used to transport players and goods over long distances on even terrain.
+Cars and trucks can be used to transport players and goods over long distances on even terrain.
+
+In the following, the details will be explained using the car as an example.
+Trucks work similarly.
 
 ## Construction
 
@@ -67,4 +70,11 @@ Sometimes, cars get stuck in the ground.
 In this case it helps to left-click the vehicle with a lifting jack.
 This will move the car one block up.
 
+
+## Tanker Truck
+
+Trucks can be equipped with a payload tank to transport large amounts of liquids.
+
+The tanks can be filled and emptied by using a tank terminal, which works similar to the fuel stations.
+The main difference is, that the tank terminal connects to the pump from the back side and pumping is possible in both directions.
 

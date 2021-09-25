@@ -161,9 +161,9 @@ minetest.register_craft({
 
 
 ts_vehicles.register_part("ts_vehicles_cars:chassis_text", {
-    description = "Text on car chassis",
+    description = "Text on car chassis/truck cabin",
     inventory_image = "ts_vehicles_cars_chassis_text_inv.png",
-    groups = { chassis_accessory = 1, },
+    groups = { chassis_accessory = 1, cabin_accessory = 1 },
     colorable = true,
     default_color = "#000",
     get_formspec = function(self, player)
@@ -173,7 +173,7 @@ ts_vehicles.register_part("ts_vehicles_cars:chassis_text", {
         fs = fs.."label[0,.25;Set text for the chassis]"
         fs = fs.."style_type[label;font_size=*1]"
         fs = fs.."style_type[label;font=normal]"
-        fs = fs.."field[0,1;3,1;text;;"..minetest.formspec_escape(self._data.chassis_text or "").."]"
+        fs = fs.."textarea[0,1;3,1;text;;"..minetest.formspec_escape(self._data.chassis_text or "").."]"
         fs = fs.."button[3,1;1.5,1;set;Set]"
         return fs
     end,
@@ -212,9 +212,9 @@ minetest.register_craft({
 
 
 ts_vehicles.register_part("ts_vehicles_cars:chassis_stripe", {
-    description = "Stripe on car chassis",
+    description = "Stripe on car chassis/truck cabin",
     inventory_image = "ts_vehicles_cars_car_chassis_stripe_side.png",
-    groups = { chassis_accessory = 1, },
+    groups = { chassis_accessory = 1, cabin_accessory = 1 },
     colorable = true,
     default_color = "#fff",
     after_part_add = function(self, item)
@@ -262,7 +262,7 @@ minetest.register_craft({
 
 
 ts_vehicles.register_part("ts_vehicles_cars:windows", {
-    description = "Car Windows (incl. Windscreen)",
+    description = "Car/Truck Windows (incl. Windscreen)",
     inventory_image = "ts_vehicles_cars_windows.png",
     groups = { windscreen = 1, windows = 1},
 })

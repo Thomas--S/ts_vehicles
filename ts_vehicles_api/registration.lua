@@ -172,6 +172,7 @@ ts_vehicles.register_part = function(name, def)
     minetest.register_craftitem(":"..name, {
         description = def.description,
         inventory_image = def.inventory_image,
+        inventory_overlay = def.inventory_overlay,
         _ts_vehicles = {
             colorable = def.colorable,
         },

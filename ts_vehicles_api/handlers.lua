@@ -176,6 +176,8 @@ ts_vehicles.handle_car_light_controls = function(self, control)
             stop_lights = self._v > 0 and true or stop_lights
         end
         self._lights.stop = stop_lights
+    else
+        self._lights.stop = false
     end
     self._lights.back = self._v < 0
 end
@@ -194,7 +196,7 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
         ts_vehicles.disperse(self)
         return
     end
-    local new_velocity = ts_vehicles.get_car_velocity(self, dtime, control, moveresult, is_full_second)
+    local new_velocity = ts_vehicles.get_car_velocity(self, dtime, control, moveresult, def, is_full_second)
     self._data.total_distance = (self._data.total_distance or 0) + dtime * self._v
     self._v = new_velocity
     local yaw = ts_vehicles.handle_turn(self, player, control, dtime)
@@ -202,14 +204,16 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
     vehicle:set_velocity({x = dir.x * new_velocity, y = velocity.y, z = dir.z * new_velocity})
 
     ts_vehicles.handle_car_light_controls(self, control)
-    ts_vehicles.apply_textures(self, ts_vehicles.build_textures(def.name, def.textures, self._parts, self))
+    if is_full_second then
+        ts_vehicles.apply_textures(self, ts_vehicles.build_textures(def.name, def.textures, self._parts, self))
+    end
     ts_vehicles.car_light_beam(self)
 
     local tire_pos, car_length = ts_vehicles.helpers.get_rotated_collisionbox_corners(self)
     local max_depth = def.stepheight * car_length * 1.5
 
-    local front_downwards_space = math.min(ts_vehicles.helpers.downwards_space(tire_pos[1], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[2], max_depth))
-    local back_downwards_space = math.min(ts_vehicles.helpers.downwards_space(tire_pos[3], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[4], max_depth))
+    local front_downwards_space = math.max(ts_vehicles.helpers.downwards_space(tire_pos[1], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[2], max_depth))
+    local back_downwards_space = math.max(ts_vehicles.helpers.downwards_space(tire_pos[3], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[4], max_depth))
     local delta_y = front_downwards_space - back_downwards_space
 
     ts_vehicles.helpers.pitch_vehicle(self, delta_y, car_length, def)

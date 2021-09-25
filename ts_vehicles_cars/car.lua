@@ -6,8 +6,8 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:car", {
     inventory_image = "ts_vehicles_cars_construction_stand_inv.png",
     description = "Car",
     item_description = "Car Construction Stand",
-    collisionbox = {-1.375, -0.5, -1.25, 1.375, 1.5, 1.375},
-    selectionbox = {-1.375, -0.5, -1.25, 1.375, 1.5, 1.375},
+    collisionbox = {-1.375, -0.5, -1.375, 1.375, 1.5, 1.375},
+    selectionbox = {-1.375, -0.5, -1.375, 1.375, 1.5, 1.375},
     scale_factor = .8,
     mesh = "ts_vehicles_cars_car.obj",
     -- The names are intentional; the mapping to the actual textures should happen in API,
@@ -161,6 +161,9 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:car", {
         end
         if ts_vehicles.helpers.get_total_value(self, "hydrogen_capacity", parts) < (self._data.hydrogen or 0) then
             return false, "Not enough hydrogen capacity."
+        end
+        if ts_vehicles.helpers.get_total_value(self, "electricity_capacity", parts) < (self._data.electricity or 0) then
+            return false, "Not enough electricity capacity."
         end
         return true
     end,
@@ -331,7 +334,7 @@ minetest.register_craft({
 
 
 ts_vehicles.register_part("ts_vehicles_cars:car_roof", {
-    description = "Car Roof",
+    description = "Car/Truck Roof",
     inventory_image = "ts_vehicles_cars_base_plate_inv_mask.png",
     groups = { roof = 1},
     colorable = true,
@@ -440,7 +443,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:car
             color = self._data.pillars_a_color
         end
         return {
-            pillars_a = "ts_vehicles_cars_car_pillar.png^[multiply:"..color,
+            pillars_a = "ts_vehicles_cars_pillar.png^[multiply:"..color,
         }
     end,
 })
@@ -452,7 +455,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:car
             color = self._data.pillars_bc_color
         end
         return {
-            pillars_bc = "ts_vehicles_cars_car_pillar.png^[multiply:"..color,
+            pillars_bc = "ts_vehicles_cars_pillar.png^[multiply:"..color,
         }
     end,
 })
@@ -480,7 +483,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:car
             color = self._data.roof_color
         end
         return {
-            roof = "ts_vehicles_cars_car_roof.png^[multiply:"..color,
+            roof = "ts_vehicles_cars_roof.png^[multiply:"..color,
         }
     end,
 })
