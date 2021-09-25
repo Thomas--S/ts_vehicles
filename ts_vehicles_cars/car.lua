@@ -270,7 +270,7 @@ minetest.register_craft({
 
 
 ts_vehicles.register_part("ts_vehicles_cars:car_chassis_pillars_a", {
-    description = "Car Pillar (A)",
+    description = "Car/Truck Pillar (A)",
     inventory_image = "ts_vehicles_cars_pillars_a_inv.png",
     groups = { chassis_pillars_a = 1, },
     colorable = true,
@@ -366,7 +366,7 @@ minetest.register_craft({
 
 
 ts_vehicles.register_part("ts_vehicles_cars:car_interior", {
-    description = "Car Interior",
+    description = "Car/Truck Interior",
     inventory_image = "ts_vehicles_cars_car_interior_inv.png",
     groups = { interior = 1, },
     colorable = true,

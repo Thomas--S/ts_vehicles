@@ -1,5 +1,5 @@
 ts_vehicles.register_part("ts_vehicles_cars:base_plate", {
-    description = "Car Base Plate",
+    description = "Car/Truck Base Plate",
     inventory_image = "ts_vehicles_cars_base_plate.png^[mask:ts_vehicles_cars_base_plate_inv_mask.png",
     groups = { base_plate = 1, },
 })
