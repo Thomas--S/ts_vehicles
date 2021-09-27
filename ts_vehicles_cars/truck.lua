@@ -163,7 +163,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:truck", {
         if has("panel") and not has("platform") then
             return false, "A platform is required to mount the panels."
         end
-        if has_multiple("panels") then
+        if has_multiple("panel") then
             return false, "A truck cannot have multiple sets of panels."
         end
         if has("tarp") and not has("panel") then

@@ -204,7 +204,7 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
     vehicle:set_velocity({x = dir.x * new_velocity, y = velocity.y, z = dir.z * new_velocity})
 
     ts_vehicles.handle_car_light_controls(self, control)
-    if is_full_second then
+    if is_full_second and false then -- TODO
         ts_vehicles.apply_textures(self, ts_vehicles.build_textures(def.name, def.textures, self._parts, self))
     end
     ts_vehicles.car_light_beam(self)

@@ -33,8 +33,9 @@ ts_vehicles.register_vehicle_base = function(name, def)
     minetest.register_craftitem(":"..name, {
         inventory_image = def.inventory_image,
         description = def.item_description,
-        on_place = function(itemstack, player, pointed_thing)
-            if pointed_thing and pointed_thing.above then
+        on_place = function(itemstack, player, pointed_thing) -- TODO
+            minetest.chat_send_player(player:get_player_name(), "Vehicles are not available at the moment. They will be back in a few days.")
+            if false and pointed_thing and pointed_thing.above then
                 if not player:is_player() then
                     return false
                 end
