@@ -204,8 +204,9 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
     vehicle:set_velocity({x = dir.x * new_velocity, y = velocity.y, z = dir.z * new_velocity})
 
     ts_vehicles.handle_car_light_controls(self, control)
-    if is_full_second and false then -- TODO
+    if not self._tmp.textures_set then -- TODO
         ts_vehicles.apply_textures(self, ts_vehicles.build_textures(def.name, def.textures, self._parts, self))
+        self._tmp.textures_set = true
     end
     ts_vehicles.car_light_beam(self)
 
@@ -239,6 +240,7 @@ ts_vehicles.remove_part = function(self, part_name, player)
         minetest.add_item(player:get_pos(), leftover)
     end
     table.remove(self._parts, ts_vehicles.helpers.index_of(self._parts, part_name))
+    self._tmp.textures_set = false -- TODO
     return true
 end
 
@@ -258,6 +260,7 @@ ts_vehicles.add_part = function(self, item, player)
     player:set_wielded_item(leftover)
     table.insert(self._parts, part_name)
     ts_vehicles.helpers.part_get_property("after_part_add", part_name, self.name, function(...) end)(self, ItemStack(item))
+    self._tmp.textures_set = false -- TODO
     return true
 end
 

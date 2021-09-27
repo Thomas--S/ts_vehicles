@@ -283,6 +283,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 entity.name,
                 function(...) return nil end
             )(entity, player, fields)
+            entity._tmp.textures_set = false -- TODO
         end
         ts_vehicles.show_formspec(entity, player)
         return
