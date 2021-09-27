@@ -253,7 +253,7 @@ minetest.register_node("ts_vehicles_common:tank_terminal", {
     tiles = {
         -- up, down, right, left, back, front
         "basic_materials_concrete_block.png",
-        "basic_materials_concrete_block.png",
+        "basic_materials_concrete_block.png^techage_gaspipe_hole.png",
         "basic_materials_concrete_block.png",
         "basic_materials_concrete_block.png",
         "basic_materials_concrete_block.png^techage_gaspipe_hole.png",
@@ -290,7 +290,7 @@ minetest.register_node("ts_vehicles_common:tank_terminal", {
     on_receive_fields = ts_vehicles.hose.station_receive_fields
 })
 
-liquid.register_nodes({"ts_vehicles_common:tank_terminal"}, Pipe, "tank", {"B"}, {
+liquid.register_nodes({"ts_vehicles_common:tank_terminal"}, Pipe, "tank", {"B", "D"}, {
     capa = 1000000,
     peek = function(pos, indir)
         local object = ts_vehicles.hose.get_connected_vehicle(pos)

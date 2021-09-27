@@ -66,30 +66,6 @@ ts_vehicles.hose.is_entity_connected = function(self)
     return true
 end
 
-ts_vehicles.hose.free_line_of_sight = function(p1, p2, ignore_id)
-    for pointed_thing in minetest.raycast(p1, p2) do
-        if pointed_thing.type == "object" then
-            if pointed_thing.ref:get_properties().physical then
-                if pointed_thing.ref.get_luaentity then
-                    local entity = pointed_thing.ref:get_luaentity()
-                    if not (ignore_id and ts_vehicles.registered_vehicle_bases[entity.name] and entity._id == ignore_id) then
-                        return false
-                    end
-                else
-                    return false
-                end
-            end
-        elseif pointed_thing.type == "node" then
-            local node = minetest.get_node(pointed_thing.under)
-            local def = node.name
-            if not def or def.walkable ~= false then
-                return false
-            end
-        end
-    end
-    return true
-end
-
 -- The caller has to ensure that there is a valid station at `station_pos`!
 ts_vehicles.hose.get_positions = function(entity, station_pos)
     local node = minetest.get_node(station_pos)
@@ -178,7 +154,7 @@ ts_vehicles.hose.can_be_placed = function(entity, station_pos, maxlength)
     if maxlength and vector.distance(p1, p2) > maxlength then
         return false, "Distance too long."
     end
-    if not ts_vehicles.hose.free_line_of_sight(p1, p2, entity._id) then
+    if not ts_vehicles.helpers.free_line_of_sight(p1, p2, entity._id) then
         return false, "No free line of sight."
     end
     return true

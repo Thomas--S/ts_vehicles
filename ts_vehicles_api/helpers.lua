@@ -169,3 +169,28 @@ ts_vehicles.helpers.get_payload_tank_content_name = function(entity)
     end
     return nil
 end
+
+ts_vehicles.helpers.free_line_of_sight = function(p1, p2, ignore_id, ignore_node_pos)
+    local raycast = minetest.raycast(p1, p2)
+    for pointed_thing in raycast do
+        if pointed_thing.type == "object" then
+            if pointed_thing.ref:get_properties().physical then
+                if pointed_thing.ref.get_luaentity then
+                    local entity = pointed_thing.ref:get_luaentity()
+                    if not (ignore_id and ts_vehicles.registered_vehicle_bases[entity.name] and entity._id == ignore_id) then
+                        return false
+                    end
+                else
+                    return false
+                end
+            end
+        elseif pointed_thing.type == "node" then
+            local node = minetest.get_node(pointed_thing.under)
+            local def = minetest.registered_nodes[node.name]
+            if not (ignore_node_pos and vector.equals(ignore_node_pos, pointed_thing.under) or def and def.walkable == false) then
+                return false
+            end
+        end
+    end
+    return true
+end
