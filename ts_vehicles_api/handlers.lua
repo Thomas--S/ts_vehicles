@@ -217,7 +217,9 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
     local back_downwards_space = math.max(ts_vehicles.helpers.downwards_space(tire_pos[3], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[4], max_depth))
     local delta_y = front_downwards_space - back_downwards_space
 
-    ts_vehicles.helpers.pitch_vehicle(self, delta_y, car_length, def)
+    if is_full_second then
+        ts_vehicles.helpers.pitch_vehicle(self, delta_y, car_length, def)
+    end
 end
 
 ts_vehicles.remove_part = function(self, part_name, player)
