@@ -1,3 +1,6 @@
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 ts_vehicles.hud = {}
 
 local hud_elements = {}
@@ -6,11 +9,12 @@ ts_vehicles.hud.car_update = function(player, entity)
     local playername = player:get_player_name()
     local id = hud_elements[playername]
     if id then
-        local text = ("Velocity: %.1fkm/h"):format(entity._v * 3.6)
+        local vd = VD(entity._id)
+        local text = ("Velocity: %.1fkm/h"):format(vd.v * 3.6)
         for _,fuel in pairs({"gasoline", "hydrogen", "electricity"}) do
             local capacity = ts_vehicles.helpers.get_total_value(entity, fuel.."_capacity")
             if (capacity > 0) then
-                text = text .. (" | %s: %.1f%%"):format(fuel:sub(1,1):upper()..fuel:sub(2), (entity._data[fuel] or 0) * 100 / capacity)
+                text = text .. (" | %s: %.1f%%"):format(fuel:sub(1,1):upper()..fuel:sub(2), (vd.data[fuel] or 0) * 100 / capacity)
             end
         end
         player:hud_change(id, "text", text)

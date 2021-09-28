@@ -1,3 +1,6 @@
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 local Pipe = techage.LiquidPipe
 local liquid = networks.liquid
 
@@ -62,9 +65,10 @@ liquid.register_nodes({"ts_vehicles_common:gasoline_station"}, Pipe, "tank", {"D
             return amount
         end
         local entity = object:get_luaentity()
+        local vd = VD(entity._id)
         local max = ts_vehicles.helpers.get_total_value(entity, "gasoline_capacity")
-        local to_be_added = math.max(math.min(amount, max - (entity._data.gasoline or 0)), 0)
-        entity._data.gasoline = (entity._data.gasoline or 0) + to_be_added
+        local to_be_added = math.max(math.min(amount, max - (vd.data.gasoline or 0)), 0)
+        vd.data.gasoline = (vd.data.gasoline or 0) + to_be_added
         return amount - to_be_added
     end,
     take = function(...) return 0 end,
@@ -138,9 +142,10 @@ liquid.register_nodes({"ts_vehicles_common:hydrogen_station"}, Pipe, "tank", {"D
             return amount
         end
         local entity = object:get_luaentity()
+        local vd = VD(entity._id)
         local max = ts_vehicles.helpers.get_total_value(entity, "hydrogen_capacity")
-        local to_be_added = math.max(math.min(amount, max - (entity._data.hydrogen or 0)), 0)
-        entity._data.hydrogen = (entity._data.hydrogen or 0) + to_be_added
+        local to_be_added = math.max(math.min(amount, max - (vd.data.hydrogen or 0)), 0)
+        vd.data.hydrogen = (vd.data.hydrogen or 0) + to_be_added
         return amount - to_be_added
     end,
     take = function(...) return 0 end,
@@ -194,9 +199,10 @@ techage.register_consumer("electricity_station", "Charging Station", { act = ele
         local object = ts_vehicles.hose.get_connected_vehicle(pos)
         if object then
             local entity = object:get_luaentity()
+            local vd = VD(entity._id)
             local max = ts_vehicles.helpers.get_total_value(entity, "electricity_capacity")
-            local to_be_added = math.max(math.min(10, max - (entity._data.electricity or 0)), 0)
-            entity._data.electricity = (entity._data.electricity or 0) + to_be_added
+            local to_be_added = math.max(math.min(10, max - (vd.data.electricity or 0)), 0)
+            vd.data.electricity = (vd.data.electricity or 0) + to_be_added
             crd.State:keep_running(pos, nvm, 1)
         else
             crd.State:idle(pos, nvm)
@@ -298,7 +304,7 @@ liquid.register_nodes({"ts_vehicles_common:tank_terminal"}, Pipe, "tank", {"B", 
             return nil
         end
         local entity = object:get_luaentity()
-        return ts_vehicles.helpers.get_payload_tank_content_name(entity)
+        return ts_vehicles.helpers.get_payload_tank_content_name(entity._id)
     end,
     put = function(pos, indir, name, amount)
         local object = ts_vehicles.hose.get_connected_vehicle(pos)
@@ -306,14 +312,16 @@ liquid.register_nodes({"ts_vehicles_common:tank_terminal"}, Pipe, "tank", {"B", 
             return amount
         end
         local entity = object:get_luaentity()
-        local tank_content_name = ts_vehicles.helpers.get_payload_tank_content_name(entity)
+        local id = entity._id
+        local vd = VD(id)
+        local tank_content_name = ts_vehicles.helpers.get_payload_tank_content_name(id)
         if tank_content_name ~= nil and name ~= tank_content_name then
             return amount
         end
         local max = ts_vehicles.helpers.get_total_value(entity, "payload_tank_capacity")
-        local to_be_added = math.max(math.min(amount, max - (entity._data.payload_tank_amount or 0)), 0)
-        entity._data.payload_tank_amount = (entity._data.payload_tank_amount or 0) + to_be_added
-        entity._data.payload_tank_name = name
+        local to_be_added = math.max(math.min(amount, max - (vd.data.payload_tank_amount or 0)), 0)
+        vd.data.payload_tank_amount = (vd.data.payload_tank_amount or 0) + to_be_added
+        vd.data.payload_tank_name = name
         return amount - to_be_added
     end,
     take = function(pos, indir, name, amount)
@@ -322,17 +330,19 @@ liquid.register_nodes({"ts_vehicles_common:tank_terminal"}, Pipe, "tank", {"B", 
             return 0
         end
         local entity = object:get_luaentity()
-        local tank_content_name = ts_vehicles.helpers.get_payload_tank_content_name(entity)
+        local id = entity._id
+        local vd = VD(id)
+        local tank_content_name = ts_vehicles.helpers.get_payload_tank_content_name(id)
 
         if not name or tank_content_name == name then
             name = tank_content_name
-            local src_amount = entity._data.payload_tank_amount or 0
+            local src_amount = vd.data.payload_tank_amount or 0
             if src_amount > amount then
-                entity._data.payload_tank_amount = entity._data.payload_tank_amount - amount
+                vd.data.payload_tank_amount = vd.data.payload_tank_amount - amount
                 return amount, name
             else
-                entity._data.payload_tank_amount = 0
-                entity._data.payload_tank_name = nil
+                vd.data.payload_tank_amount = 0
+                vd.data.payload_tank_name = nil
                 return src_amount, tank_content_name
             end
         end
@@ -344,14 +354,16 @@ liquid.register_nodes({"ts_vehicles_common:tank_terminal"}, Pipe, "tank", {"B", 
             return amount
         end
         local entity = object:get_luaentity()
-        local tank_content_name = ts_vehicles.helpers.get_payload_tank_content_name(entity)
+        local id = entity._id
+        local vd = VD(id)
+        local tank_content_name = ts_vehicles.helpers.get_payload_tank_content_name(id)
         if tank_content_name ~= nil and name ~= tank_content_name then
             return amount
         end
         local max = ts_vehicles.helpers.get_total_value(entity, "payload_tank_capacity")
-        local to_be_added = math.max(math.min(amount, max - (entity._data.payload_tank_amount or 0)), 0)
-        entity._data.payload_tank_amount = (entity._data.payload_tank_amount or 0) + to_be_added
-        entity._data.payload_tank_name = name
+        local to_be_added = math.max(math.min(amount, max - (vd.data.payload_tank_amount or 0)), 0)
+        vd.data.payload_tank_amount = (vd.data.payload_tank_amount or 0) + to_be_added
+        vd.data.payload_tank_name = name
         return amount - to_be_added
     end,
 })

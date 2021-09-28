@@ -1,3 +1,6 @@
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 local function E(text)
     return text:gsub("%^", "\\%^"):gsub(":", "\\:")
 end
@@ -44,7 +47,8 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:truck", {
         }
     end,
     is_driveable = function(self)
-        local has = function(group) return ts_vehicles.helpers.any_has_group(self._parts, group) end
+        local parts = VD(self._id).parts
+        local has = function(group) return ts_vehicles.helpers.any_has_group(parts, group) end
         if not has("undercarriage") then return false, "A truck needs an undercarriage." end
         if not has("base_plate") then return false, "A truck needs a base plate." end
         if not has("tires") then return false, "A truck needs tires." end
@@ -64,7 +68,9 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:truck", {
         return true
     end,
     is_structure_sound = function(self, parts)
-        parts = parts or self._parts
+        local id = self._id
+        local vd = VD(id)
+        parts = parts or vd.parts
         local has = function(group) return ts_vehicles.helpers.any_has_group(parts, group) end
         local has_multiple = function(group) return ts_vehicles.helpers.multiple_have_group(parts, group) end
         if has_multiple("undercarriage") then
@@ -202,31 +208,32 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:truck", {
         if has_multiple("main_tank") then
             return false, "A truck cannot have multiple fuel tanks or batteries."
         end
-        if ts_vehicles.helpers.get_total_value(self, "storage_capacity", parts) < ts_vehicles.storage.get_total_count(self) then
+        if ts_vehicles.helpers.get_total_value(self, "storage_capacity", parts) < ts_vehicles.storage.get_total_count(id) then
             return false, "Not enough space."
         end
-        if ts_vehicles.helpers.get_total_value(self, "payload_tank_capacity", parts) < (self._data.payload_tank_amount or 0) then
+        if ts_vehicles.helpers.get_total_value(self, "payload_tank_capacity", parts) < (vd.data.payload_tank_amount or 0) then
             return false, "Not enough payload tank capacity."
         end
-        if ts_vehicles.helpers.get_total_value(self, "gasoline_capacity", parts) < (self._data.gasoline or 0) then
+        if ts_vehicles.helpers.get_total_value(self, "gasoline_capacity", parts) < (vd.data.gasoline or 0) then
             return false, "Not enough gasoline capacity."
         end
-        if ts_vehicles.helpers.get_total_value(self, "hydrogen_capacity", parts) < (self._data.hydrogen or 0) then
+        if ts_vehicles.helpers.get_total_value(self, "hydrogen_capacity", parts) < (vd.data.hydrogen or 0) then
             return false, "Not enough hydrogen capacity."
         end
-        if ts_vehicles.helpers.get_total_value(self, "electricity_capacity", parts) < (self._data.electricity or 0) then
+        if ts_vehicles.helpers.get_total_value(self, "electricity_capacity", parts) < (vd.data.electricity or 0) then
             return false, "Not enough electricity capacity."
         end
         return true
     end,
 
     can_remove_part = function(self, part_name)
-        if not ts_vehicles.helpers.contains(self._parts, part_name) then
+        local parts = VD(self._id).parts
+        if not ts_vehicles.helpers.contains(parts, part_name) then
             return false, "Part does not exist on vehicle!"
         end
 
         local def = ts_vehicles.registered_vehicle_bases[self.name]
-        local parts_copy = table.copy(self._parts)
+        local parts_copy = table.copy(parts)
         table.remove(parts_copy, ts_vehicles.helpers.index_of(parts_copy, part_name))
         local is_structure_sound, reason = def.is_structure_sound(self, parts_copy)
         if not is_structure_sound then
@@ -236,7 +243,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:truck", {
     end,
 
     get_part_drop = function(self, part_name)
-        if not ts_vehicles.helpers.contains(self._parts, part_name) then
+        if not ts_vehicles.helpers.contains(VD(self._id).parts, part_name) then
             return nil
         end
 
@@ -254,7 +261,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:truck", {
     can_add_part = function(self, item)
         local def = ts_vehicles.registered_vehicle_bases[self.name]
         local part_name = item:get_name()
-        local parts_copy = table.copy(self._parts)
+        local parts_copy = table.copy(VD(self._id).parts)
         table.insert(parts_copy, part_name)
         local is_structure_sound, reason = def.is_structure_sound(self, parts_copy)
         if not is_structure_sound then
@@ -336,16 +343,18 @@ ts_vehicles.register_part("ts_vehicles_cars:truck_cabin", {
     after_part_add = function(self, item)
         local color = item:get_meta():get("color") or item:get_definition().color
         if color then
-            self._data.cabin_color = color
-            self._data.cabin_description = item:get_description()
+            local vd = VD(self._id)
+            vd.data.cabin_color = color
+            vd.data.cabin_description = item:get_description()
         end
     end,
     after_part_remove = function(self, drop)
-        if self._data.cabin_color then
-            drop:get_meta():set_string("color", self._data.cabin_color)
+        local vd = VD(self._id)
+        if vd.data.cabin_color then
+            drop:get_meta():set_string("color", vd.data.cabin_color)
         end
-        if self._data.cabin_description then
-            drop:get_meta():set_string("description", self._data.cabin_description)
+        if vd.data.cabin_description then
+            drop:get_meta():set_string("description", vd.data.cabin_description)
         end
     end,
 })
@@ -370,16 +379,18 @@ ts_vehicles.register_part("ts_vehicles_cars:truck_platform", {
     after_part_add = function(self, item)
         local color = item:get_meta():get("color") or item:get_definition().color
         if color then
-            self._data.platform_color = color
-            self._data.platform_description = item:get_description()
+            local vd = VD(self._id)
+            vd.data.platform_color = color
+            vd.data.platform_description = item:get_description()
         end
     end,
     after_part_remove = function(self, drop)
-        if self._data.platform_color then
-            drop:get_meta():set_string("color", self._data.platform_color)
+        local vd = VD(self._id)
+        if vd.data.platform_color then
+            drop:get_meta():set_string("color", vd.data.platform_color)
         end
-        if self._data.platform_description then
-            drop:get_meta():set_string("description", self._data.platform_description)
+        if vd.data.platform_description then
+            drop:get_meta():set_string("description", vd.data.platform_description)
         end
     end,
 })
@@ -403,16 +414,18 @@ ts_vehicles.register_part("ts_vehicles_cars:truck_panels", {
     after_part_add = function(self, item)
         local color = item:get_meta():get("color") or item:get_definition().color
         if color then
-            self._data.panel_color = color
-            self._data.panel_description = item:get_description()
+            local vd = VD(self._id)
+            vd.data.panel_color = color
+            vd.data.panel_description = item:get_description()
         end
     end,
     after_part_remove = function(self, drop)
-        if self._data.panel_color then
-            drop:get_meta():set_string("color", self._data.panel_color)
+        local vd = VD(self._id)
+        if vd.data.panel_color then
+            drop:get_meta():set_string("color", vd.data.panel_color)
         end
-        if self._data.panel_description then
-            drop:get_meta():set_string("description", self._data.panel_description)
+        if vd.data.panel_description then
+            drop:get_meta():set_string("description", vd.data.panel_description)
         end
     end,
 })
@@ -436,16 +449,18 @@ ts_vehicles.register_part("ts_vehicles_cars:tarp", {
     after_part_add = function(self, item)
         local color = item:get_meta():get("color") or item:get_definition().color
         if color then
-            self._data.tarp_color = color
-            self._data.tarp_description = item:get_description()
+            local vd = VD(self._id)
+            vd.data.tarp_color = color
+            vd.data.tarp_description = item:get_description()
         end
     end,
     after_part_remove = function(self, drop)
-        if self._data.tarp_color then
-            drop:get_meta():set_string("color", self._data.tarp_color)
+        local vd = VD(self._id)
+        if vd.data.tarp_color then
+            drop:get_meta():set_string("color", vd.data.tarp_color)
         end
-        if self._data.tarp_description then
-            drop:get_meta():set_string("description", self._data.tarp_description)
+        if vd.data.tarp_description then
+            drop:get_meta():set_string("description", vd.data.tarp_description)
         end
     end,
 })
@@ -470,16 +485,18 @@ ts_vehicles.register_part("ts_vehicles_cars:payload_tank", {
     after_part_add = function(self, item)
         local color = item:get_meta():get("color") or item:get_definition().color
         if color then
-            self._data.tank_color = color
-            self._data.tank_description = item:get_description()
+            local vd = VD(self._id)
+            vd.data.tank_color = color
+            vd.data.tank_description = item:get_description()
         end
     end,
     after_part_remove = function(self, drop)
-        if self._data.tank_color then
-            drop:get_meta():set_string("color", self._data.tank_color)
+        local vd = VD(self._id)
+        if vd.data.tank_color then
+            drop:get_meta():set_string("color", vd.data.tank_color)
         end
-        if self._data.tank_description then
-            drop:get_meta():set_string("description", self._data.tank_description)
+        if vd.data.tank_description then
+            drop:get_meta():set_string("description", vd.data.tank_description)
         end
     end,
 })
@@ -504,16 +521,18 @@ ts_vehicles.register_part("ts_vehicles_cars:combined_module", {
     after_part_add = function(self, item)
         local color = item:get_meta():get("color") or item:get_definition().color
         if color then
-            self._data.combined_module_color = color
-            self._data.combined_module_description = item:get_description()
+            local vd = VD(self._id)
+            vd.data.combined_module_color = color
+            vd.data.combined_module_description = item:get_description()
         end
     end,
     after_part_remove = function(self, drop)
-        if self._data.combined_module_color then
-            drop:get_meta():set_string("color", self._data.combined_module_color)
+        local vd = VD(self._id)
+        if vd.data.combined_module_color then
+            drop:get_meta():set_string("color", vd.data.combined_module_color)
         end
-        if self._data.combined_module_description then
-            drop:get_meta():set_string("description", self._data.combined_module_description)
+        if vd.data.combined_module_description then
+            drop:get_meta():set_string("description", vd.data.combined_module_description)
         end
     end,
 })
@@ -533,8 +552,9 @@ ts_vehicles.register_part("ts_vehicles_cars:warning_board", {
     inventory_image = "ts_vehicles_cars_warning_board_inv.png",
     groups = { rear_board = 1 },
     get_formspec = function(self, player)
-        self._data.warning_board = self._data.warning_board or {}
-        local current_data = self._data.warning_board[self._data.warning_board.current_slot]
+        local vd = VD(self._id)
+        vd.data.warning_board = vd.data.warning_board or {}
+        local current_data = vd.data.warning_board[vd.data.warning_board.current_slot]
         local fs = ""
         fs = fs.."style_type[label;font_size=*2]"
         fs = fs.."style_type[label;font=bold]"
@@ -558,23 +578,25 @@ ts_vehicles.register_part("ts_vehicles_cars:warning_board", {
         return fs
     end,
     on_receive_fields = function(self, player, fields)
-        self._data.warning_board = self._data.warning_board or {}
+        local vd = VD(self._id)
+        vd.data.warning_board = vd.data.warning_board or {}
         if fields.text and fields.symbol and fields.set then
-            local current_data = self._data.warning_board[self._data.warning_board.current_slot]
+            local current_data = vd.data.warning_board[vd.data.warning_board.current_slot]
             if current_data then
                 current_data.symbol = fields.symbol
                 current_data.text = fields.text
             end
         end
-        if fields.slot1 then self._data.warning_board.current_slot = "slot1" end
-        if fields.slot2 then self._data.warning_board.current_slot = "slot2" end
-        if fields.slot3 then self._data.warning_board.current_slot = "slot3" end
-        if fields.slot4 then self._data.warning_board.current_slot = "slot4" end
-        if fields.slot5 then self._data.warning_board.current_slot = "slot5" end
-        if fields.off then self._data.warning_board.current_slot = "off" end
+        if fields.slot1 then vd.data.warning_board.current_slot = "slot1" end
+        if fields.slot2 then vd.data.warning_board.current_slot = "slot2" end
+        if fields.slot3 then vd.data.warning_board.current_slot = "slot3" end
+        if fields.slot4 then vd.data.warning_board.current_slot = "slot4" end
+        if fields.slot5 then vd.data.warning_board.current_slot = "slot5" end
+        if fields.off then vd.data.warning_board.current_slot = "off" end
     end,
     after_part_add = function(self, item)
-        self._data.warning_board = {
+        local vd = VD(self._id)
+        vd.data.warning_board = {
             current_slot = "slot1",
             slot1 = {
                 symbol = "AAAAAAAMMAAAAAAA AAAAAAMMMMAAAAAA AAAAAAMMMMAAAAAA AAAAAMMAAMMAAAAA AAAAAMMAAMMAAAAA AAAAMMA//AMMAAAA AAAAMMA//AMMAAAA AAAMMAA//AAMMAAA AAAMMAA//AAMMAAA AAMMAAA//AAAMMAA AAMMAAAAAAAAMMAA AMMAAAA//AAAAMMA AMMAAAA//AAAAMMA MMAAAAAAAAAAAAMM MMMMMMMMMMMMMMMM MMMMMMMMMMMMMMMM",
@@ -599,7 +621,8 @@ ts_vehicles.register_part("ts_vehicles_cars:warning_board", {
         }
     end,
     after_part_remove = function(self, drop)
-        self._data.warning_board = nil
+        local vd = VD(self._id)
+        vd.data.warning_board = nil
     end,
 })
 
@@ -621,36 +644,40 @@ ts_vehicles.register_part("ts_vehicles_cars:panels_text", {
     colorable = true,
     default_color = "#000",
     get_formspec = function(self, player)
+        local vd = VD(self._id)
         local fs = ""
         fs = fs.."style_type[label;font_size=*2]"
         fs = fs.."style_type[label;font=bold]"
         fs = fs.."label[0,.25;Set text for the panels]"
         fs = fs.."style_type[label;font_size=*1]"
         fs = fs.."style_type[label;font=normal]"
-        fs = fs.."textarea[0,1;3,1;text;;"..minetest.formspec_escape(self._data.panels_text or "").."]"
+        fs = fs.."textarea[0,1;3,1;text;;"..minetest.formspec_escape(vd.data.panels_text or "").."]"
         fs = fs.."button[3,1;1.5,1;set;Set]"
         return fs
     end,
     on_receive_fields = function(self, player, fields)
         if fields.text and (fields.set or fields.key_enter_field == "text") then
-            self._data.panels_text = fields.text
+            local vd = VD(self._id)
+            vd.data.panels_text = fields.text
         end
     end,
     after_part_add = function(self, item)
-        self._data.panels_text = "Placeholder Text"
+        local vd = VD(self._id)
+        vd.data.panels_text = "Placeholder Text"
         local color = item:get_meta():get("color") or item:get_definition().color
         if color then
-            self._data.panels_text_color = color
-            self._data.panels_text_description = item:get_description()
+            vd.data.panels_text_color = color
+            vd.data.panels_text_description = item:get_description()
         end
     end,
     after_part_remove = function(self, drop)
-        self._data.panels_text = nil
-        if self._data.panels_text_color then
-            drop:get_meta():set_string("color", self._data.panels_text_color)
+        local vd = VD(self._id)
+        vd.data.panels_text = nil
+        if vd.data.panels_text_color then
+            drop:get_meta():set_string("color", vd.data.panels_text_color)
         end
-        if self._data.panels_text_description then
-            drop:get_meta():set_string("description", self._data.panels_text_description)
+        if vd.data.panels_text_description then
+            drop:get_meta():set_string("description", vd.data.panels_text_description)
         end
     end,
 })
@@ -678,30 +705,33 @@ ts_vehicles.register_part("ts_vehicles_cars:tarp_text", {
         fs = fs.."label[0,.25;Set text for the tarp]"
         fs = fs.."style_type[label;font_size=*1]"
         fs = fs.."style_type[label;font=normal]"
-        fs = fs.."textarea[0,1;3,1;text;;"..minetest.formspec_escape(self._data.tarp_text or "").."]"
+        fs = fs.."textarea[0,1;3,1;text;;"..minetest.formspec_escape(vd.data.tarp_text or "").."]"
         fs = fs.."button[3,1;1.5,1;set;Set]"
         return fs
     end,
     on_receive_fields = function(self, player, fields)
+        local vd = VD(self._id)
         if fields.text and (fields.set or fields.key_enter_field == "text") then
-            self._data.tarp_text = fields.text
+            vd.data.tarp_text = fields.text
         end
     end,
     after_part_add = function(self, item)
-        self._data.tarp_text = "Placeholder Text"
+        local vd = VD(self._id)
+        vd.data.tarp_text = "Placeholder Text"
         local color = item:get_meta():get("color") or item:get_definition().color
         if color then
-            self._data.tarp_text_color = color
-            self._data.tarp_text_description = item:get_description()
+            vd.data.tarp_text_color = color
+            vd.data.tarp_text_description = item:get_description()
         end
     end,
     after_part_remove = function(self, drop)
-        self._data.tarp_text = nil
-        if self._data.tarp_text_color then
-            drop:get_meta():set_string("color", self._data.tarp_text_color)
+        local vd = VD(self._id)
+        vd.data.tarp_text = nil
+        if vd.data.tarp_text_color then
+            drop:get_meta():set_string("color", vd.data.tarp_text_color)
         end
-        if self._data.tarp_text_description then
-            drop:get_meta():set_string("description", self._data.tarp_text_description)
+        if vd.data.tarp_text_description then
+            drop:get_meta():set_string("description", vd.data.tarp_text_description)
         end
     end,
 })
@@ -751,18 +781,20 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:truck_cabin", {
     get_textures = function(self)
+        local vd = VD(self._id)
         local color = "#fff"
-        if self._data.cabin_color then
-            color = self._data.cabin_color
+        if vd.data.cabin_color then
+            color = vd.data.cabin_color
         end
         return {
             cabin = "ts_vehicles_cars_truck_cabin.png^[multiply:"..color.."^ts_vehicles_cars_truck_cabin_overlay.png",
         }
     end,
     get_fallback_textures = function(self)
+        local vd = VD(self._id)
         local color = "#fff"
-        if self._data.cabin_color then
-            color = self._data.cabin_color
+        if vd.data.cabin_color then
+            color = vd.data.cabin_color
         end
         return {
             interior = "ts_vehicles_cars_truck_interior.png^[multiply:"..color
@@ -772,9 +804,10 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:truck_platform", {
     get_textures = function(self)
+        local vd = VD(self._id)
         local color = "#fff"
-        if self._data.platform_color then
-            color = self._data.platform_color
+        if vd.data.platform_color then
+            color = vd.data.platform_color
         end
         return {
             platform_top = "default_wood.png",
@@ -785,9 +818,10 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:truck_panels", {
     get_textures = function(self)
+        local vd = VD(self._id)
         local color = "#fff"
-        if self._data.panel_color then
-            color = self._data.panel_color
+        if vd.data.panel_color then
+            color = vd.data.panel_color
         end
         return {
             framework = "ts_vehicles_cars_truck_framework_panel.png^[multiply:"..color,
@@ -799,9 +833,10 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:tarp", {
     get_overlay_textures = function(self)
+        local vd = VD(self._id)
         local color = "#fff"
-        if self._data.tarp_color then
-            color = self._data.tarp_color
+        if vd.data.tarp_color then
+            color = vd.data.tarp_color
         end
         return {
             framework = "(ts_vehicles_cars_truck_framework_tarp.png^[multiply:"..color..")",
@@ -813,9 +848,10 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:payload_tank", {
     get_textures = function(self)
+        local vd = VD(self._id)
         local color = "#fff"
-        if self._data.tank_color then
-            color = self._data.tank_color
+        if vd.data.tank_color then
+            color = vd.data.tank_color
         end
         return {
             tank = "ts_vehicles_cars_truck_tank.png^[multiply:"..color,
@@ -830,9 +866,10 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:p
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:combined_module", {
     get_textures = function(self)
+        local vd = VD(self._id)
         local color = "#fff"
-        if self._data.combined_module_color then
-            color = self._data.combined_module_color
+        if vd.data.combined_module_color then
+            color = vd.data.combined_module_color
         end
         return {
             body = "ts_vehicles_cars_truck_combined_module.png^[multiply:"..color,
@@ -859,12 +896,13 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:w
         }
     end,
     get_light_textures = function(self)
+        local vd = VD(self._id)
         local texture = "[combine:496x496"
-        if self and self._lights.special then
-            texture = texture..":0,0="..E("(ts_vehicles_cars_truck_warning_board_light_on.png"..(self._even_step and "^[transformFX" or "")..")")
+        if vd.lights.special then
+            texture = texture..":0,0="..E("(ts_vehicles_cars_truck_warning_board_light_on.png"..(vd.even_step and "^[transformFX" or "")..")")
         end
-        self._data.warning_board = self._data.warning_board or {}
-        local current_data = self._data.warning_board[self._data.warning_board.current_slot]
+        vd.data.warning_board = vd.data.warning_board or {}
+        local current_data = vd.data.warning_board[vd.data.warning_board.current_slot]
         if ts_vehicles.writing and current_data then
             local text = font_api.get_font("metro"):render(current_data.text or "", 192, 64, {
                 lines = 4,
@@ -886,9 +924,10 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:w
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:car_chassis_pillars_a", {
     get_textures = function(self)
+        local vd = VD(self._id)
         local color = "#fff"
-        if self._data.pillars_a_color then
-            color = self._data.pillars_a_color
+        if vd.data.pillars_a_color then
+            color = vd.data.pillars_a_color
         end
         return {
             pillars_a = "ts_vehicles_cars_pillar.png^[multiply:"..color,
@@ -906,9 +945,10 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:w
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:car_roof", {
     get_textures = function(self)
+        local vd = VD(self._id)
         local color = "#fff"
-        if self._data.roof_color then
-            color = self._data.roof_color
+        if vd.data.roof_color then
+            color = vd.data.roof_color
         end
         return {
             roof = "ts_vehicles_cars_roof.png^[multiply:"..color,
@@ -918,9 +958,10 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:c
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:car_interior", {
     get_textures = function(self)
+        local vd = VD(self._id)
         local color = "#fff"
-        if self._data.interior_color then
-            color = self._data.interior_color
+        if vd.data.interior_color then
+            color = vd.data.interior_color
         end
         return {
             interior = "ts_vehicles_cars_truck_interior.png^[multiply:"..color.."^ts_vehicles_cars_truck_interior_overlay.png",
@@ -930,9 +971,10 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:c
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:seat", {
     get_textures = function(self)
+        local vd = VD(self._id)
         local color = "#fff"
-        if self._data.seats_color then
-            color = self._data.seats_color
+        if vd.data.seats_color then
+            color = vd.data.seats_color
         end
         return {
             seats = "wool_white.png^[multiply:"..color,
@@ -942,18 +984,19 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:s
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:direction_indicator", {
     get_overlay_textures = function(self)
+        local vd = VD(self._id)
         local cabin_left = "(ts_vehicles_cars_truck_cabin_directional_left.png^[colorize:#000:25)"
         local cabin_right = "(ts_vehicles_cars_truck_cabin_directional_left.png^[colorize:#000:25^[transformFX)"
         local platform_left = "(ts_vehicles_cars_truck_platform_directional_left.png^[colorize:#000:25)"
         local platform_right = "(ts_vehicles_cars_truck_platform_directional_left.png^[colorize:#000:25^[transformFX)"
         local interior = {}
-        if self and self._even_step then
-            if self._lights.left or self._lights.warn then
+        if vd.even_step then
+            if vd.lights.left or vd.lights.warn then
                 cabin_left = "(ts_vehicles_cars_truck_cabin_directional_left.png^[colorize:#fff:25)"
                 platform_left = "(ts_vehicles_cars_truck_platform_directional_left.png^[colorize:#fff:25)"
                 interior[#interior+1] = "ts_vehicles_cars_truck_interior_directional_left.png"
             end
-            if self._lights.right or self._lights.warn then
+            if vd.lights.right or vd.lights.warn then
                 cabin_right = "(ts_vehicles_cars_truck_cabin_directional_left.png^[colorize:#fff:25^[transformFX)"
                 platform_right = "(ts_vehicles_cars_truck_platform_directional_left.png^[colorize:#fff:25^[transformFX)"
                 interior[#interior+1] = "ts_vehicles_cars_truck_interior_directional_right.png"
@@ -970,15 +1013,16 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:d
     end,
 
     get_light_overlay_textures = function(self)
+        local vd = VD(self._id)
         local cabin = {}
         local platform = {}
         local result = {}
-        if self and self._even_step then
-            if self._lights.left or self._lights.warn then
+        if vd.even_step then
+            if vd.lights.left or vd.lights.warn then
                 cabin[#cabin+1] = "(ts_vehicles_cars_truck_cabin_directional_left.png^[colorize:#fff:25)"
                 platform[#platform+1] = "(ts_vehicles_cars_truck_platform_directional_left.png^[colorize:#fff:25)"
             end
-            if self._lights.right or self._lights.warn then
+            if vd.lights.right or vd.lights.warn then
                 cabin[#cabin+1] = "(ts_vehicles_cars_truck_cabin_directional_left.png^[colorize:#fff:25^[transformFX)"
                 platform[#platform+1] = "(ts_vehicles_cars_truck_platform_directional_left.png^[colorize:#fff:25^[transformFX)"
             end
@@ -995,7 +1039,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:d
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:lights_front", {
     get_overlay_textures = function(self)
-        if self and self._lights.front then
+        local vd = VD(self._id)
+        if vd.lights.front then
             return {
                 cabin = "(ts_vehicles_cars_truck_front_light.png^[colorize:#fff:25)",
                 interior = "ts_vehicles_cars_truck_interior_light.png",
@@ -1008,7 +1053,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:l
     end,
 
     get_light_overlay_textures = function(self)
-        if self and self._lights.front then
+        local vd = VD(self._id)
+        if vd.lights.front then
             return {
                 cabin = "(ts_vehicles_cars_truck_front_light.png^[colorize:#fff:25)",
             }
@@ -1018,7 +1064,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:l
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:lights_back", {
     get_overlay_textures = function(self)
-        if self and self._lights.stop then
+        local vd = VD(self._id)
+        if vd.lights.stop then
             return {
                 platform = "(ts_vehicles_cars_truck_back_light.png^[colorize:#fff:25)",
             }
@@ -1030,11 +1077,12 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:l
     end,
 
     get_light_overlay_textures = function(self)
-        if self and self._lights.stop then
+        local vd = VD(self._id)
+        if vd.lights.stop then
             return {
                 platform = "(ts_vehicles_cars_truck_back_light.png^[colorize:#fff:25)",
             }
-        elseif self and self._lights.front then
+        elseif vd.lights.front then
             return {
                 platform = "(ts_vehicles_cars_truck_back_light.png^[colorize:#000:25)",
             }
@@ -1044,7 +1092,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:l
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:lights_reversing", {
     get_overlay_textures = function(self)
-        if self and self._v < 0 then
+        local vd = VD(self._id)
+        if vd.v < 0 then
             return {
                 platform = "(ts_vehicles_cars_truck_reversing_light.png^[colorize:#fff:25)",
             }
@@ -1056,7 +1105,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:l
     end,
 
     get_light_overlay_textures = function(self)
-        if self and self._v < 0 then
+        local vd = VD(self._id)
+        if vd.v < 0 then
             return {
                 platform = "(ts_vehicles_cars_truck_reversing_light.png^[colorize:#fff:25)",
             }
@@ -1067,10 +1117,11 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:l
 for _,def in ipairs(ts_vehicles_cars.lightbars) do
     ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:"..def.id.."_light", {
         get_textures = function(self)
-            if not (self and self._lights.special) then
+            local vd = VD(self._id)
+            if not (vd.lights.special) then
                 local texture = def.off
                 if ts_vehicles.writing then
-                    local text = font_api.get_font("metro"):render(self._data.roof_top_text or "", 64, 16, {
+                    local text = font_api.get_font("metro"):render(vd.data.roof_top_text or "", 64, 16, {
                         lines = 1,
                         halign = "center",
                         valign = "center",
@@ -1084,21 +1135,23 @@ for _,def in ipairs(ts_vehicles_cars.lightbars) do
             end
         end,
         get_overlay_textures = function(self)
+            local vd = VD(self._id)
             local result = {}
-            if self and self._even_step and self._lights.special then
+            if vd.even_step and vd.lights.special then
                 result.interior = "ts_vehicles_cars_truck_interior_special.png"
             end
-            if not (self and self._lights.special) then
+            if not (vd.lights.special) then
                 result.platform = def.off:gsub("%.png", "_truck_platform.png")
             end
             return result
         end,
         get_light_textures = function(self)
-            if self and self._lights.special then
-                local texture = self._even_step and def.on1 or def.on2
+            local vd = VD(self._id)
+            if vd.lights.special then
+                local texture = vd.even_step and def.on1 or def.on2
                 local platform = texture:gsub("%.png", "_truck_platform.png")
                 if ts_vehicles.writing then
-                    local text = font_api.get_font("metro"):render(self._data.roof_top_text or "", 64, 16, {
+                    local text = font_api.get_font("metro"):render(vd.data.roof_top_text or "", 64, 16, {
                         lines = 1,
                         halign = "center",
                         valign = "center",
@@ -1117,8 +1170,9 @@ end
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:license_plate", {
     get_overlay_textures = function(self)
+        local vd = VD(self._id)
         if ts_vehicles.writing then
-            local text = font_api.get_font("metro"):render(self._data.license_plate_text or "", 80, 16, {
+            local text = font_api.get_font("metro"):render(vd.data.license_plate_text or "", 80, 16, {
                 lines = 1,
                 halign = "center",
                 valign = "center",
@@ -1134,12 +1188,13 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:l
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:chassis_text", {
     get_overlay_textures = function(self)
+        local vd = VD(self._id)
         if ts_vehicles.writing then
-            local text = font_api.get_font("metro"):render(self._data.chassis_text or "", 152, 32, {
+            local text = font_api.get_font("metro"):render(vd.data.chassis_text or "", 152, 32, {
                 lines = 2,
                 halign = "center",
                 valign = "center",
-                color = self._data.chassis_text_color or "#000",
+                color = vd.data.chassis_text_color or "#000",
             })
             return {
                 cabin = "[combine:384x384:0,52=("..E(text).."):232,52=("..E(text)..")",
@@ -1150,12 +1205,13 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:c
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:panels_text", {
     get_overlay_textures = function(self)
+        local vd = VD(self._id)
         if ts_vehicles.writing then
-            local text = font_api.get_font("metro"):render(self._data.panels_text or "", 212, 32, {
+            local text = font_api.get_font("metro"):render(vd.data.panels_text or "", 212, 32, {
                 lines = 2,
                 halign = "center",
                 valign = "center",
-                color = self._data.panels_text_color or "#000",
+                color = vd.data.panels_text_color or "#000",
             })
             local large_text = text.."^[resize:424x64"
             return {
@@ -1167,12 +1223,13 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:p
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:tarp_text", {
     get_overlay_textures = function(self)
+        local vd = VD(self._id)
         if ts_vehicles.writing then
-            local text = font_api.get_font("metro"):render(self._data.tarp_text or "", 212, 48, {
+            local text = font_api.get_font("metro"):render(vd.data.tarp_text or "", 212, 48, {
                 lines = 3,
                 halign = "center",
                 valign = "center",
-                color = self._data.tarp_text_color or "#000",
+                color = vd.data.tarp_text_color or "#000",
             })
             local large_text = text.."^[resize:424x96"
             return {
@@ -1184,7 +1241,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:chassis_stripe", {
     get_overlay_textures = function(self)
-        local color = self._data.chassis_stripe_color or "#fff"
+        local vd = VD(self._id)
+        local color = vd.data.chassis_stripe_color or "#fff"
         return {
             cabin = "ts_vehicles_api_blank.png^(ts_vehicles_cars_truck_cabin_stripe.png^[multiply:"..color..")",
         }

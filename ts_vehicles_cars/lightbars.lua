@@ -1,3 +1,6 @@
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 ts_vehicles_cars.lightbars = {
     {
         id = "blue",
@@ -41,23 +44,26 @@ for _,def in ipairs(ts_vehicles_cars.lightbars) do
         inventory_image = def.on1.."^[mask:ts_vehicles_cars_roof_attachment_inv_mask.png",
         groups = { roof_attachment = 1, },
         get_formspec = function(self, player)
+            local vd = VD(self._id)
             local fs = ""
             fs = fs.."style_type[label;font_size=*2]"
             fs = fs.."style_type[label;font=bold]"
             fs = fs.."label[0,.25;Set text for the information matrix on the light bar]"
             fs = fs.."style_type[label;font_size=*1]"
             fs = fs.."style_type[label;font=normal]"
-            fs = fs.."field[0,1;3,1;text;;"..minetest.formspec_escape(self._data.roof_top_text or "").."]"
+            fs = fs.."field[0,1;3,1;text;;"..minetest.formspec_escape(vd.data.roof_top_text or "").."]"
             fs = fs.."button[3,1;1.5,1;set;Set]"
             return fs
         end,
         on_receive_fields = function(self, player, fields)
             if fields.text and (fields.set or fields.key_enter_field == "text") then
-                self._data.roof_top_text = fields.text
+                local vd = VD(self._id)
+                vd.data.roof_top_text = fields.text
             end
         end,
         after_part_remove = function(self, drop)
-            self._data.roof_top_text = nil
+            local vd = VD(self._id)
+            vd.data.roof_top_text = nil
         end,
     })
 

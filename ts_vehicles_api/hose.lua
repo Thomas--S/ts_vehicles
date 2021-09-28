@@ -1,3 +1,6 @@
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 ts_vehicles.hose = {}
 
 local E = minetest.formspec_escape
@@ -46,7 +49,7 @@ minetest.register_entity("ts_vehicles_api:hose", {
     on_step = function(self, dtime, moveresult)
         self._dtime = self._dtime + dtime
         if self._dtime > 1 then
-            if not ts_vehicles.hose.is_entity_connected(self) then
+            if not ts_vehicles.hose.is_entity_connected(self._connected_to, self._id) then
                 self.object:remove()
             end
             self._dtime = 0
@@ -54,16 +57,12 @@ minetest.register_entity("ts_vehicles_api:hose", {
     end
 })
 
-ts_vehicles.hose.is_entity_connected = function(self)
-    local station_pos = self._connected_to
+ts_vehicles.hose.is_entity_connected = function(station_pos, id)
     if not station_pos then
         return false
     end
     local meta = minetest.get_meta(station_pos)
-    if meta:get_string("ts_vehicles_hose_connection_id") ~= tostring(self._id) then
-        return false
-    end
-    return true
+    return meta:get_string("ts_vehicles_hose_connection_id") == tostring(id)
 end
 
 -- The caller has to ensure that there is a valid station at `station_pos`!
@@ -84,7 +83,7 @@ end
 
 -- The caller has to ensure that there is a valid station at `station_pos`!
 ts_vehicles.hose.connect = function(entity, station_pos)
-    entity._connected_to = station_pos
+    VD(entity._id).connected_to = station_pos
     minetest.get_meta(station_pos):set_string("ts_vehicles_hose_connection_id", entity._id)
     local p1, p2 = ts_vehicles.hose.get_positions(entity, station_pos)
     if p1 == nil or p2 == nil then
@@ -106,7 +105,7 @@ ts_vehicles.hose.connect = function(entity, station_pos)
 end
 
 ts_vehicles.hose.disconnect = function(self)
-    local pos = self._connected_to
+    local pos = VD(self._id).connected_to
     if not pos then
         return
     end
@@ -117,23 +116,11 @@ ts_vehicles.hose.disconnect = function(self)
     minetest.get_meta(pos):set_string("ts_vehicles_hose_connection_id", nil)
 end
 
-ts_vehicles.hose.is_connection_active = function(self)
-    local pos = self._connected_to
-    if not pos then
-        return false
-    end
-    local meta = minetest.get_meta(pos)
-    if self._id == meta:get_string("ts_vehicles_hose_connection_id") then
-        return true
-    end
-    return false
-end
-
 ts_vehicles.hose.can_be_placed = function(entity, station_pos, maxlength)
     if not (entity and ts_vehicles.registered_vehicle_bases[entity.name]) then
         return false, "No vehicle."
     end
-    if entity._connected_to then
+    if VD(entity._id).connected_to then
         return false, "Vehicle already connected to a station."
     end
     local station_node = minetest.get_node(station_pos)

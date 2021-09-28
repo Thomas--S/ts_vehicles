@@ -1,3 +1,6 @@
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 ts_vehicles.get_lamps_texture = function(base_texture, defs)
     local base = base_texture
     local light = ""
@@ -45,27 +48,13 @@ end
 
 ts_vehicles.car_light_beam = function(self)
     local vehicle = self.object
-    if self._lights.front and ts_vehicles.helpers.any_has_group(self._parts, "lights_front") then
+    local vd = VD(self._id)
+    if vd.lights.front and ts_vehicles.helpers.any_has_group(vd.parts, "lights_front") then
         local p1 = vehicle:get_pos()
         p1.y = p1.y + 1
         ts_vehicles.place_light(p1)
 
         local p2 = vector.add(p1, vector.multiply(minetest.yaw_to_dir(vehicle:get_yaw()), 20))
-        local collision = minetest.raycast(p1, p2, false, true):next()
-        if collision then
-            p2 = collision.above
-        end
-        ts_vehicles.place_light(p2)
-    end
-end
-
-ts_vehicles.helicopter_light_beam = function(self)
-    local vehicle = self.object
-    if self._lights.search then
-        local p1 = vehicle:get_pos()
-        ts_vehicles.place_light(p1)
-
-        local p2 = { x = p1.x, y = p1.y - 30, z = p1.z}
         local collision = minetest.raycast(p1, p2, false, true):next()
         if collision then
             p2 = collision.above

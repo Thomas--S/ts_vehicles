@@ -1,3 +1,6 @@
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 ts_vehicles.storage = {}
 
 ts_vehicles.storage.serialize = function(stack)
@@ -13,16 +16,16 @@ ts_vehicles.storage.deserialize = function(serialized_item)
     return stack
 end
 
-ts_vehicles.storage.get_total_count = function(self)
+ts_vehicles.storage.get_total_count = function(id)
     local total = 0
-    for _,item in ipairs(self._storage) do
+    for _,item in ipairs(VD(id).storage) do
         total = total + item.count
     end
     return total
 end
 
-ts_vehicles.storage.get_index = function(self, itemstring)
-    for idx,item in ipairs(self._storage) do
+ts_vehicles.storage.get_index = function(id, itemstring)
+    for idx,item in ipairs(VD(id).storage) do
         if item.itemstring == itemstring then
             return idx
         end
@@ -35,23 +38,25 @@ ts_vehicles.storage.add = function(self, itemstack)
     if serialized_item.count == 0 then
         return true, nil, itemstack
     end
-    local free_amount = ts_vehicles.helpers.get_total_value(self, "storage_capacity") - ts_vehicles.storage.get_total_count(self)
+    local free_amount = ts_vehicles.helpers.get_total_value(self, "storage_capacity") - ts_vehicles.storage.get_total_count(self._id)
     if free_amount <= 0 then
         return false, "Storage full!", itemstack
     end
     serialized_item.count = math.min(serialized_item.count, free_amount)
     itemstack:take_item(serialized_item.count)
-    local idx = ts_vehicles.storage.get_index(self, serialized_item.itemstring)
+    local idx = ts_vehicles.storage.get_index(self._id, serialized_item.itemstring)
+    local storage = VD(self._id).storage
     if idx then
-        self._storage[idx].count = self._storage[idx].count + serialized_item.count
+        storage[idx].count = storage[idx].count + serialized_item.count
     else
-        table.insert(self._storage, serialized_item)
+        table.insert(storage, serialized_item)
     end
     return true, "Item(s) successfully added to the storage of the vehicle.", itemstack
 end
 
 ts_vehicles.storage.take = function(self, idx, max)
-    local serialized_item = self._storage[idx]
+    local storage = VD(self._id).storage
+    local serialized_item = storage[idx]
     if not serialized_item then
         return ItemStack()
     end
@@ -60,9 +65,9 @@ ts_vehicles.storage.take = function(self, idx, max)
     stack:set_count(count_to_take)
     local new_count = serialized_item.count - count_to_take
     if new_count > 0 then
-        self._storage[idx].count = new_count
+        storage[idx].count = new_count
     else
-        table.remove(self._storage, idx)
+        table.remove(storage, idx)
     end
     return stack
 end
@@ -141,7 +146,7 @@ if minetest.get_modpath("signs_bot") then
             local param2 = mem.robot_param2
             local pos = mem.robot_pos
             local vehicle = get_vehicle(pos, param2, id)
-            if vehicle and ts_vehicles.helpers.contains(vehicle._owners, owner) then
+            if vehicle and ts_vehicles.helpers.contains(VD(vehicle._id).owners, owner) then
                 local itemstack = signs_bot.bot_inv_take_item(base_pos, slot, num)
                 local _, _, leftover = ts_vehicles.storage.add(vehicle, itemstack)
                 if leftover and leftover:get_count() > 0 then
@@ -176,9 +181,10 @@ if minetest.get_modpath("signs_bot") then
             local param2 = mem.robot_param2
             local pos = mem.robot_pos
             local vehicle = get_vehicle(pos, param2, id)
-            if vehicle and ts_vehicles.helpers.contains(vehicle._owners, owner) then
-                local idx = ts_vehicles.storage.get_index(vehicle, signs_bot.bot_inv_item_name(base_pos, slot)) or math.random(1, math.max(#vehicle._storage, 1))
-                if #vehicle._storage > 0 then
+            local vd = VD(vehicle._id)
+            if vehicle and ts_vehicles.helpers.contains(vd.owners, owner) then
+                local idx = ts_vehicles.storage.get_index(vehicle._id, signs_bot.bot_inv_item_name(base_pos, slot)) or math.random(1, math.max(#vd.storage, 1))
+                if #vd.storage > 0 then
                     local taken = ts_vehicles.storage.take(vehicle, idx, num)
                     local leftover = signs_bot.bot_inv_put_item(base_pos, slot, taken)
                     ts_vehicles.storage.add(vehicle, leftover)
