@@ -78,7 +78,7 @@ ts_vehicles.register_vehicle_base = function(name, def)
                 local id = ts_vehicles.create_id()
                 ts_vehicles.load(id)
                 self._id = id
-            elseif staticdata:sub(1,2) == "2;" then -- storage system version 2 (sqlite3)
+            elseif staticdata:sub(1,2) == "2;" then -- storage system version 2 (modstorage)
                 local id = tonumber(staticdata:sub(3))
                 ts_vehicles.load(id)
                 self._id = id
