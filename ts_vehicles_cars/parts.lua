@@ -3,7 +3,7 @@ local VD = ts_vehicles.get
 
 ts_vehicles.register_part("ts_vehicles_cars:base_plate", {
     description = "Car/Truck Base Plate",
-    inventory_image = "ts_vehicles_cars_base_plate.png^[mask:ts_vehicles_cars_base_plate_inv_mask.png",
+    inventory_image = "ts_vehicles_cbp.png^[mask:ts_vehicles_cars_base_plate_inv_mask.png",
     groups = { base_plate = 1, },
 })
 
@@ -20,7 +20,7 @@ minetest.register_craft({
 
 ts_vehicles.register_part("ts_vehicles_cars:tire", {
     description = "Tire",
-    inventory_image = "ts_vehicles_cars_tire.png",
+    inventory_image = "ts_vehicles_ct.png",
     groups = { tires = 1, },
 })
 
@@ -146,6 +146,7 @@ ts_vehicles.register_part("ts_vehicles_cars:license_plate", {
         if fields.text and (fields.set or fields.key_enter_field == "text") then
             local vd = VD(self._id)
             vd.data.license_plate_text = fields.text
+            vd.tmp.base_textures_set = false
         end
     end,
     after_part_add = function(self, item)
@@ -191,6 +192,7 @@ ts_vehicles.register_part("ts_vehicles_cars:chassis_text", {
         if fields.text and (fields.set or fields.key_enter_field == "text") then
             local vd = VD(self._id)
             vd.data.chassis_text = fields.text
+            vd.tmp.base_textures_set = false
         end
     end,
     after_part_add = function(self, item)
@@ -226,7 +228,7 @@ minetest.register_craft({
 
 ts_vehicles.register_part("ts_vehicles_cars:chassis_stripe", {
     description = "Stripe on car chassis/truck cabin",
-    inventory_image = "ts_vehicles_cars_car_chassis_stripe_side.png",
+    inventory_image = "ts_vehicles_css.png",
     groups = { chassis_accessory = 1, cabin_accessory = 1 },
     colorable = true,
     default_color = "#fff",

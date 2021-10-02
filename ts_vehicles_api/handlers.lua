@@ -157,19 +157,24 @@ ts_vehicles.handle_car_light_controls = function(self, control)
         elseif vd.last_light_time == nil then
             if control.aux1 then
                 vd.lights.special = not vd.lights.special
+                vd.tmp.light_textures_set = false
                 vd.last_light_time = 0
             elseif control.down then
                 vd.lights.warn = not vd.lights.warn
+                vd.tmp.light_textures_set = false
                 vd.last_light_time = 0
             elseif control.up then
                 vd.lights.front = not vd.lights.front
+                vd.tmp.light_textures_set = false
                 vd.last_light_time = 0
             elseif control.left then
                 vd.lights.left = not vd.lights.left
+                vd.tmp.light_textures_set = false
                 vd.lights.right = false
                 vd.last_light_time = 0
             elseif control.right then
                 vd.lights.right = not vd.lights.right
+                vd.tmp.light_textures_set = false
                 vd.lights.left = false
                 vd.last_light_time = 0
             end
@@ -182,11 +187,19 @@ ts_vehicles.handle_car_light_controls = function(self, control)
         elseif control.down then
             stop_lights = vd.v > 0 and true or stop_lights
         end
-        vd.lights.stop = stop_lights
-    else
+        if vd.lights.stop ~= stop_lights then
+            vd.lights.stop = stop_lights
+            vd.tmp.light_textures_set = false
+        end
+    elseif vd.lights.stop then
         vd.lights.stop = false
+        vd.tmp.light_textures_set = false
     end
-    vd.lights.back = vd.v < 0
+    local back = vd.v < 0
+    if vd.lights.back ~= back then
+        vd.lights.back = back
+        vd.tmp.light_textures_set = false
+    end
 end
 
 ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
@@ -212,20 +225,22 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
     vehicle:set_velocity({x = dir.x * new_velocity, y = velocity.y, z = dir.z * new_velocity})
 
     ts_vehicles.handle_car_light_controls(self, control)
-    if not vd.tmp.textures_set then -- TODO
+    if not vd.tmp.base_textures_set then
         ts_vehicles.apply_textures(self, ts_vehicles.build_textures(def.name, def.textures, vd.parts, self))
-        vd.tmp.textures_set = true
+        vd.tmp.base_textures_set = true
+    end
+    if not vd.tmp.light_textures_set then
+        ts_vehicles.apply_light_textures(self, ts_vehicles.build_light_textures(def.name, def.lighting_textures, vd.parts, self))
+        vd.tmp.light_textures_set = true
     end
     ts_vehicles.car_light_beam(self)
 
-    local tire_pos, car_length = ts_vehicles.helpers.get_rotated_collisionbox_corners(self)
-    local max_depth = def.stepheight * car_length * 1.5
-
-    local front_downwards_space = math.max(ts_vehicles.helpers.downwards_space(tire_pos[1], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[2], max_depth))
-    local back_downwards_space = math.max(ts_vehicles.helpers.downwards_space(tire_pos[3], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[4], max_depth))
-    local delta_y = front_downwards_space - back_downwards_space
-
     if is_full_second then
+        local tire_pos, car_length = ts_vehicles.helpers.get_rotated_collisionbox_corners(self)
+        local max_depth = def.stepheight * car_length * 1.5
+        local front_downwards_space = math.max(ts_vehicles.helpers.downwards_space(tire_pos[1], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[2], max_depth))
+        local back_downwards_space = math.max(ts_vehicles.helpers.downwards_space(tire_pos[3], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[4], max_depth))
+        local delta_y = front_downwards_space - back_downwards_space
         ts_vehicles.helpers.pitch_vehicle(self, delta_y, car_length, def)
         vd.last_seen_pos = vehicle:get_pos()
     end
@@ -252,7 +267,8 @@ ts_vehicles.remove_part = function(self, part_name, player)
     end
     local vd = VD(self._id)
     table.remove(vd.parts, ts_vehicles.helpers.index_of(vd.parts, part_name))
-    vd.tmp.textures_set = false -- TODO
+    vd.tmp.base_textures_set = false
+    vd.tmp.light_textures_set = false
     return true
 end
 
@@ -273,7 +289,8 @@ ts_vehicles.add_part = function(self, item, player)
     local vd = VD(self._id)
     table.insert(vd.parts, part_name)
     ts_vehicles.helpers.part_get_property("after_part_add", part_name, self.name, function(...) end)(self, ItemStack(item))
-    vd.tmp.textures_set = false -- TODO
+    vd.tmp.base_textures_set = false
+    vd.tmp.light_textures_set = false
     return true
 end
 

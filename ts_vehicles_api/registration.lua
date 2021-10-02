@@ -37,7 +37,7 @@ ts_vehicles.register_vehicle_base = function(name, def)
         inventory_image = def.inventory_image,
         description = def.item_description,
         on_place = function(itemstack, player, pointed_thing)
-            if false and pointed_thing and pointed_thing.above then
+            if pointed_thing and pointed_thing.above then
                 if not player:is_player() then
                     return false
                 end
@@ -74,7 +74,7 @@ ts_vehicles.register_vehicle_base = function(name, def)
             ts_vehicles.handle_leftclick(self, player, def)
         end,
         on_activate = function(self, staticdata, dtime_s)
-            if not staticdata then -- object creation
+            if not staticdata or staticdata == "" then -- object creation
                 local id = ts_vehicles.create_id()
                 ts_vehicles.load(id)
                 self._id = id
@@ -119,8 +119,8 @@ ts_vehicles.register_vehicle_base = function(name, def)
             selectionbox = { 0, 0, 0, 0, 0, 0 },
             visual = "mesh",
             -- Scale the light entity up a tiny little bit to ensure that the lights are always visible.
-            visual_size = { x = 1.001, y = 1.001, z = 1.001 },
-            mesh = def.mesh,
+            visual_size = def.lighting_mesh and { x = 10, y = 10, z = 10 },
+            mesh = def.lighting_mesh or def.mesh,
             physical = false,
             glow = 12,
             static_save = false,
@@ -128,10 +128,18 @@ ts_vehicles.register_vehicle_base = function(name, def)
         _light_entity_for = name,
         on_activate = function(self)
             self.object:set_armor_groups({immortal=1})
+            self._animation_delay = math.random()
         end,
-        on_step = function(self)
+        on_step = function(self, dtime)
             if self.object:get_attach() == nil then
                 self.object:remove()
+            end
+            if self._animation_delay then
+                self._animation_delay = self._animation_delay - dtime
+                if self._animation_delay <= 0 then
+                    self.object:set_animation({ x = 0, y = 60 }, math.random()*4+28, 0)
+                    self._animation_delay = nil
+                end
             end
         end
     })

@@ -127,6 +127,13 @@ ts_vehicles.helpers.pitch_vehicle = function(self, delta_y, length, def)
     local pitch = math.atan(delta_y/length)
     local box_offset = math.abs(delta_y/2)
     if (math.abs(rotation.x - pitch) > 0.01) then
+        obj:set_rotation(vector.new(pitch, rotation.y, rotation.z))
+    end
+    local box_delta = def.scaled_collisionbox[2] + box_offset - collisionbox[2]
+    if (math.abs(box_delta) > 0.01) then
+        local pos = obj:get_pos()
+        pos.y = pos.y - box_delta
+        obj:set_pos(pos)
         obj:set_properties({
             collisionbox = {
                 collisionbox[1], def.scaled_collisionbox[2] + box_offset, collisionbox[3],
@@ -137,7 +144,6 @@ ts_vehicles.helpers.pitch_vehicle = function(self, delta_y, length, def)
                 selectionbox[4], def.scaled_selectionbox[5] + box_offset, selectionbox[6],
             }
         })
-        obj:set_rotation(vector.new(pitch, rotation.y, rotation.z))
     end
 end
 

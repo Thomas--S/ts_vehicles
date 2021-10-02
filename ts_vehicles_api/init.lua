@@ -5,7 +5,6 @@ ts_vehicles.mod_storage = minetest.get_mod_storage()
 ts_vehicles.writing = minetest.global_exists("font_api")
 
 local modpath = minetest.get_modpath("ts_vehicles_api")
-local worldpath = minetest.get_worldpath()
 
 local vehicle_data = {}
 local waiting_for_unload = {}
@@ -126,7 +125,7 @@ function ts_vehicles.store_all()
         ts_vehicles.store(id)
     end
     local finish = minetest.get_us_time()
-    minetest.chat_send_all("Storing the data of "..num_vehicles.." vehicles in "..(finish-start).."µs.")
+    print("[ts_vehicles] Storing the data of "..num_vehicles.." vehicles in "..(finish-start).."µs.")
 end
 
 -- Store all active data every 60 seconds

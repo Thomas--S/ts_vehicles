@@ -5,34 +5,34 @@ ts_vehicles_cars.lightbars = {
     {
         id = "blue",
         name = "Blue",
-        off = "ts_vehicles_cars_blue_light_off.png",
-        on1 = "ts_vehicles_cars_blue_light_on.png^[transformFX",
-        on2 = "ts_vehicles_cars_blue_light_on.png",
+        off = "ts_vehicles_crtb.png",
+        on1 = "ts_vehicles_crtb_.png^[transformFX",
+        on2 = "ts_vehicles_crtb_.png",
         restricted = true,
         recipe = {"blue", "blue"},
     },
     {
         id = "amber",
         name = "Amber",
-        off = "ts_vehicles_cars_amber_light_off.png",
-        on1 = "ts_vehicles_cars_amber_light_on.png^[transformFX",
-        on2 = "ts_vehicles_cars_amber_light_on.png",
+        off = "ts_vehicles_crta.png",
+        on1 = "ts_vehicles_crta_.png^[transformFX",
+        on2 = "ts_vehicles_crta_.png",
         recipe = {"orange", "orange"},
     },
     {
         id = "red",
         name = "Red",
-        off = "ts_vehicles_cars_red_light_off.png",
-        on1 = "ts_vehicles_cars_red_light_on.png^[transformFX",
-        on2 = "ts_vehicles_cars_red_light_on.png",
+        off = "ts_vehicles_crtr.png",
+        on1 = "ts_vehicles_crtr_.png^[transformFX",
+        on2 = "ts_vehicles_crtr_.png",
         recipe = {"red", "red"},
     },
     {
         id = "red_and_blue",
         name = "Red and Blue",
-        off = "ts_vehicles_cars_red_and_blue_light_off.png",
-        on1 = "ts_vehicles_cars_red_and_blue_light_on1.png",
-        on2 = "ts_vehicles_cars_red_and_blue_light_on2.png",
+        off = "ts_vehicles_crtrb.png",
+        on1 = "ts_vehicles_crtr_.png^[transformFX",
+        on2 = "ts_vehicles_crtb_.png",
         restricted = true,
         recipe = {"blue", "red"},
     }
@@ -41,7 +41,7 @@ ts_vehicles_cars.lightbars = {
 for _,def in ipairs(ts_vehicles_cars.lightbars) do
     ts_vehicles.register_part("ts_vehicles_cars:"..def.id.."_light", {
         description = def.name.." Light"..(def.restricted and " (Authorized Personell Only)" or ""),
-        inventory_image = def.on1.."^[mask:ts_vehicles_cars_roof_attachment_inv_mask.png",
+        inventory_image = def.off.."^[mask:ts_vehicles_cars_roof_attachment_inv_mask.png",
         groups = { roof_attachment = 1, },
         get_formspec = function(self, player)
             local vd = VD(self._id)

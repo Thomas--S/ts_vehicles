@@ -1,0 +1,76 @@
+ts_vehicles_cb.png: Car Back
+ts_vehicles_cbl.png: Car Back Light
+ts_vehicles_cbl_.png: Car Back Light On
+ts_vehicles_cbp.png: Base Plate
+ts_vehicles_ccs.png: Car Construction Stand
+ts_vehicles_cdb.png: Car Direction Indicator Back
+ts_vehicles_cdf.png: Car Direction Indicator Front
+ts_vehicles_cdl_.png: Car Direction Indicator Left On
+ts_vehicles_cdr_.png: Car Direction Indicator Right On
+ts_vehicles_cf.png: Car Front
+ts_vehicles_cf_.png: Car Front Overlay
+ts_vehicles_cfl.png: Car Front Light
+ts_vehicles_cfl_.png: Car Front Light On
+ts_vehicles_ci.png: Car Interior
+ts_vehicles_ci_.png: Car Interior Overlay
+ts_vehicles_clpb.png: Car License Plate Back
+ts_vehicles_clpf.png: Car License Plate Front
+ts_vehicles_cp.png: Pillar
+ts_vehicles_cr.png: Roof
+ts_vehicles_crl.png: Car Reversing Light
+ts_vehicles_crl_.png: Car Reversing Light On
+ts_vehicles_crta.png: Roof Top Light Amber
+ts_vehicles_crta_.png: Roof Top Light Amber On
+ts_vehicles_crta__tp.png: Truck Panel Light Amber On
+ts_vehicles_crta_tp.png: Truck Panel Light Amber
+ts_vehicles_crtb.png: Roof Top Light Blue
+ts_vehicles_crtb_.png: Roof Top Light Blue On
+ts_vehicles_crtb__tp.png: Truck Panel Light Blue On
+ts_vehicles_crtb_tp.png: Truck Panel Light Blue
+ts_vehicles_crtr.png: Roof Top Light Red
+ts_vehicles_crtr_.png: Roof Top Light Red On
+ts_vehicles_crtr__tp.png: Truck Panel Light Red On
+ts_vehicles_crtr_tp.png: Truck Panel Light Red
+ts_vehicles_crtrb.png: Roof Top Light Red and Blue
+ts_vehicles_crtrb_tp.png: Truck Panel Light Red and Blue
+ts_vehicles_cs.png: Car Side
+ts_vehicles_csb.png: Car Chassis Stripe Back
+ts_vehicles_csf.png: Car Chassis Stripe Front
+ts_vehicles_csl_.png: Car Special Light On
+ts_vehicles_css.png: Car Chassis Stripe Side
+ts_vehicles_ct.png: Tire
+ts_vehicles_ctbl.png: Truck Back Light
+ts_vehicles_ctbl_.png: Truck Back Light On
+ts_vehicles_ctc.png: Truck Cabin
+ts_vehicles_ctc_.png: Truck Cabin Overlay
+ts_vehicles_ctcm.png: Truck Combined Module
+ts_vehicles_ctcm_.png: Truck Combined Module Overlay
+ts_vehicles_ctcs.png: Truck Construction Stand
+ts_vehicles_ctdb.png: Truck Direction Indicator Back
+ts_vehicles_ctdf.png: Truck Direction Indicator Front
+ts_vehicles_ctdl_.png: Truck Direction Indicator Left On
+ts_vehicles_ctdr_.png: Truck Direction Indicator Right On
+ts_vehicles_ctfcm.png: Truck Framework Combined Module
+ts_vehicles_ctfl.png: Truck Front Light
+ts_vehicles_ctfl_.png: Truck Front Light On
+ts_vehicles_ctfp.png: Truck Framework Panel
+ts_vehicles_ctft.png: Truck Framework Tarp
+ts_vehicles_ctfw.png: Truck Framework Warning
+ts_vehicles_cti.png: Truck Interior
+ts_vehicles_cti_.png: Truck Interior Overlay
+ts_vehicles_ctlpb.png: Truck License Plate Back
+ts_vehicles_ctlpf.png: Truck License Plate Front
+ts_vehicles_ctp.png: Truck Platform
+ts_vehicles_ctpt.png: Truck Payload Tank
+ts_vehicles_ctpt_.png: Truck Payload Tank Platform Overlay
+ts_vehicles_ctrl.png: Truck Reversing Light
+ts_vehicles_ctrl_.png: Truck Reversing Light On
+ts_vehicles_cts.png: Truck Cabin Stripe
+ts_vehicles_ctsl_.png: Truck Special Light On
+ts_vehicles_ctsp.png: Truck Side Panels
+ts_vehicles_ctt.png: Truck Tarp
+ts_vehicles_ctw.png: Truck Windows
+ts_vehicles_ctwb.png: Truck Warning Board
+ts_vehicles_ctwb_.png: Truck Warning Board Light On
+ts_vehicles_cw.png: Car Windows
+ts_vehicles_cws.png: Car Windscreen

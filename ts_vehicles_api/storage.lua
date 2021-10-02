@@ -181,8 +181,8 @@ if minetest.get_modpath("signs_bot") then
             local param2 = mem.robot_param2
             local pos = mem.robot_pos
             local vehicle = get_vehicle(pos, param2, id)
-            local vd = VD(vehicle._id)
-            if vehicle and ts_vehicles.helpers.contains(vd.owners, owner) then
+            if vehicle and ts_vehicles.helpers.contains(VD(vehicle._id).owners, owner) then
+                local vd = VD(vehicle._id)
                 local idx = ts_vehicles.storage.get_index(vehicle._id, signs_bot.bot_inv_item_name(base_pos, slot)) or math.random(1, math.max(#vd.storage, 1))
                 if #vd.storage > 0 then
                     local taken = ts_vehicles.storage.take(vehicle, idx, num)

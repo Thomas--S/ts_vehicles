@@ -13,6 +13,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:car", {
     selectionbox = {-1.375, -0.5, -1.375, 1.375, 1.5, 1.375},
     scale_factor = .8,
     mesh = "ts_vehicles_cars_car.obj",
+    lighting_mesh = "ts_vehicles_cars_car.b3d",
     -- The names are intentional; the mapping to the actual textures should happen in API,
     -- according to the get_texture functions of the registered compatibilities.
     textures = {
@@ -29,6 +30,14 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:car", {
         "roof",
         "roof_attachment"
     },
+    lighting_textures = {
+        "chassis_1",
+        "chassis_2",
+        "chassis",
+        "roof_attachment_1",
+        "roof_attachment_2",
+        "roof_attachment"
+    },
     on_step = ts_vehicles.car_on_step,
     initial_parts = {},
     driver_pos = { x = -5, y = 2, z = 4 },
@@ -39,7 +48,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:car", {
     },
     get_fallback_textures = function(self)
         return {
-            tires = "ts_vehicles_cars_construction_stand.png"
+            tires = "ts_vehicles_ccs.png"
         }
     end,
     is_driveable = function(self)
@@ -417,7 +426,7 @@ minetest.register_craft({
 ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:tire", {
     get_textures = function(self)
         return {
-            tires = "ts_vehicles_cars_tire.png",
+            tires = "ts_vehicles_ct.png",
         }
     end,
 })
@@ -425,7 +434,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:tir
 ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:base_plate", {
     get_textures = function(self)
         return {
-            base_plate = "ts_vehicles_cars_base_plate.png",
+            base_plate = "ts_vehicles_cbp.png",
         }
     end,
 })
@@ -438,9 +447,9 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:car
             color = vd.data.chassis_color
         end
         return {
-            front = "ts_vehicles_cars_car_front.png^[multiply:"..color.."^ts_vehicles_cars_car_front_overlay.png",
-            back = "ts_vehicles_cars_car_back.png^[multiply:"..color,
-            side = "ts_vehicles_cars_car_side.png^[multiply:"..color,
+            front = "ts_vehicles_cf.png^[multiply:"..color.."^ts_vehicles_cf_.png",
+            back = "ts_vehicles_cb.png^[multiply:"..color,
+            side = "ts_vehicles_cs.png^[multiply:"..color,
         }
     end,
     get_fallback_textures = function(self)
@@ -450,7 +459,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:car
             color = vd.data.chassis_color
         end
         return {
-            interior = "ts_vehicles_cars_car_interior_chassis.png^[multiply:"..color
+            interior = "ts_vehicles_ci.png^[multiply:"..color
         }
     end
 })
@@ -463,7 +472,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:car
             color = vd.data.pillars_a_color
         end
         return {
-            pillars_a = "ts_vehicles_cars_pillar.png^[multiply:"..color,
+            pillars_a = "ts_vehicles_cp.png^[multiply:"..color,
         }
     end,
 })
@@ -476,7 +485,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:car
             color = vd.data.pillars_bc_color
         end
         return {
-            pillars_bc = "ts_vehicles_cars_pillar.png^[multiply:"..color,
+            pillars_bc = "ts_vehicles_cp.png^[multiply:"..color,
         }
     end,
 })
@@ -484,7 +493,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:car
 ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:windscreen", {
     get_textures = function(self)
         return {
-            glass = "ts_vehicles_cars_car_windscreen.png",
+            glass = "ts_vehicles_cws.png",
         }
     end,
 })
@@ -492,7 +501,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:win
 ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:windows", {
     get_textures = function(self)
         return {
-            glass = "ts_vehicles_cars_car_windows.png",
+            glass = "ts_vehicles_cw.png",
         }
     end,
 })
@@ -505,7 +514,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:car
             color = vd.data.roof_color
         end
         return {
-            roof = "ts_vehicles_cars_roof.png^[multiply:"..color,
+            roof = "ts_vehicles_cr.png^[multiply:"..color,
         }
     end,
 })
@@ -518,7 +527,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:car
             color = vd.data.interior_color
         end
         return {
-            interior = "ts_vehicles_cars_car_interior.png^[multiply:"..color.."^ts_vehicles_cars_car_interior_overlay.png",
+            interior = "ts_vehicles_ci.png^[multiply:"..color.."^ts_vehicles_ci_.png",
         }
     end,
 })
@@ -538,79 +547,41 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:sea
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:direction_indicator", {
     get_overlay_textures = function(self)
-        local vd = VD(self._id)
-        local front_left = "(ts_vehicles_cars_car_front_directional_left.png^[colorize:#000:25)"
-        local front_right = "(ts_vehicles_cars_car_front_directional_left.png^[colorize:#000:25^[transformFX)"
-        local back_left = "(ts_vehicles_cars_car_back_directional_left.png^[colorize:#000:25)"
-        local back_right = "(ts_vehicles_cars_car_back_directional_left.png^[colorize:#000:25^[transformFX)"
-        local interior = {}
-        if vd.even_step then
-            if vd.lights.left or vd.lights.warn then
-                front_left = "(ts_vehicles_cars_car_front_directional_left.png^[colorize:#fff:25)"
-                back_left = "(ts_vehicles_cars_car_back_directional_left.png^[colorize:#fff:25)"
-                interior[#interior+1] = "ts_vehicles_cars_car_interior_directional_left.png"
-            end
-            if vd.lights.right or vd.lights.warn then
-                front_right = "(ts_vehicles_cars_car_front_directional_left.png^[colorize:#fff:25^[transformFX)"
-                back_right = "(ts_vehicles_cars_car_back_directional_left.png^[colorize:#fff:25^[transformFX)"
-                interior[#interior+1] = "ts_vehicles_cars_car_interior_directional_right.png"
-            end
-        end
-        local result = {
-            front = front_left.."^"..front_right,
-            back = back_left.."^"..back_right,
+        return {
+            front = "(ts_vehicles_cdf.png)",
+            back = "(ts_vehicles_cdb.png)",
         }
-        if #interior > 0 then
-            result.interior = table.concat(interior, "^")
-        end
-        return result
     end,
 
     get_light_overlay_textures = function(self)
         local vd = VD(self._id)
-        local front = {}
-        local back = {}
-        local result = {}
-        if vd.even_step then
-            if vd.lights.left or vd.lights.warn then
-                front[#front+1] = "(ts_vehicles_cars_car_front_directional_left.png^[colorize:#fff:25)"
-                back[#back+1] = "(ts_vehicles_cars_car_back_directional_left.png^[colorize:#fff:25)"
-            end
-            if vd.lights.right or vd.lights.warn then
-                front[#front+1] = "(ts_vehicles_cars_car_front_directional_left.png^[colorize:#fff:25^[transformFX)"
-                back[#back+1] = "(ts_vehicles_cars_car_back_directional_left.png^[colorize:#fff:25^[transformFX)"
-            end
+        local tmp = {}
+        if vd.lights.left or vd.lights.warn then
+            tmp[#tmp+1] = "(ts_vehicles_cdl_.png)"
         end
-        if #front > 0 then
-            result.front = table.concat(front, "^")
+        if vd.lights.right or vd.lights.warn then
+            tmp[#tmp+1] = "(ts_vehicles_cdr_.png)"
         end
-        if #back > 0 then
-            result.back = table.concat(back, "^")
+        if #tmp > 0 then
+            return {
+                chassis_1 = table.concat(tmp, "^")
+            }
         end
-        return result
     end
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:lights_front", {
     get_overlay_textures = function(self)
-        local vd = VD(self._id)
-        if vd.lights.front then
-            return {
-                front = "(ts_vehicles_cars_car_front_light.png^[colorize:#fff:25)",
-                interior = "ts_vehicles_cars_car_interior_light.png",
-            }
-        else
-            return {
-                front = "(ts_vehicles_cars_car_front_light.png^[colorize:#000:25)",
-            }
-        end
+        return {
+            front = "(ts_vehicles_cfl.png)",
+        }
     end,
 
     get_light_overlay_textures = function(self)
         local vd = VD(self._id)
         if vd.lights.front then
             return {
-                front = "(ts_vehicles_cars_car_front_light.png^[colorize:#fff:25)",
+                chassis = "(ts_vehicles_cfl_.png)",
             }
         end
     end
@@ -618,27 +589,16 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:lig
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:lights_back", {
     get_overlay_textures = function(self)
-        local vd = VD(self._id)
-        if vd.lights.stop then
-            return {
-                back = "(ts_vehicles_cars_car_back_light.png^[colorize:#fff:25)",
-            }
-        else
-            return {
-                back = "(ts_vehicles_cars_car_back_light.png^[colorize:#000:25)",
-            }
-        end
+        return {
+            back = "(ts_vehicles_cbl.png)",
+        }
     end,
 
     get_light_overlay_textures = function(self)
         local vd = VD(self._id)
         if vd.lights.stop then
             return {
-                back = "(ts_vehicles_cars_car_back_light.png^[colorize:#fff:25)",
-            }
-        elseif vd.lights.front then
-            return {
-                back = "(ts_vehicles_cars_car_back_light.png^[colorize:#000:25)",
+                chassis = "(ts_vehicles_cbl_.png)",
             }
         end
     end
@@ -646,23 +606,16 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:lig
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:lights_reversing", {
     get_overlay_textures = function(self)
-        local vd = VD(self._id)
-        if vd.v < 0 then
-            return {
-                back = "(ts_vehicles_cars_car_reversing_light.png^[colorize:#fff:25)",
-            }
-        else
-            return {
-                back = "(ts_vehicles_cars_car_reversing_light.png^[colorize:#000:25)",
-            }
-        end
+        return {
+            back = "(ts_vehicles_crl.png)",
+        }
     end,
 
     get_light_overlay_textures = function(self)
         local vd = VD(self._id)
         if vd.v < 0 then
             return {
-                back = "(ts_vehicles_cars_car_reversing_light.png^[colorize:#fff:25)",
+                chassis = "(ts_vehicles_crl_.png)",
             }
         end
     end
@@ -671,49 +624,36 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:lig
 for _,def in ipairs(ts_vehicles_cars.lightbars) do
     ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:"..def.id.."_light", {
         get_textures = function(self)
-            local vd = VD(self._id)
-            if not (vd.lights.special) then
-                local texture = def.off
-                if ts_vehicles.writing then
-                    local text = font_api.get_font("metro"):render(vd.data.roof_top_text or "", 64, 16, {
-                        lines = 1,
-                        halign = "center",
-                        valign = "center",
-                        color= "#c00",
-                    })
-                    texture = "[combine:128x128:0,0=("..E(texture).."\\^[resize\\:128x128):32,38=("..E(text).."):32,102=("..E(text)..")"
-                end
-                return {
-                    roof_attachment = texture
-                }
-            end
-        end,
-        get_overlay_textures = function(self)
-            local vd = VD(self._id)
-            if vd.even_step and vd.lights.special then
-                return {
-                    interior = "ts_vehicles_cars_car_interior_special.png"
-                }
-            end
+            return {
+                roof_attachment = def.off
+            }
         end,
         get_light_textures = function(self)
             local vd = VD(self._id)
+            local result = {}
+            if ts_vehicles.writing then
+                local text = font_api.get_font("metro"):render(vd.data.roof_top_text or "", 64, 16, {
+                    lines = 1,
+                    halign = "center",
+                    valign = "center",
+                    color= "#c00",
+                })
+                result.roof_attachment = "[combine:128x128:32,38=("..E(text).."):32,102=("..E(text)..")"
+            end
             if vd.lights.special then
-                local texture = vd.even_step and def.on1 or def.on2
-                if ts_vehicles.writing then
-                    local text = font_api.get_font("metro"):render(vd.data.roof_top_text or "", 64, 16, {
-                        lines = 1,
-                        halign = "center",
-                        valign = "center",
-                        color= "#c00",
-                    })
-                    texture = "[combine:128x128:0,0=("..E(texture).."\\^[resize\\:128x128):32,38=("..E(text).."):32,102=("..E(text)..")"
-                end
+                result.roof_attachment_1 = def.on1
+                result.roof_attachment_2 = def.on2
+            end
+            return result
+        end,
+        get_light_overlay_textures = function(self)
+            local vd = VD(self._id)
+            if vd.lights.special then
                 return {
-                    roof_attachment = texture
+                    chassis_1 = "ts_vehicles_csl_.png"
                 }
             end
-        end,
+        end
     })
 end
 
@@ -728,8 +668,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:lic
                 color = "#000",
             })
             return {
-                front = "ts_vehicles_cars_car_license_plate_front.png^[combine:384x384:152,348=("..E(text)..")",
-                back = "ts_vehicles_cars_car_license_plate_back.png^[combine:384x384:152,340=("..E(text)..")"
+                front = "ts_vehicles_clpf.png^[combine:384x384:152,348=("..E(text)..")",
+                back = "ts_vehicles_clpb.png^[combine:384x384:152,340=("..E(text)..")"
             }
         end
     end,
@@ -759,9 +699,9 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:car", "ts_vehicles_cars:cha
         local vd = VD(self._id)
         local color = vd.data.chassis_stripe_color or "#fff"
         return {
-            front = "ts_vehicles_api_blank.png^(ts_vehicles_cars_car_chassis_stripe_front.png^[multiply:"..color..")",
-            side = "ts_vehicles_api_blank.png^(ts_vehicles_cars_car_chassis_stripe_side.png^[multiply:"..color..")",
-            back = "ts_vehicles_api_blank.png^(ts_vehicles_cars_car_chassis_stripe_back.png^[multiply:"..color..")",
+            front = "(ts_vehicles_csf.png^[multiply:"..color..")",
+            side = "(ts_vehicles_css.png^[multiply:"..color..")",
+            back = "(ts_vehicles_csb.png^[multiply:"..color..")",
         }
     end,
 })
