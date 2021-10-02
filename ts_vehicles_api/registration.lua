@@ -1,3 +1,6 @@
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 ts_vehicles.registered_vehicle_bases = {}
 ts_vehicles.registered_parts = {}
 ts_vehicles.registered_compatibilities = {}
@@ -33,9 +36,8 @@ ts_vehicles.register_vehicle_base = function(name, def)
     minetest.register_craftitem(":"..name, {
         inventory_image = def.inventory_image,
         description = def.item_description,
-        on_place = function(itemstack, player, pointed_thing) -- TODO
-            minetest.chat_send_player(player:get_player_name(), "Vehicles are not available at the moment. They will be back in a few days.")
-            if false and pointed_thing and pointed_thing.above then
+        on_place = function(itemstack, player, pointed_thing)
+            if pointed_thing and pointed_thing.above then
                 if not player:is_player() then
                     return false
                 end
@@ -45,8 +47,9 @@ ts_vehicles.register_vehicle_base = function(name, def)
                 if object then
                     object:set_yaw(player:get_look_horizontal())
                     local luaentity = object:get_luaentity()
-                    luaentity._owners = { player_name }
-                    luaentity._parts = table.copy(def.initial_parts)
+                    local vd = VD(luaentity._id)
+                    vd.owners = { player_name }
+                    vd.parts = table.copy(def.initial_parts)
                     itemstack:take_item()
                 end
             end
@@ -71,74 +74,41 @@ ts_vehicles.register_vehicle_base = function(name, def)
             ts_vehicles.handle_leftclick(self, player, def)
         end,
         on_activate = function(self, staticdata, dtime_s)
-            self.object:set_armor_groups({immortal=1})
-            local data = minetest.deserialize(staticdata)
-            if data then
-                self._id = data._id or ts_vehicles.create_id()
-                self._owners = data._owners
-                self._passengers_closed = data._passengers_closed
-                self._v = data._v
-                self._lights = data._lights
-                self._data = data._data
-                self._parts = data._parts
-                self._storage = data._storage
-                self._connected_to = data._connected_to
-            else
-                self._id = ts_vehicles.create_id()
-                self._data = {}
-                self._lights = {
-                    left = false,
-                    right = false,
-                    warn = false,
-                    front = false,
-                    back = false,
-                    stop = false,
-                    special = false,
-                }
-                self._v = 0
-                self._passengers_closed = true
-                self._owners = nil
-                self._storage = {}
-                self._parts = {}
+            if not staticdata or staticdata == "" then -- object creation
+                local id = ts_vehicles.create_id()
+                ts_vehicles.load(id)
+                self._id = id
+            elseif staticdata:sub(1,2) == "2;" then -- storage system version 2 (modstorage)
+                local id = tonumber(staticdata:sub(3))
+                ts_vehicles.load(id)
+                self._id = id
+            else -- storage system version 1 (staticdata)
+                self._id = ts_vehicles.load_legacy(staticdata)
             end
-            self._dtime = math.random()
-            self._tmp = {}
-            self._even_step = false
-            self._step_ctr = 0
-            self._driver = nil
-            -- Passengers are stored as a table; indexed by the seat position as given in the vehicle definition.
-            self._passengers = {}
-            self._last_light_time = nil,
+            self.object:set_armor_groups({immortal=1})
             self.object:set_acceleration({ x = 0, y = -ts_vehicles.GRAVITATION, z = 0 })
             ts_vehicles.ensure_light_attached(self)
         end,
+        on_deactivate = function(self)
+            ts_vehicles.unload(self._id)
+        end,
         get_staticdata = function(self)
-            local data = {
-                _id = self._id,
-                _owners = self._owners,
-                _passengers_closed = self._passengers_closed,
-                _v = self._v,
-                _lights = self._lights,
-                _data = self._data,
-                _parts = self._parts,
-                _storage = self._storage,
-                _connected_to = self._connected_to
-            }
-            return minetest.serialize(data)
+            return "2;"..self._id
         end,
         on_step = function(self, dtime, moveresult)
-            self._step_ctr = self._step_ctr + 1
-            local is_full_second = ts_vehicles.handle_timing(self, dtime)
+            local vd = VD(self._id)
+            vd.step_ctr = vd.step_ctr + 1
+            local is_full_second = ts_vehicles.handle_timing(vd, dtime)
             if is_full_second then
                 ts_vehicles.ensure_light_attached(self)
                 ts_vehicles.ensure_is_driveable(self)
-                if not ts_vehicles.hose.is_entity_connected(self) then
-                    self._connected_to = nil
+                if not ts_vehicles.hose.is_entity_connected(vd.connected_to, self._id) then
+                    vd.connected_to = nil
                 end
                 ts_vehicles.ensure_attachments(self)
             end
             def.on_step(self, dtime, moveresult, def, is_full_second)
-            if self._connected_to ~= nil and vector.length(self.object:get_velocity()) > 0.01 then
+            if vd.connected_to ~= nil and vector.length(self.object:get_velocity()) > 0.01 then
                 ts_vehicles.hose.disconnect(self)
             end
         end
@@ -149,8 +119,8 @@ ts_vehicles.register_vehicle_base = function(name, def)
             selectionbox = { 0, 0, 0, 0, 0, 0 },
             visual = "mesh",
             -- Scale the light entity up a tiny little bit to ensure that the lights are always visible.
-            visual_size = { x = 1.001, y = 1.001, z = 1.001 },
-            mesh = def.mesh,
+            visual_size = def.lighting_mesh and { x = 10, y = 10, z = 10 },
+            mesh = def.lighting_mesh or def.mesh,
             physical = false,
             glow = 12,
             static_save = false,
@@ -158,10 +128,18 @@ ts_vehicles.register_vehicle_base = function(name, def)
         _light_entity_for = name,
         on_activate = function(self)
             self.object:set_armor_groups({immortal=1})
+            self._animation_delay = math.random()
         end,
-        on_step = function(self)
+        on_step = function(self, dtime)
             if self.object:get_attach() == nil then
                 self.object:remove()
+            end
+            if self._animation_delay then
+                self._animation_delay = self._animation_delay - dtime
+                if self._animation_delay <= 0 then
+                    self.object:set_animation({ x = 0, y = 60 }, math.random()*4+28, 0)
+                    self._animation_delay = nil
+                end
             end
         end
     })

@@ -1,6 +1,9 @@
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 ts_vehicles.register_part("ts_vehicles_cars:base_plate", {
     description = "Car/Truck Base Plate",
-    inventory_image = "ts_vehicles_cars_base_plate.png^[mask:ts_vehicles_cars_base_plate_inv_mask.png",
+    inventory_image = "ts_vehicles_cbp.png^[mask:ts_vehicles_cars_base_plate_inv_mask.png",
     groups = { base_plate = 1, },
 })
 
@@ -17,7 +20,7 @@ minetest.register_craft({
 
 ts_vehicles.register_part("ts_vehicles_cars:tire", {
     description = "Tire",
-    inventory_image = "ts_vehicles_cars_tire.png",
+    inventory_image = "ts_vehicles_ct.png",
     groups = { tires = 1, },
 })
 
@@ -40,16 +43,18 @@ ts_vehicles.register_part("ts_vehicles_cars:seat", {
     after_part_add = function(self, item)
         local color = item:get_meta():get("color") or item:get_definition().color
         if color then
-            self._data.seats_color = color
-            self._data.seats_description = item:get_description()
+            local vd = VD(self._id)
+            vd.data.seats_color = color
+            vd.data.seats_description = item:get_description()
         end
     end,
     after_part_remove = function(self, drop)
-        if self._data.seats_color then
-            drop:get_meta():set_string("color", self._data.seats_color)
+        local vd = VD(self._id)
+        if vd.data.seats_color then
+            drop:get_meta():set_string("color", vd.data.seats_color)
         end
-        if self._data.seats_description then
-            drop:get_meta():set_string("description", self._data.seats_description)
+        if vd.data.seats_description then
+            drop:get_meta():set_string("description", vd.data.seats_description)
         end
     end,
 })
@@ -126,26 +131,31 @@ ts_vehicles.register_part("ts_vehicles_cars:license_plate", {
     inventory_image = "ts_vehicles_cars_license_plate_inv.png",
     groups = { license_plate = 1, },
     get_formspec = function(self, player)
+        local vd = VD(self._id)
         local fs = ""
         fs = fs.."style_type[label;font_size=*2]"
         fs = fs.."style_type[label;font=bold]"
         fs = fs.."label[0,.25;Set text for the license plate]"
         fs = fs.."style_type[label;font_size=*1]"
         fs = fs.."style_type[label;font=normal]"
-        fs = fs.."field[0,1;3,1;text;;"..minetest.formspec_escape(self._data.license_plate_text or "").."]"
+        fs = fs.."field[0,1;3,1;text;;"..minetest.formspec_escape(vd.data.license_plate_text or "").."]"
         fs = fs.."button[3,1;1.5,1;set;Set]"
         return fs
     end,
     on_receive_fields = function(self, player, fields)
         if fields.text and (fields.set or fields.key_enter_field == "text") then
-            self._data.license_plate_text = fields.text
+            local vd = VD(self._id)
+            vd.data.license_plate_text = fields.text
+            vd.tmp.base_textures_set = false
         end
     end,
     after_part_add = function(self, item)
-        self._data.license_plate_text = "ID-"..tostring(self._id)
+        local vd = VD(self._id)
+        vd.data.license_plate_text = "ID-"..tostring(self._id)
     end,
     after_part_remove = function(self, drop)
-        self._data.license_plate_text = nil
+        local vd = VD(self._id)
+        vd.data.license_plate_text = nil
     end,
 })
 
@@ -167,36 +177,41 @@ ts_vehicles.register_part("ts_vehicles_cars:chassis_text", {
     colorable = true,
     default_color = "#000",
     get_formspec = function(self, player)
+        local vd = VD(self._id)
         local fs = ""
         fs = fs.."style_type[label;font_size=*2]"
         fs = fs.."style_type[label;font=bold]"
         fs = fs.."label[0,.25;Set text for the chassis]"
         fs = fs.."style_type[label;font_size=*1]"
         fs = fs.."style_type[label;font=normal]"
-        fs = fs.."textarea[0,1;3,1;text;;"..minetest.formspec_escape(self._data.chassis_text or "").."]"
+        fs = fs.."textarea[0,1;3,1;text;;"..minetest.formspec_escape(vd.data.chassis_text or "").."]"
         fs = fs.."button[3,1;1.5,1;set;Set]"
         return fs
     end,
     on_receive_fields = function(self, player, fields)
         if fields.text and (fields.set or fields.key_enter_field == "text") then
-            self._data.chassis_text = fields.text
+            local vd = VD(self._id)
+            vd.data.chassis_text = fields.text
+            vd.tmp.base_textures_set = false
         end
     end,
     after_part_add = function(self, item)
-        self._data.chassis_text = "Placeholder Text"
+        local vd = VD(self._id)
+        vd.data.chassis_text = "Placeholder Text"
         local color = item:get_meta():get("color") or item:get_definition().color
         if color then
-            self._data.chassis_text_color = color
-            self._data.chassis_text_description = item:get_description()
+            vd.data.chassis_text_color = color
+            vd.data.chassis_text_description = item:get_description()
         end
     end,
     after_part_remove = function(self, drop)
-        self._data.chassis_text = nil
-        if self._data.chassis_text_color then
-            drop:get_meta():set_string("color", self._data.chassis_text_color)
+        local vd = VD(self._id)
+        vd.data.chassis_text = nil
+        if vd.data.chassis_text_color then
+            drop:get_meta():set_string("color", vd.data.chassis_text_color)
         end
-        if self._data.chassis_text_description then
-            drop:get_meta():set_string("description", self._data.chassis_text_description)
+        if vd.data.chassis_text_description then
+            drop:get_meta():set_string("description", vd.data.chassis_text_description)
         end
     end,
 })
@@ -213,23 +228,25 @@ minetest.register_craft({
 
 ts_vehicles.register_part("ts_vehicles_cars:chassis_stripe", {
     description = "Stripe on car chassis/truck cabin",
-    inventory_image = "ts_vehicles_cars_car_chassis_stripe_side.png",
+    inventory_image = "ts_vehicles_css.png",
     groups = { chassis_accessory = 1, cabin_accessory = 1 },
     colorable = true,
     default_color = "#fff",
     after_part_add = function(self, item)
         local color = item:get_meta():get("color") or item:get_definition().color
         if color then
-            self._data.chassis_stripe_color = color
-            self._data.chassis_stripe_description = item:get_description()
+            local vd = VD(self._id)
+            vd.data.chassis_stripe_color = color
+            vd.data.chassis_stripe_description = item:get_description()
         end
     end,
     after_part_remove = function(self, drop)
-        if self._data.chassis_stripe_color then
-            drop:get_meta():set_string("color", self._data.chassis_stripe_color)
+        local vd = VD(self._id)
+        if vd.data.chassis_stripe_color then
+            drop:get_meta():set_string("color", vd.data.chassis_stripe_color)
         end
-        if self._data.chassis_stripe_description then
-            drop:get_meta():set_string("description", self._data.chassis_stripe_description)
+        if vd.data.chassis_stripe_description then
+            drop:get_meta():set_string("description", vd.data.chassis_stripe_description)
         end
     end,
 })

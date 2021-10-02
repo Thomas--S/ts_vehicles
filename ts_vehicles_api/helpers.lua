@@ -1,3 +1,6 @@
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 ts_vehicles.GRAVITATION = 9.8
 
 ts_vehicles.helpers = {}
@@ -47,7 +50,7 @@ ts_vehicles.helpers.multiple_have_group = function(parts, group)
 end
 
 ts_vehicles.create_id = function()
-    local next_number = ts_vehicles.mod_storage:get_int("next_number") or 0
+    local next_number = ts_vehicles.mod_storage:get_int("next_number") or 1
     ts_vehicles.mod_storage:set_int("next_number", next_number + 1)
     return next_number
 end
@@ -89,7 +92,7 @@ ts_vehicles.helpers.starts_with = function(whole_string, start_string)
 end
 
 ts_vehicles.helpers.get_total_value = function(self, property_name, parts)
-    parts = parts or self._parts
+    parts = parts or VD(self._id).parts
     local total = 0
     for _,part in ipairs(parts) do
         total = total + ts_vehicles.helpers.part_get_property(property_name, part, self.name, 0)
@@ -124,6 +127,13 @@ ts_vehicles.helpers.pitch_vehicle = function(self, delta_y, length, def)
     local pitch = math.atan(delta_y/length)
     local box_offset = math.abs(delta_y/2)
     if (math.abs(rotation.x - pitch) > 0.01) then
+        obj:set_rotation(vector.new(pitch, rotation.y, rotation.z))
+    end
+    local box_delta = def.scaled_collisionbox[2] + box_offset - collisionbox[2]
+    if (math.abs(box_delta) > 0.01) then
+        local pos = obj:get_pos()
+        pos.y = pos.y - box_delta
+        obj:set_pos(pos)
         obj:set_properties({
             collisionbox = {
                 collisionbox[1], def.scaled_collisionbox[2] + box_offset, collisionbox[3],
@@ -134,7 +144,6 @@ ts_vehicles.helpers.pitch_vehicle = function(self, delta_y, length, def)
                 selectionbox[4], def.scaled_selectionbox[5] + box_offset, selectionbox[6],
             }
         })
-        obj:set_rotation(vector.new(pitch, rotation.y, rotation.z))
     end
 end
 
@@ -162,12 +171,13 @@ ts_vehicles.helpers.get_rotated_collisionbox_corners = function(self)
 end
 
 
-ts_vehicles.helpers.get_payload_tank_content_name = function(entity)
-    if entity._data.payload_tank_amount == 0 then
+ts_vehicles.helpers.get_payload_tank_content_name = function(id)
+    local vd = VD(id)
+    if vd.data.payload_tank_amount == 0 then
         return nil
     end
-    if entity._data.payload_tank_name then
-        return entity._data.payload_tank_name
+    if vd.data.payload_tank_name then
+        return vd.data.payload_tank_name
     end
     return nil
 end

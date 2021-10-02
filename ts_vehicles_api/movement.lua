@@ -1,9 +1,13 @@
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 ts_vehicles.ground_factors = {}
 
 local ground_factors = ts_vehicles.ground_factors
 
 ts_vehicles.get_car_velocity = function(self, dtime, control, moveresult, def, is_full_second)
-    local engine_power = (self._data.engine_power or 0) * (def.efficiency or 1)
+    local vd = VD(self._id)
+    local engine_power = (vd.data.engine_power or 0) * (def.efficiency or 1)
     local max_velocity = engine_power * .5
     local max_backwards_velocity = max_velocity / 2
     local brake_deceleration = engine_power
@@ -15,9 +19,9 @@ ts_vehicles.get_car_velocity = function(self, dtime, control, moveresult, def, i
     local hydrogen_consumption = ts_vehicles.helpers.get_total_value(self, "hydrogen_consumption") * dtime
     local electricity_consumption = ts_vehicles.helpers.get_total_value(self, "electricity_consumption") * dtime
 
-    if gasoline_consumption > 0 and (self._data.gasoline or 0) <= 0
-        or hydrogen_consumption > 0 and (self._data.hydrogen or 0) <= 0
-        or electricity_consumption > 0 and (self._data.electricity or 0) <= 0
+    if gasoline_consumption > 0 and (vd.data.gasoline or 0) <= 0
+        or hydrogen_consumption > 0 and (vd.data.hydrogen or 0) <= 0
+        or electricity_consumption > 0 and (vd.data.electricity or 0) <= 0
     then
         enough_fuel = false
     end
@@ -27,18 +31,18 @@ ts_vehicles.get_car_velocity = function(self, dtime, control, moveresult, def, i
     local vehicle = self.object
     local velocity = vehicle:get_velocity()
     velocity.y = 0
-    local v = ts_vehicles.helpers.sign(self._v) * vector.length(velocity)
-    local new_velocity = v * (self._data.velocity_efficiency or .7) ^ dtime
+    local v = ts_vehicles.helpers.sign(vd.v) * vector.length(velocity)
+    local new_velocity = v * (vd.data.velocity_efficiency or .7) ^ dtime
 
     if is_full_second and moveresult and moveresult.touching_ground then
         local ground_pos = ts_vehicles.helpers.get_ground_pos_from_moveresult(moveresult)
         if ground_pos then
             local node = minetest.get_node(ground_pos)
-            self._data.ground_factor = ground_factors[node.name] or .2
+            vd.data.ground_factor = ground_factors[node.name] or .2
         end
     end
 
-    local ground_factor = self._data.ground_factor or .2
+    local ground_factor = vd.data.ground_factor or .2
 
     if control then
         if control.jump then
@@ -62,9 +66,9 @@ ts_vehicles.get_car_velocity = function(self, dtime, control, moveresult, def, i
     end
 
     if use_fuel then
-        self._data.gasoline = math.max(0, (self._data.gasoline or 0) - gasoline_consumption)
-        self._data.hydrogen = math.max(0, (self._data.hydrogen or 0) - hydrogen_consumption)
-        self._data.electricity = math.max(0, (self._data.electricity or 0) - electricity_consumption)
+        vd.data.gasoline = math.max(0, (vd.data.gasoline or 0) - gasoline_consumption)
+        vd.data.hydrogen = math.max(0, (vd.data.hydrogen or 0) - hydrogen_consumption)
+        vd.data.electricity = math.max(0, (vd.data.electricity or 0) - electricity_consumption)
     end
 
     if math.abs(new_velocity) < 0.05 and not (control and (control.up or control.down)) then
