@@ -713,6 +713,7 @@ ts_vehicles.register_part("ts_vehicles_cars:tarp_text", {
     colorable = true,
     default_color = "#000",
     get_formspec = function(self, player)
+        local vd = VD(self._id)
         local fs = ""
         fs = fs.."style_type[label;font_size=*2]"
         fs = fs.."style_type[label;font=bold]"
