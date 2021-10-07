@@ -42,7 +42,7 @@ ts_vehicles.place_light = function(pos)
     if node_name == "air" then
         minetest.set_node(pos, {name = "ts_vehicles_api:light"})
     elseif node_name == "ts_vehicles_api:light" then
-        minetest.get_node_timer(pos):start(1)
+        minetest.get_node_timer(pos):start(2)
     end
 end
 
@@ -74,7 +74,7 @@ minetest.register_node("ts_vehicles_api:light", {
     floodable = true,
     drop = "",
     on_construct = function(pos)
-        minetest.get_node_timer(pos):start(1)
+        minetest.get_node_timer(pos):start(2)
     end,
     on_timer = function(pos)
         minetest.remove_node(pos)

@@ -128,8 +128,8 @@ end
 ts_vehicles.handle_turn = function(self, driver, control, dtime)
     local vehicle = self.object
     local yaw = vehicle:get_yaw() % (math.pi * 2)
-    local vd = VD(self._id)
     if control and (control.left or control.right) then
+        local vd = VD(self._id)
         if (vd.data.turn_snap or 0) > 0 then
             vd.data.turn_snap = (vd.data.turn_snap or 0) - dtime
         else
@@ -217,7 +217,7 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
         ts_vehicles.disperse(self)
         return
     end
-    local new_velocity = ts_vehicles.get_car_velocity(self, dtime, control, moveresult, def, is_full_second)
+    local new_velocity = player and ts_vehicles.get_car_velocity(self, dtime, control, moveresult, def, is_full_second) or 0
     vd.data.total_distance = (vd.data.total_distance or 0) + dtime * vd.v
     vd.v = new_velocity
     local yaw = ts_vehicles.handle_turn(self, player, control, dtime)
@@ -233,9 +233,9 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
         ts_vehicles.apply_light_textures(self, ts_vehicles.build_light_textures(def.name, def.lighting_textures, vd.parts, self))
         vd.tmp.light_textures_set = true
     end
-    ts_vehicles.car_light_beam(self)
 
     if is_full_second then
+        ts_vehicles.car_light_beam(self)
         local tire_pos, car_length = ts_vehicles.helpers.get_rotated_collisionbox_corners(self)
         local max_depth = def.stepheight * car_length * 1.5
         local front_downwards_space = math.max(ts_vehicles.helpers.downwards_space(tire_pos[1], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[2], max_depth))
