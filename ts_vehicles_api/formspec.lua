@@ -116,7 +116,7 @@ ts_vehicles.show_formspec = function(self, player)
                 local itemstring = itemstack:to_string()
 
                 fs = fs.."item_image[.5,"..(y-.25)..";.5,.5;"..itemstring.."]"
-                fs = fs.."label[1.125,"..y..";"..E(itemstack:get_description()).."]"
+                fs = fs.."label[1.125,"..y..";"..E(itemstack:get_short_description()).."]"
                 fs = fs.."label[9,"..y..";"..tostring(item.count).."]"
                 fs = fs.."button[11,"..(y-.25)..";1.5,.5;storage_take_one_"..idx..";Take 1]"
                 fs = fs.."button[12.625,"..(y-.25)..";1.5,.5;storage_take_ten_"..idx..";Take 10]"

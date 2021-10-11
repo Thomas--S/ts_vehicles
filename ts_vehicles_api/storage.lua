@@ -34,6 +34,9 @@ ts_vehicles.storage.get_index = function(id, itemstring)
 end
 
 ts_vehicles.storage.add = function(self, itemstack)
+    if not itemstack then
+        itemstack = ItemStack()
+    end
     local serialized_item = ts_vehicles.storage.serialize(itemstack)
     if serialized_item.count == 0 then
         return true, nil, itemstack
