@@ -83,7 +83,7 @@ minetest.after(.1, function()
             ground_factors[node_name] = 1
         elseif def.groups.cracky then -- Most likely something stonelike
             ground_factors[node_name] = .85
-        elseif node_name:find("gravel") then
+        elseif node_name:find("gravel") or node_name:find("fakegrass") then -- Fakegrass here to allow roads without destroying the nature look
             ground_factors[node_name] = .7
         elseif def.groups.wood or def.groups.tree then
             ground_factors[node_name] = .55
