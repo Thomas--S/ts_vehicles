@@ -85,8 +85,13 @@ ts_vehicles.register_vehicle_base = function(name, def)
             else -- storage system version 1 (staticdata)
                 self._id = ts_vehicles.load_legacy(staticdata)
             end
-            self.object:set_armor_groups({immortal=1})
-            self.object:set_acceleration({ x = 0, y = -ts_vehicles.GRAVITATION, z = 0 })
+            local obj = self.object
+            obj:set_armor_groups({immortal=1})
+            -- Move cars one node up and set gravity one second late in order to avoid sinking cars.
+            obj:set_acceleration({ x = 0, y = 0, z = 0 })
+            local pos = obj:get_pos()
+            pos.y = pos.y + 1
+            obj:set_pos(pos)
             ts_vehicles.ensure_light_attached(self)
         end,
         on_deactivate = function(self)
@@ -100,6 +105,10 @@ ts_vehicles.register_vehicle_base = function(name, def)
             vd.step_ctr = vd.step_ctr + 1
             local is_full_second = ts_vehicles.handle_timing(vd, dtime)
             if is_full_second then
+                if not vd.tmp.gravity_set then
+                    self.object:set_acceleration({ x = 0, y = -ts_vehicles.GRAVITATION, z = 0 })
+                    vd.tmp.gravity_set = 1
+                end
                 ts_vehicles.ensure_light_attached(self)
                 ts_vehicles.ensure_is_driveable(self)
                 if not ts_vehicles.hose.is_entity_connected(vd.connected_to, self._id) then
