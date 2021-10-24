@@ -161,3 +161,40 @@ if not math.round then
         return math.ceil(x - .5)
     end
 end
+
+minetest.register_chatcommand("swap_vehicle_data", {
+    params = "<vehicle 1 id> <vehicle 2 id>",
+    description = "Swaps the vehicle data of two vehicles (specified by ID). Make sure to only swap the data for vehicles of the same type.",
+    privs = {[ts_vehicles.priv] = true},
+    func = function(name, param)
+        local id1, id2 = string.match(param or "", "^(%d+) (%d+)")
+        if not (id1 and id2) then
+            minetest.chat_send_player(name, "Invalid parameters.")
+            return
+        end
+        id1 = tonumber(id1)
+        id2 = tonumber(id2)
+        local data1 = ts_vehicles.get(id1)
+        local data2 = ts_vehicles.get(id2)
+        if not data1 and ts_vehicles.mod_storage:contains(id1) then
+            ts_vehicles.load(id1)
+            data1 = ts_vehicles.get(id1)
+        end
+        if not data2 and ts_vehicles.mod_storage:contains(id2) then
+            ts_vehicles.load(id2)
+            data2 = ts_vehicles.get(id2)
+        end
+        if not (data1 and data2) then
+            minetest.chat_send_player(name, "Vehicle data does not exist.")
+            return
+        end
+        data1.tmp.light_textures_set = false
+        data1.tmp.base_textures_set = false
+        data2.tmp.light_textures_set = false
+        data2.tmp.base_textures_set = false
+        vehicle_data[id1] = data2
+        vehicle_data[id2] = data1
+        ts_vehicles.store(id1)
+        ts_vehicles.store(id2)
+    end
+})
