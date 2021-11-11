@@ -102,6 +102,10 @@ ts_vehicles.register_vehicle_base = function(name, def)
         end,
         on_step = function(self, dtime, moveresult)
             local vd = VD(self._id)
+            if not vd then
+                self.object:remove()
+                return
+            end
             vd.step_ctr = vd.step_ctr + 1
             local is_full_second = ts_vehicles.handle_timing(vd, dtime)
             if is_full_second then
