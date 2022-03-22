@@ -339,9 +339,10 @@ ts_vehicles.ensure_attachments = function(self)
 end
 
 ts_vehicles.disperse = function(entity)
+    local vd = VD(entity._id)
     local pos = entity.object:get_pos()
 
-    for _,part_name in ipairs(entity._parts) do
+    for _,part_name in ipairs(vd.parts) do
         local vehicle_def = ts_vehicles.registered_vehicle_bases[entity.name]
         local drop = vehicle_def.get_part_drop(entity, part_name)
         if drop ~= nil then
@@ -350,17 +351,17 @@ ts_vehicles.disperse = function(entity)
         end
     end
 
-    while #entity._storage > 0 do
+    while #vd.storage > 0 do
         local stack = ts_vehicles.storage.take(entity, 1)
         minetest.add_item(pos, stack)
     end
 
-    if entity._driver then
-        local player = minetest.get_player_by_name(entity._driver)
+    if vd.driver then
+        local player = minetest.get_player_by_name(vd.driver)
         if player then
-            minetest.chat_send_player(entity._driver, minetest.colorize("#f00", "[Vehicle] The vehicle got destroyed"))
+            minetest.chat_send_player(vd.driver, minetest.colorize("#f00", "[Vehicle] The vehicle got destroyed"))
             ts_vehicles.up(player)
-            entity._driver = nil
+            vd.driver = nil
             player:set_detach()
             ts_vehicles.hud.remove(player)
         end
