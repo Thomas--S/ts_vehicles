@@ -1,5 +1,8 @@
 ts_vehicles_common = {}
 
+-- Vehicle Data
+local VD = ts_vehicles.get
+
 local modpath = minetest.get_modpath("ts_vehicles_common")
 
 local restricted_items = {}
@@ -90,8 +93,11 @@ minetest.register_tool("ts_vehicles_common:lifting_jack", {
         if pointed_thing.type == "object" then
             local object = pointed_thing.ref
             if object and object.get_luaentity and object:get_luaentity() and object:get_luaentity().name and ts_vehicles.registered_vehicle_bases[object:get_luaentity().name] then
-                object:move_to(vector.add(object:get_pos(), vector.new(0, 1.1, 0)))
-                itemstack:add_wear(1000)
+                local vd = VD(object:get_luaentity()._id)
+                if ts_vehicles.helpers.contains(vd.owners, player:get_player_name()) then
+                    object:move_to(vector.add(object:get_pos(), vector.new(0, 1.1, 0)))
+                    itemstack:add_wear(1000)
+                end
             end
         end
         return itemstack
