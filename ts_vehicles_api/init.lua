@@ -49,6 +49,9 @@ function ts_vehicles.load(id)
         return
     end
     local result = minetest.deserialize(ts_vehicles.mod_storage:get_string(id))
+    if not result then
+        return
+    end
     vehicle_data[id] = {
         tmp = {},
         owners = result.owners,

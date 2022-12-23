@@ -92,11 +92,15 @@ ts_vehicles.register_vehicle_base = function(name, def)
             obj:set_pos(pos)
             ts_vehicles.ensure_light_attached(self)
             local vd = VD(self._id)
-            vd.name = name
+            if vd then
+                vd.name = name
+            end
         end,
         on_deactivate = function(self)
             local vd = VD(self._id)
-            vd.tmp = {}
+            if vd then
+                vd.tmp = {}
+            end
         end,
         get_staticdata = function(self)
             return "2;"..self._id
