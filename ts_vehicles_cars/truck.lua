@@ -53,7 +53,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:truck", {
     passenger_pos = {
         { x = 5, y = 6.5, z = 13.7 },
     },
-    get_fallback_textures = function(self)
+    get_fallback_textures = function()
         return {
             tires = "ts_vehicles_ctcs.png",
         }
@@ -764,7 +764,7 @@ minetest.register_craft({
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:truck_undercarriage", {
-    get_textures = function(self)
+    get_textures = function()
         return {
             undercarriage = "ts_vehicles_cbp.png",
         }
@@ -772,7 +772,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:tire", {
-    get_textures = function(self)
+    get_textures = function()
         return {
             tires = "ts_vehicles_ct.png",
         }
@@ -780,7 +780,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:base_plate", {
-    get_textures = function(self)
+    get_textures = function()
         return {
             base_plate = "ts_vehicles_cbp.png",
         }
@@ -788,7 +788,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:b
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:truck_cabin_rear_panel", {
-    get_textures = function(self)
+    get_textures = function()
         return {
             rear_panel = "ts_vehicles_cbp.png",
         }
@@ -796,8 +796,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:truck_cabin", {
-    get_textures = function(self)
-        local vd = VD(self._id)
+    get_textures = function(id)
+        local vd = VD(id)
         local color = "#fff"
         if vd.data.cabin_color then
             color = vd.data.cabin_color
@@ -806,8 +806,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
             cabin = "ts_vehicles_ctc.png^[multiply:"..color.."^ts_vehicles_ctc_.png",
         }
     end,
-    get_fallback_textures = function(self)
-        local vd = VD(self._id)
+    get_fallback_textures = function(id)
+        local vd = VD(id)
         local color = "#fff"
         if vd.data.cabin_color then
             color = vd.data.cabin_color
@@ -819,8 +819,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:truck_platform", {
-    get_textures = function(self)
-        local vd = VD(self._id)
+    get_textures = function(id)
+        local vd = VD(id)
         local color = "#fff"
         if vd.data.platform_color then
             color = vd.data.platform_color
@@ -833,8 +833,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:truck_panels", {
-    get_textures = function(self)
-        local vd = VD(self._id)
+    get_textures = function(id)
+        local vd = VD(id)
         local color = "#fff"
         if vd.data.panel_color then
             color = vd.data.panel_color
@@ -848,8 +848,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:tarp", {
-    get_overlay_textures = function(self)
-        local vd = VD(self._id)
+    get_overlay_textures = function(id)
+        local vd = VD(id)
         local color = "#fff"
         if vd.data.tarp_color then
             color = vd.data.tarp_color
@@ -863,8 +863,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:payload_tank", {
-    get_textures = function(self)
-        local vd = VD(self._id)
+    get_textures = function(id)
+        local vd = VD(id)
         local color = "#fff"
         if vd.data.tank_color then
             color = vd.data.tank_color
@@ -873,7 +873,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:p
             tank = "ts_vehicles_ctpt.png^[multiply:"..color,
         }
     end,
-    get_overlay_textures = function(self)
+    get_overlay_textures = function()
         return {
             platform = "ts_vehicles_ctpt_.png"
         }
@@ -881,8 +881,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:p
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:combined_module", {
-    get_textures = function(self)
-        local vd = VD(self._id)
+    get_textures = function(id)
+        local vd = VD(id)
         local color = "#fff"
         if vd.data.combined_module_color then
             color = vd.data.combined_module_color
@@ -892,7 +892,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:c
             framework = "ts_vehicles_ctfcm.png^[multiply:"..color,
         }
     end,
-    get_overlay_textures = function(self)
+    get_overlay_textures = function()
         return {
             platform = "ts_vehicles_ctpt_.png",
             body = "ts_vehicles_ctcm_.png",
@@ -901,18 +901,18 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:c
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:warning_board", {
-    get_textures = function(self)
+    get_textures = function()
         return {
             rear_board = "ts_vehicles_ctwb.png"
         }
     end,
-    get_overlay_textures = function(self)
+    get_overlay_textures = function()
         return {
             framework = "ts_vehicles_ctfw.png"
         }
     end,
-    get_light_textures = function(self)
-        local vd = VD(self._id)
+    get_light_textures = function(id)
+        local vd = VD(id)
         local result = {}
         if vd.lights.special then
             result.rear_board_1 = "ts_vehicles_ctwb_.png^[transformFX"
@@ -940,8 +940,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:w
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:car_chassis_pillars_a", {
-    get_textures = function(self)
-        local vd = VD(self._id)
+    get_textures = function(id)
+        local vd = VD(id)
         local color = "#fff"
         if vd.data.pillars_a_color then
             color = vd.data.pillars_a_color
@@ -953,7 +953,7 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:c
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:windows", {
-    get_textures = function(self)
+    get_textures = function()
         return {
             glass = "ts_vehicles_ctw.png",
         }
@@ -961,8 +961,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:w
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:car_roof", {
-    get_textures = function(self)
-        local vd = VD(self._id)
+    get_textures = function(id)
+        local vd = VD(id)
         local color = "#fff"
         if vd.data.roof_color then
             color = vd.data.roof_color
@@ -974,8 +974,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:c
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:car_interior", {
-    get_textures = function(self)
-        local vd = VD(self._id)
+    get_textures = function(id)
+        local vd = VD(id)
         local color = "#fff"
         if vd.data.interior_color then
             color = vd.data.interior_color
@@ -987,8 +987,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:c
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:seat", {
-    get_textures = function(self)
-        local vd = VD(self._id)
+    get_textures = function(id)
+        local vd = VD(id)
         local color = "#fff"
         if vd.data.seats_color then
             color = vd.data.seats_color
@@ -1000,15 +1000,15 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:s
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:direction_indicator", {
-    get_overlay_textures = function(self)
+    get_overlay_textures = function()
         return {
             cabin = "(ts_vehicles_ctdf.png)",
             platform = "(ts_vehicles_ctdb.png)",
         }
     end,
 
-    get_light_overlay_textures = function(self)
-        local vd = VD(self._id)
+    get_light_overlay_textures = function(id)
+        local vd = VD(id)
         local tmp = {}
         if vd.lights.left or vd.lights.warn then
             tmp[#tmp+1] = "(ts_vehicles_ctdl_.png)"
@@ -1025,14 +1025,14 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:d
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:lights_front", {
-    get_overlay_textures = function(self)
+    get_overlay_textures = function()
         return {
             cabin = "(ts_vehicles_ctfl.png)",
         }
     end,
 
-    get_light_overlay_textures = function(self)
-        local vd = VD(self._id)
+    get_light_overlay_textures = function(id)
+        local vd = VD(id)
         if vd.lights.front then
             return {
                 chassis = "(ts_vehicles_ctfl_.png)",
@@ -1042,14 +1042,14 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:l
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:lights_back", {
-    get_overlay_textures = function(self)
+    get_overlay_textures = function()
         return {
             platform = "(ts_vehicles_ctbl.png)",
         }
     end,
 
-    get_light_overlay_textures = function(self)
-        local vd = VD(self._id)
+    get_light_overlay_textures = function(id)
+        local vd = VD(id)
         if vd.lights.stop then
             return {
                 chassis = "(ts_vehicles_ctbl_.png)",
@@ -1059,14 +1059,14 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:l
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:lights_reversing", {
-    get_overlay_textures = function(self)
+    get_overlay_textures = function()
         return {
             platform = "(ts_vehicles_ctrl.png)",
         }
     end,
 
-    get_light_overlay_textures = function(self)
-        local vd = VD(self._id)
+    get_light_overlay_textures = function(id)
+        local vd = VD(id)
         if vd.v < 0 then
             return {
                 chassis = "(ts_vehicles_ctrl_.png)",
@@ -1077,13 +1077,13 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:l
 
 for _,def in ipairs(ts_vehicles_cars.lightbars) do
     ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:"..def.id.."_light", {
-        get_textures = function(self)
+        get_textures = function()
             return {
                 roof_attachment = def.off
             }
         end,
-        get_light_textures = function(self)
-            local vd = VD(self._id)
+        get_light_textures = function(id)
+            local vd = VD(id)
             local result = {}
             if ts_vehicles.writing then
                 local text = font_api.get_font("metro"):render(vd.data.roof_top_text or "", 64, 16, {
@@ -1100,13 +1100,13 @@ for _,def in ipairs(ts_vehicles_cars.lightbars) do
             end
             return result
         end,
-        get_overlay_textures = function(self)
+        get_overlay_textures = function()
             return {
                 platform = def.off:gsub("%.png", "_tp.png")
             }
         end,
-        get_light_overlay_textures = function(self)
-            local vd = VD(self._id)
+        get_light_overlay_textures = function(id)
+            local vd = VD(id)
             if vd.lights.special then
                 return {
                     chassis_1 = "("..def.on1:gsub("%.png", "_tp.png")..")^ts_vehicles_ctsl_.png",
@@ -1118,8 +1118,8 @@ for _,def in ipairs(ts_vehicles_cars.lightbars) do
 end
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:license_plate", {
-    get_overlay_textures = function(self)
-        local vd = VD(self._id)
+    get_overlay_textures = function(id)
+        local vd = VD(id)
         if ts_vehicles.writing then
             local text = font_api.get_font("metro"):render(vd.data.license_plate_text or "", 80, 16, {
                 lines = 1,
@@ -1136,8 +1136,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:l
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:chassis_text", {
-    get_overlay_textures = function(self)
-        local vd = VD(self._id)
+    get_overlay_textures = function(id)
+        local vd = VD(id)
         if ts_vehicles.writing then
             local text = font_api.get_font("metro"):render(vd.data.chassis_text or "", 152, 32, {
                 lines = 2,
@@ -1153,8 +1153,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:c
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:panels_text", {
-    get_overlay_textures = function(self)
-        local vd = VD(self._id)
+    get_overlay_textures = function(id)
+        local vd = VD(id)
         if ts_vehicles.writing then
             local text = font_api.get_font("metro"):render(vd.data.panels_text or "", 212, 32, {
                 lines = 2,
@@ -1171,8 +1171,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:p
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:tarp_text", {
-    get_overlay_textures = function(self)
-        local vd = VD(self._id)
+    get_overlay_textures = function(id)
+        local vd = VD(id)
         if ts_vehicles.writing then
             local text = font_api.get_font("metro"):render(vd.data.tarp_text or "", 212, 48, {
                 lines = 3,
@@ -1189,8 +1189,8 @@ ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:t
 })
 
 ts_vehicles.register_compatibility("ts_vehicles_cars:truck", "ts_vehicles_cars:chassis_stripe", {
-    get_overlay_textures = function(self)
-        local vd = VD(self._id)
+    get_overlay_textures = function(id)
+        local vd = VD(id)
         local color = vd.data.chassis_stripe_color or "#fff"
         return {
             cabin = "(ts_vehicles_cts.png^[multiply:"..color..")",

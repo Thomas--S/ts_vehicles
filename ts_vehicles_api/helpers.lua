@@ -49,12 +49,6 @@ ts_vehicles.helpers.multiple_have_group = function(parts, group)
     end
 end
 
-ts_vehicles.create_id = function()
-    local next_number = ts_vehicles.mod_storage:get_int("next_number") or 1
-    ts_vehicles.mod_storage:set_int("next_number", next_number + 1)
-    return next_number
-end
-
 ts_vehicles.helpers.part_get_property = function(property, part, vehicle, fallback)
     if vehicle
         and ts_vehicles.registered_compatibilities[vehicle]
@@ -205,4 +199,59 @@ ts_vehicles.helpers.free_line_of_sight = function(p1, p2, ignore_id, ignore_node
         end
     end
     return true
+end
+
+ts_vehicles.helpers.add_owner_mapping = function(id, owner)
+    local ids = minetest.deserialize(ts_vehicles.mod_storage:get_string("owner:"..owner)) or {}
+    if not ts_vehicles.helpers.contains(ids, id) then
+        table.insert(ids, id)
+    end
+    ts_vehicles.mod_storage:set_string("owner:"..owner, minetest.serialize(ids))
+end
+
+ts_vehicles.helpers.remove_owner_mapping = function(id, owner)
+    local ids = minetest.deserialize(ts_vehicles.mod_storage:get_string("owner:"..owner)) or {}
+    table.remove(ids, ts_vehicles.helpers.index_of(ids, id))
+    ts_vehicles.mod_storage:set_string("owner:"..owner, minetest.serialize(ids))
+end
+
+ts_vehicles.helpers.add_all_owner_mappings = function(id)
+    local vd = VD(id)
+    for _,owner in ipairs(vd.owners or {}) do
+        ts_vehicles.helpers.add_owner_mapping(id, owner)
+    end
+end
+
+ts_vehicles.helpers.remove_all_owner_mappings = function(id)
+    local vd = VD(id)
+    for _,owner in ipairs(vd.owners or {}) do
+        ts_vehicles.helpers.remove_owner_mapping(id, owner)
+    end
+end
+
+ts_vehicles.helpers.add_owner = function(id, name)
+    local vd = VD(id)
+    if not vd then
+        return
+    end
+    if not vd.owners then
+        vd.owners = {}
+    end
+    if not ts_vehicles.helpers.contains(vd.owners, name) then
+        table.insert(vd.owners, name)
+        ts_vehicles.helpers.add_owner_mapping(id, name)
+    end
+end
+
+ts_vehicles.helpers.remove_owner = function(id, name)
+    local vd = VD(id)
+    if vd and vd.owners and ts_vehicles.helpers.contains(vd.owners, name) then
+        table.remove(vd.owners, ts_vehicles.helpers.index_of(vd.owners, name))
+        ts_vehicles.helpers.remove_owner_mapping(id, name)
+    end
+end
+
+ts_vehicles.helpers.is_owner = function(id, name)
+    local vd = VD(id)
+    return vd and vd.owners and ts_vehicles.helpers.contains(vd.owners, name)
 end

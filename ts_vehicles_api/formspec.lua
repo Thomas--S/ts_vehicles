@@ -112,7 +112,7 @@ ts_vehicles.show_formspec = function(self, player)
                         new_meta[key] = itemstack:get_meta():get_string(key)
                     end
                 end
-                itemstack:get_meta():from_table(new_meta)
+                itemstack:get_meta():from_table({fields = new_meta})
                 local itemstring = itemstack:to_string()
 
                 fs = fs.."item_image[.5,"..(y-.25)..";.5,.5;"..itemstring.."]"
@@ -270,7 +270,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         end
     end
     local vd = VD(id)
-    if not entity or fields.quit or not ts_vehicles.helpers.contains(vd.owners, player_name) then
+    if not entity or fields.quit or not ts_vehicles.helpers.is_owner(id, player_name) or vector.distance(entity.object:get_pos(), player:get_pos()) > 20 then
         if entity then
             vd.tmp.show_void = false
         end
@@ -298,10 +298,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         vd.tmp.fs_parts_idx = math.max(1, ((vd.tmp.fs_parts_idx or math.max(1, #vd.parts - 5)) - 1))
     elseif fields.parts_next then
         vd.tmp.fs_parts_idx = math.min(#vd.parts, ((vd.tmp.fs_parts_idx or math.max(1, #vd.parts - 5)) + 1))
-    elseif fields.add_owner and fields.add_owner ~= "" and (fields.add_owner_submit or fields.key_enter_field == "add_owner")
-            and not ts_vehicles.helpers.contains(vd.owners, fields.add_owner)
-    then
-        table.insert(vd.owners, fields.add_owner)
+    elseif fields.add_owner and fields.add_owner ~= "" and (fields.add_owner_submit or fields.key_enter_field == "add_owner") then
+        ts_vehicles.helpers.add_owner(id, fields.add_owner)
     elseif fields.open_storage then
         vd.tmp.fs_storage = true
     elseif fields.close_storage then
@@ -325,13 +323,13 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
     elseif fields.void_battery then
         vd.data.electricity = 0
     else
-        for k,v in pairs(fields) do
+        for k,_ in pairs(fields) do
             if ts_vehicles.helpers.starts_with(k, "remove_owner_") then
                 local owner_to_remove = k:sub(14) -- len("remove_owner_") = 13
                 if owner_to_remove == player_name then
                     minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicles] You can't remove yourself as owner."))
                 else
-                    table.remove(vd.owners, ts_vehicles.helpers.index_of(vd.owners, owner_to_remove))
+                    ts_vehicles.helpers.remove_owner(id, owner_to_remove)
                 end
             elseif ts_vehicles.helpers.starts_with(k, "remove_part_") then
                 local part_to_remove = dc(k:sub(13)) -- len("remove_part_") = 12
@@ -358,4 +356,146 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         vd.tmp.show_void = false
     end
     ts_vehicles.show_formspec(entity, player)
+end)
+
+local player_overview_page = {}
+local player_current_overview = {}
+local RESTORE_RADIUS = 10
+
+local get_vehicles_inside_radius = function(pos)
+    local entities = {}
+    for _,object in ipairs(minetest.get_objects_inside_radius(pos, RESTORE_RADIUS + 4)) do
+        local entity = object:get_luaentity()
+        if entity and ts_vehicles.registered_vehicle_bases[entity.name] then
+            entities[entity._id] = entity
+        end
+    end
+    return entities
+end
+
+local show_overview_formspec = function (editor)
+    local owner = player_current_overview[editor] or editor
+    local ids = minetest.deserialize(ts_vehicles.mod_storage:get_string("owner:"..owner)) or {}
+    local player = minetest.get_player_by_name(editor)
+    if not player then
+        return
+    end
+    local pos = player:get_pos()
+    table.sort(ids)
+    local entities = get_vehicles_inside_radius(pos)
+
+    local fs = {
+        "formspec_version[2]",
+        "size[12,11]",
+    }
+    table.insert(fs, "label[.5,.5;ID]")
+    table.insert(fs, "label[1.5,.5;Type]")
+    table.insert(fs, "label[3,.5;Last Position]")
+    table.insert(fs, "label[6.5,.5;Status]")
+    table.insert(fs, "box[0,.95;12,.05;#fff]")
+    local y = 1.5
+    local vehicles_per_page = 8
+    player_overview_page[editor] =  math.min(math.ceil(#ids/vehicles_per_page), player_overview_page[editor])
+    local page = player_overview_page[editor] or 1
+    if #ids > 0 then
+        for idx = (page - 1) * vehicles_per_page + 1, math.min(page * vehicles_per_page, #ids) do
+            local id = ids[idx]
+            local vd = VD(id)
+            local def = ts_vehicles.registered_vehicle_bases[vd.name]
+            if idx % 2 == 0 then
+                table.insert(fs, "style_type[box;colors=#fff0,#fff2,#fff2,#fff0]box[0,"..(y-.5)..";.5,1;]")
+                table.insert(fs, "style_type[box;colors=#fff2,#fff0,#fff0,#fff2]box[11.5,"..(y-.5)..";.5,1;]")
+                table.insert(fs, "style_type[box;colors=]box[.5,"..(y-.5)..";11,1;#fff2]")
+            end
+            table.insert(fs, "label[.5,"..y..";"..id.."]")
+            table.insert(fs, "label[1.5,"..y..";"..((def or {}).description or "unknown").."]")
+            table.insert(fs, "label[3,"..y..";"..(vd.last_seen_pos and vector.to_string(vector.round(vd.last_seen_pos)) or "unknown").."]")
+            if def then
+                local texture = ts_vehicles.helpers.create_texture_for_fs_mesh(ts_vehicles.build_textures(def.name, def.textures, vd.parts, id))
+                table.insert(fs, "model[5,"..(y-.5)..";1,1;vehicle_preview;"..E(def.mesh)..";"..texture..";-15,150;false;true;0,0]")
+            end
+            if vd.last_seen_pos and math.round(vector.distance(pos, vd.last_seen_pos)) < RESTORE_RADIUS then
+                if entities[id] then
+                    table.insert(fs, "label[6.5,"..y..";"..minetest.colorize("#0c0", "Vehicle status OK").."]")
+                else
+                    table.insert(fs, "label[6.5,"..y..";"..minetest.colorize("#c00", "Vehicle not found").."]")
+                    if vd.name then
+                        table.insert(fs, "button[9,"..(y-.375)..";2,.75;restore_"..id..";Restore Vehicle]")
+                    end
+                end
+            else
+                table.insert(fs, "label[6.5,"..y..";"..minetest.colorize("#ccc", "Vehicle status unknown").."]")
+            end
+            y = y + 1
+        end
+    end
+
+    table.insert(fs, "box[4.5,9.125;3,.75;#fff]")
+    table.insert(fs, "style[vehicles_page;textcolor=black;content_offset=0,0]")
+    table.insert(fs, "image_button[4.5,9.125;3,.75;ts_vehicles_api_blank.png;vehicles_page;Page "..page.." of ")
+    table.insert(fs, math.ceil(#ids/vehicles_per_page)..";false;false;]")
+    table.insert(fs, "button[3,9.125;1.5,.75;vehicles_prev_page;< Prev]")
+    table.insert(fs, "button[7.5,9.125;1.5,.75;vehicles_next_page;Next >]")
+
+    table.insert(fs, "textarea[.5,10;11,.875;;;Move near the last known location to see the vehicle status.\nDisappeared vehicles can be restored while being near their last recorded position.]")
+
+    minetest.show_formspec(editor, "ts_vehicles_api:vehicles_overview", table.concat(fs))
+end
+
+minetest.register_chatcommand("vehicles", {
+    params = "",
+    description = "Shows a management interface for all your vehicles.",
+    privs = {interact = true},
+    func = function(name, param)
+        if param ~= "" and not minetest.check_player_privs(name, ts_vehicles.priv) then
+            minetest.chat_send_player(name, "You need the "..ts_vehicles.priv.." privilege to show other players' vehicles.")
+            return
+        end
+
+        player_overview_page[name] = 1
+        player_current_overview[name] = param ~= "" and param or name
+
+        show_overview_formspec(name)
+    end
+})
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+    if formname ~= "ts_vehicles_api:vehicles_overview" or fields.quit then
+        return
+    end
+    local player_name = player:get_player_name()
+    if fields.vehicles_prev_page then
+        player_overview_page[player_name] = math.max(1, ((player_overview_page[player_name] or 1) - 1))
+    elseif fields.vehicles_next_page then
+        player_overview_page[player_name] = (player_overview_page[player_name] or 1) + 1
+    else
+        for k,_ in pairs(fields) do
+            if ts_vehicles.helpers.starts_with(k, "restore_") then
+                local id_old = k:sub(9) -- len("restore_") = 8
+                local vd = VD(id_old)
+                local player_pos = player:get_pos()
+                if vd and vd.last_seen_pos and vd.name and vector.distance(player_pos, vd.last_seen_pos) < RESTORE_RADIUS
+                    and (ts_vehicles.helpers.is_owner(id_old, player_name) or minetest.check_player_privs(player_name, ts_vehicles.priv))
+                then
+                    local entities = get_vehicles_inside_radius(player_pos)
+                    if not entities[id_old] then
+                        -- Create new vehicle
+                        local object = minetest.add_entity(vd.last_seen_pos, vd.name)
+                        if object then
+                            object:set_yaw(player:get_look_horizontal())
+                            local luaentity = object:get_luaentity()
+                            local id_new = luaentity._id
+
+                            ts_vehicles.swap_vehicle_data(id_old, id_new)
+                            ts_vehicles.delete(id_old)
+                        end
+
+                        minetest.close_formspec(player_name, "ts_vehicles_api:vehicles_overview")
+                    end
+                end
+                return
+            end
+        end
+    end
+    show_overview_formspec(player_name)
 end)

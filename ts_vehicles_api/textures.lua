@@ -23,21 +23,21 @@ local get_texture_by_name = function(name, textures_by_part, fallback_textures_b
     return overlays == "" and "ts_vehicles_api_blank.png" or overlays:sub(2)
 end
 
-ts_vehicles.build_textures = function(base_vehicle, texture_names, parts, ...)
+ts_vehicles.build_textures = function(base_vehicle, texture_names, parts, id)
     local textures = {}
     local fallbacks = {}
     local overlays = {}
     local result = {}
     local vehicle_def = ts_vehicles.registered_vehicle_bases[base_vehicle]
     local vehicle_compatibilities = ts_vehicles.registered_compatibilities[base_vehicle]
-    textures[#textures+1] = ts_vehicles.helpers.call(vehicle_def.get_textures, ...)
-    fallbacks[#fallbacks+1] = ts_vehicles.helpers.call(vehicle_def.get_fallback_textures, ...)
-    overlays[#overlays+1] = ts_vehicles.helpers.call(vehicle_def.get_overlay_textures, ...)
+    textures[#textures+1] = ts_vehicles.helpers.call(vehicle_def.get_textures, id)
+    fallbacks[#fallbacks+1] = ts_vehicles.helpers.call(vehicle_def.get_fallback_textures, id)
+    overlays[#overlays+1] = ts_vehicles.helpers.call(vehicle_def.get_overlay_textures, id)
     for _,part in ipairs(parts) do
         local def = vehicle_compatibilities[part] or {}
-        textures[#textures+1] = ts_vehicles.helpers.call(def.get_textures, ...)
-        fallbacks[#fallbacks+1] = ts_vehicles.helpers.call(def.get_fallback_textures, ...)
-        overlays[#overlays+1] = ts_vehicles.helpers.call(def.get_overlay_textures, ...)
+        textures[#textures+1] = ts_vehicles.helpers.call(def.get_textures, id)
+        fallbacks[#fallbacks+1] = ts_vehicles.helpers.call(def.get_fallback_textures, id)
+        overlays[#overlays+1] = ts_vehicles.helpers.call(def.get_overlay_textures, id)
     end
     for i,texture_name in ipairs(texture_names) do
         result[i] = get_texture_by_name(texture_name, textures, fallbacks, overlays)
@@ -45,21 +45,21 @@ ts_vehicles.build_textures = function(base_vehicle, texture_names, parts, ...)
     return result
 end
 
-ts_vehicles.build_light_textures = function(base_vehicle, texture_names, parts, ...)
+ts_vehicles.build_light_textures = function(base_vehicle, texture_names, parts, id)
     local textures = {}
     local fallbacks = {}
     local overlays = {}
     local result = {}
     local vehicle_def = ts_vehicles.registered_vehicle_bases[base_vehicle]
     local vehicle_compatibilities = ts_vehicles.registered_compatibilities[base_vehicle]
-    textures[#textures+1] = ts_vehicles.helpers.call(vehicle_def.get_light_textures, ...)
-    fallbacks[#fallbacks+1] = ts_vehicles.helpers.call(vehicle_def.get_light_fallback_textures, ...)
-    overlays[#overlays+1] = ts_vehicles.helpers.call(vehicle_def.get_light_overlay_textures, ...)
+    textures[#textures+1] = ts_vehicles.helpers.call(vehicle_def.get_light_textures, id)
+    fallbacks[#fallbacks+1] = ts_vehicles.helpers.call(vehicle_def.get_light_fallback_textures, id)
+    overlays[#overlays+1] = ts_vehicles.helpers.call(vehicle_def.get_light_overlay_textures, id)
     for _,part in ipairs(parts) do
         local def = vehicle_compatibilities[part] or {}
-        textures[#textures+1] = ts_vehicles.helpers.call(def.get_light_textures, ...)
-        fallbacks[#fallbacks+1] = ts_vehicles.helpers.call(def.get_light_fallback_textures, ...)
-        overlays[#overlays+1] = ts_vehicles.helpers.call(def.get_light_overlay_textures, ...)
+        textures[#textures+1] = ts_vehicles.helpers.call(def.get_light_textures, id)
+        fallbacks[#fallbacks+1] = ts_vehicles.helpers.call(def.get_light_fallback_textures, id)
+        overlays[#overlays+1] = ts_vehicles.helpers.call(def.get_light_overlay_textures, id)
     end
     for i,texture_name in ipairs(texture_names) do
         result[i] = get_texture_by_name(texture_name, textures, fallbacks, overlays)

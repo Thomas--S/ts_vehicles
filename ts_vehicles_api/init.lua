@@ -7,64 +7,72 @@ ts_vehicles.writing = minetest.global_exists("font_api")
 local modpath = minetest.get_modpath("ts_vehicles_api")
 
 local vehicle_data = {}
-local waiting_for_unload = {}
+local unload_jobs = {}
+
+function ts_vehicles.create()
+    local id = ts_vehicles.mod_storage:get_int("next_number") or 1
+    ts_vehicles.mod_storage:set_int("next_number", id + 1)
+
+    vehicle_data[id] = {
+        tmp = {},
+        owners = nil,
+        passengers_closed = true,
+        v = 0,
+        lights = {
+            left = false,
+            right = false,
+            warn = false,
+            front = false,
+            back = false,
+            stop = false,
+            special = false,
+        },
+        data = {},
+        parts = {},
+        storage = {},
+        connected_to = nil,
+        last_seen_pos = nil,
+        name = nil,
+        dtime = math.random(),
+        even_step = false,
+        step_ctr = 0,
+        driver = nil,
+        passengers = {},
+        last_light_time = nil,
+    }
+
+    return id
+end
 
 function ts_vehicles.load(id)
-    waiting_for_unload[id] = false
-    local result = minetest.deserialize(ts_vehicles.mod_storage:get_string(id))
-    if result then
-        vehicle_data[id] = {
-            tmp = {},
-            owners = result.owners,
-            passengers_closed = result.passengers_closed,
-            v = result.v,
-            lights = result.lights,
-            data = result.data,
-            parts = result.parts,
-            storage = result.storage,
-            connected_to = result.connected_to,
-            last_seen_pos = result.last_seen_pos,
-            dtime = math.random(),
-            even_step = false,
-            step_ctr = 0,
-            driver = nil,
-            passengers = {},
-            last_light_time = nil,
-        }
-    else
-        vehicle_data[id] = {
-            tmp = {},
-            owners = nil,
-            passengers_closed = true,
-            v = 0,
-            lights = {
-                left = false,
-                right = false,
-                warn = false,
-                front = false,
-                back = false,
-                stop = false,
-                special = false,
-            },
-            data = {},
-            parts = {},
-            storage = {},
-            connected_to = nil,
-            last_seen_pos = nil,
-            dtime = math.random(),
-            even_step = false,
-            step_ctr = 0,
-            driver = nil,
-            passengers = {},
-            last_light_time = nil,
-        }
+    if vehicle_data[id] then
+        return
     end
+    local result = minetest.deserialize(ts_vehicles.mod_storage:get_string(id))
+    vehicle_data[id] = {
+        tmp = {},
+        owners = result.owners,
+        passengers_closed = result.passengers_closed,
+        v = result.v,
+        lights = result.lights,
+        data = result.data,
+        parts = result.parts,
+        storage = result.storage,
+        connected_to = result.connected_to,
+        last_seen_pos = result.last_seen_pos,
+        name = result.name,
+        dtime = math.random(),
+        even_step = false,
+        step_ctr = 0,
+        driver = nil,
+        passengers = {},
+        last_light_time = nil,
+    }
 end
 
 
 function ts_vehicles.load_legacy(staticdata)
     local data = minetest.deserialize(staticdata)
-    waiting_for_unload[data._id] = false
     vehicle_data[data._id] = {
         tmp = {},
         owners = data._owners,
@@ -76,6 +84,7 @@ function ts_vehicles.load_legacy(staticdata)
         storage = data._storage,
         connected_to = data._connected_to,
         last_seen_pos = nil,
+        name = nil,
         dtime = math.random(),
         even_step = false,
         step_ctr = 0,
@@ -87,6 +96,16 @@ function ts_vehicles.load_legacy(staticdata)
 end
 
 function ts_vehicles.get(id)
+    if not vehicle_data[id] then
+        ts_vehicles.load(id)
+    end
+    if unload_jobs[id] then
+        unload_jobs[id]:cancel()
+    end
+    unload_jobs[id] = minetest.after(10, function()
+        ts_vehicles.store(id)
+        vehicle_data[id] = nil
+    end)
     return vehicle_data[id]
 end
 
@@ -104,18 +123,19 @@ function ts_vehicles.store(id)
             storage = data.storage,
             connected_to = data.connected_to,
             last_seen_pos = data.last_seen_pos,
+            name = data.name,
         }))
     end
 end
 
-function ts_vehicles.unload(id)
-    waiting_for_unload[id] = true
-    minetest.after(1, function()
-        if waiting_for_unload[id] then
-            ts_vehicles.store(id)
-            vehicle_data[id] = nil
-        end
-    end)
+function ts_vehicles.delete(id)
+    ts_vehicles.helpers.remove_all_owner_mappings(id)
+    if unload_jobs[id] then
+        unload_jobs[id]:cancel()
+        unload_jobs[id] = nil
+    end
+    ts_vehicles.mod_storage:set_string(id, "")
+    vehicle_data[id] = nil
 end
 
 function ts_vehicles.store_all()
@@ -138,6 +158,25 @@ minetest.after(60, store_all)
 minetest.register_on_shutdown(function()
     ts_vehicles.store_all()
 end)
+
+ts_vehicles.swap_vehicle_data = function(id1, id2)
+    local data1 = ts_vehicles.get(id1)
+    local data2 = ts_vehicles.get(id2)
+    if not (data1 and data2) then
+        return false
+    end
+    ts_vehicles.helpers.remove_all_owner_mappings(id1)
+    ts_vehicles.helpers.remove_all_owner_mappings(id2)
+    data1.tmp = {}
+    data2.tmp = {}
+    vehicle_data[id1] = data2
+    vehicle_data[id2] = data1
+    ts_vehicles.store(id1)
+    ts_vehicles.store(id2)
+    ts_vehicles.helpers.add_all_owner_mappings(id1)
+    ts_vehicles.helpers.add_all_owner_mappings(id2)
+    return true
+end
 
 
 dofile(modpath.."/helpers.lua")
@@ -174,27 +213,48 @@ minetest.register_chatcommand("swap_vehicle_data", {
         end
         id1 = tonumber(id1)
         id2 = tonumber(id2)
-        local data1 = ts_vehicles.get(id1)
-        local data2 = ts_vehicles.get(id2)
-        if not data1 and ts_vehicles.mod_storage:contains(id1) then
-            ts_vehicles.load(id1)
-            data1 = ts_vehicles.get(id1)
-        end
-        if not data2 and ts_vehicles.mod_storage:contains(id2) then
-            ts_vehicles.load(id2)
-            data2 = ts_vehicles.get(id2)
-        end
-        if not (data1 and data2) then
+
+        if not ts_vehicles.swap_vehicle_data(id1, id2) then
             minetest.chat_send_player(name, "Vehicle data does not exist.")
-            return
         end
-        data1.tmp.light_textures_set = false
-        data1.tmp.base_textures_set = false
-        data2.tmp.light_textures_set = false
-        data2.tmp.base_textures_set = false
-        vehicle_data[id1] = data2
-        vehicle_data[id2] = data1
-        ts_vehicles.store(id1)
-        ts_vehicles.store(id2)
     end
 })
+
+minetest.after(1, function()
+    if not ts_vehicles.mod_storage:contains("migration:owner_mapping_and_name") then
+        for k,_ in pairs((ts_vehicles.mod_storage:to_table() or {}).fields) do
+            local id = tonumber(k)
+            if id and ts_vehicles.mod_storage:contains(id) then -- Numeric key, i.e. vehicle ID
+                ts_vehicles.helpers.add_all_owner_mappings(id)
+
+                -- Try to add vd.name where possible
+                local vd = ts_vehicles.get(id)
+                if vd then
+                    local base_name_match
+                    local conflict = false
+                    for _,part in ipairs(vd.parts or {}) do
+                        local number_of_matches = 0
+                        local part_base_name_match
+                        for base_name,_ in pairs(ts_vehicles.registered_vehicle_bases) do
+                            if ts_vehicles.registered_compatibilities[base_name][part] then
+                                number_of_matches = number_of_matches + 1
+                                part_base_name_match = base_name
+                            end
+                        end
+                        if number_of_matches == 1 and part_base_name_match ~= nil and not conflict then
+                            if base_name_match == nil then
+                                base_name_match = part_base_name_match
+                            elseif base_name_match ~= part_base_name_match then
+                                 conflict = true
+                            end
+                        end
+                    end
+                    if not conflict and base_name_match ~= nil then
+                        vd.name = base_name_match
+                    end
+                end
+            end
+        end
+        ts_vehicles.mod_storage:set_string("migration:owner_mapping_and_name", "done")
+    end
+end)

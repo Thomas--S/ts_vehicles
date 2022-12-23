@@ -48,8 +48,10 @@ ts_vehicles.register_vehicle_base = function(name, def)
                     object:set_yaw(player:get_look_horizontal())
                     local luaentity = object:get_luaentity()
                     local vd = VD(luaentity._id)
-                    vd.owners = { player_name }
+                    vd.owners = {}
+                    ts_vehicles.helpers.add_owner(luaentity._id, player_name)
                     vd.parts = table.copy(def.initial_parts)
+                    vd.name = name
                     itemstack:take_item()
                 end
             end
@@ -75,13 +77,9 @@ ts_vehicles.register_vehicle_base = function(name, def)
         end,
         on_activate = function(self, staticdata, dtime_s)
             if not staticdata or staticdata == "" then -- object creation
-                local id = ts_vehicles.create_id()
-                ts_vehicles.load(id)
-                self._id = id
+                self._id = ts_vehicles.create()
             elseif staticdata:sub(1,2) == "2;" then -- storage system version 2 (modstorage)
-                local id = tonumber(staticdata:sub(3))
-                ts_vehicles.load(id)
-                self._id = id
+                self._id = tonumber(staticdata:sub(3))
             else -- storage system version 1 (staticdata)
                 self._id = ts_vehicles.load_legacy(staticdata)
             end
@@ -93,9 +91,12 @@ ts_vehicles.register_vehicle_base = function(name, def)
             pos.y = pos.y + 1
             obj:set_pos(pos)
             ts_vehicles.ensure_light_attached(self)
+            local vd = VD(self._id)
+            vd.name = name
         end,
         on_deactivate = function(self)
-            ts_vehicles.unload(self._id)
+            local vd = VD(self._id)
+            vd.tmp = {}
         end,
         get_staticdata = function(self)
             return "2;"..self._id
@@ -123,6 +124,9 @@ ts_vehicles.register_vehicle_base = function(name, def)
             def.on_step(self, dtime, moveresult, def, is_full_second)
             if vd.connected_to ~= nil and vector.length(self.object:get_velocity()) > 0.01 then
                 ts_vehicles.hose.disconnect(self)
+            end
+            if is_full_second then
+                vd.last_seen_pos = self.object:get_pos()
             end
         end
     })

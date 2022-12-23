@@ -15,7 +15,7 @@ ts_vehicles.handle_rightclick = function(self, player, def)
     if control.sneak then
         ts_vehicles.show_formspec(self, player, def)
     elseif ts_vehicles.registered_parts[item_name] and ts_vehicles.registered_compatibilities[self.name][item_name] then
-        if ts_vehicles.helpers.contains(vd.owners, player_name) then
+        if ts_vehicles.helpers.is_owner(self._id, player_name) then
             local got_added, reason = ts_vehicles.add_part(self, wielded_item, player)
             if not got_added then
                 minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] Can't add part: "..reason))
@@ -23,10 +23,10 @@ ts_vehicles.handle_rightclick = function(self, player, def)
         else
             minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] You don't have access to this vehicle."))
         end
-    elseif item_name == "ts_vehicles_common:universal_key" and minetest.check_player_privs(player_name, ts_vehicles.priv) and not ts_vehicles.helpers.contains(vd.owners, player_name) then
-        table.insert(vd.owners, player_name)
+    elseif item_name == "ts_vehicles_common:universal_key" and minetest.check_player_privs(player_name, ts_vehicles.priv) then
+        ts_vehicles.helpers.add_owner(self._id, player_name)
     elseif ts_vehicles.helpers.contains(refill_tanks, item_name) then
-        if ts_vehicles.helpers.contains(vd.owners, player_name) then
+        if ts_vehicles.helpers.is_owner(self._id, player_name) then
             if item_name == "techage:ta3_barrel_gasoline" or item_name == "techage:ta3_canister_gasoline" then
                 local amount = item_name == "techage:ta3_barrel_gasoline" and 10 or 1
                 local free = ts_vehicles.helpers.get_total_value(self, "gasoline_capacity") - (vd.data.gasoline or 0)
@@ -58,7 +58,7 @@ ts_vehicles.handle_rightclick = function(self, player, def)
         end
     elseif ts_vehicles.passengers.is_passenger(self, player) then
         ts_vehicles.passengers.up(self, player)
-    elseif vd.driver == nil and ts_vehicles.helpers.contains(vd.owners, player_name) then
+    elseif vd.driver == nil and ts_vehicles.helpers.is_owner(self._id, player_name) then
         local is_driveable, reason = def.is_driveable(self)
         if is_driveable then
             local pos = self.object:get_pos()
@@ -76,7 +76,7 @@ ts_vehicles.handle_rightclick = function(self, player, def)
         player:set_detach()
         ts_vehicles.hud.remove(player)
     elseif ts_vehicles.passengers.get_num_free_seats(self, def) > 0 then
-        if not vd.passengers_closed or ts_vehicles.helpers.contains(vd.owners, player_name) then
+        if not vd.passengers_closed or ts_vehicles.helpers.is_owner(self._id, player_name) then
             local is_driveable, reason = def.is_driveable(self)
             if is_driveable then
                 ts_vehicles.passengers.sit(self, player, def)
@@ -92,13 +92,14 @@ end
 ts_vehicles.handle_leftclick = function(self, player, def)
     local player_name = player:get_player_name()
     local vd = VD(self._id)
-    if ts_vehicles.helpers.contains(vd.owners, player_name) then
+    if ts_vehicles.helpers.is_owner(self._id, player_name) then
         if #vd.parts == 0 then
             local inv = player:get_inventory()
             local leftover = inv:add_item("main", self.name)
             if leftover:get_count() > 0 then
                 minetest.add_item(player:get_pos(), self.name)
             end
+            ts_vehicles.delete(self._id)
             self.object:remove()
         else
             ts_vehicles.storage.add_by_player(self, player)
@@ -226,11 +227,11 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
 
     ts_vehicles.handle_car_light_controls(self, control)
     if not vd.tmp.base_textures_set then
-        ts_vehicles.apply_textures(self, ts_vehicles.build_textures(def.name, def.textures, vd.parts, self))
+        ts_vehicles.apply_textures(self, ts_vehicles.build_textures(def.name, def.textures, vd.parts, self._id))
         vd.tmp.base_textures_set = true
     end
     if not vd.tmp.light_textures_set then
-        ts_vehicles.apply_light_textures(self, ts_vehicles.build_light_textures(def.name, def.lighting_textures, vd.parts, self))
+        ts_vehicles.apply_light_textures(self, ts_vehicles.build_light_textures(def.name, def.lighting_textures, vd.parts, self._id))
         vd.tmp.light_textures_set = true
     end
 
@@ -242,7 +243,6 @@ ts_vehicles.car_on_step = function(self, dtime, moveresult, def, is_full_second)
         local back_downwards_space = math.max(ts_vehicles.helpers.downwards_space(tire_pos[3], max_depth), ts_vehicles.helpers.downwards_space(tire_pos[4], max_depth))
         local delta_y = front_downwards_space - back_downwards_space
         ts_vehicles.helpers.pitch_vehicle(self, delta_y, car_length, def)
-        vd.last_seen_pos = vehicle:get_pos()
     end
 end
 
@@ -367,6 +367,6 @@ ts_vehicles.disperse = function(entity)
         end
     end
     ts_vehicles.passengers.throw_all_out(entity, "[Vehicle] The vehicle got destroyed")
-
+    ts_vehicles.delete(entity._id)
     entity.object:remove()
 end
