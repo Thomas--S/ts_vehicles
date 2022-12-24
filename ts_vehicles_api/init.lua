@@ -99,6 +99,9 @@ function ts_vehicles.load_legacy(staticdata)
 end
 
 function ts_vehicles.get(id)
+    if not id then
+        return
+    end
     if not vehicle_data[id] then
         ts_vehicles.load(id)
     end

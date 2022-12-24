@@ -270,8 +270,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         end
     end
     local vd = VD(id)
-    if not entity or fields.quit or not ts_vehicles.helpers.is_owner(id, player_name) or vector.distance(entity.object:get_pos(), player:get_pos()) > 20 then
-        if entity then
+    if not vd or not entity or fields.quit or not ts_vehicles.helpers.is_owner(id, player_name) or vector.distance(entity.object:get_pos(), player:get_pos()) > 20 then
+        if vd then
             vd.tmp.show_void = false
         end
         player_currently_editing_entity[player_name] = nil
