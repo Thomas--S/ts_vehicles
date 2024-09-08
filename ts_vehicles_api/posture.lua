@@ -12,7 +12,7 @@ ts_vehicles.sit = function(pos, player, offset)
         }
 
         player:set_eye_offset(eye_pos, {x = 0, y = 0, z = 0})
-        player:set_physics_override(0, 0, 0)
+        player:set_physics_override({speed = 0, jump = 0, gravity = 0})
         player_api.player_attached[name] = true
         minetest.after(0.1, function()
             if player then
@@ -26,7 +26,7 @@ ts_vehicles.up = function(player)
     local name = player:get_player_name()
     if player_api.player_attached[name] then
         player:set_eye_offset({x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
-        player:set_physics_override(1, 1, 1)
+        player:set_physics_override({speed = 1, jump = 1, gravity = 1})
         player_api.player_attached[name] = false
         player_api.set_animation(player, "stand", 30)
     end
@@ -44,7 +44,7 @@ if not (minetest.get_modpath("ts_furniture") and ts_furniture.enable_sitting) or
                             players[i]:get_player_control().right == true or
                             players[i]:get_player_control().jump == true) then
                 players[i]:set_eye_offset({ x = 0, y = 0, z = 0 }, { x = 0, y = 0, z = 0 })
-                players[i]:set_physics_override(1, 1, 1)
+                players[i]:set_physics_override({speed = 1, jump = 1, gravity = 1})
                 default.player_attached[name] = false
                 default.player_set_animation(players[i], "stand", 30)
             end
