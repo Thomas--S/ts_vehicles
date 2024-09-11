@@ -5,8 +5,8 @@ ts_vehicles.passengers = {}
 
 ts_vehicles.passengers.get_passenger_list = function(self)
     local passengers = {}
-    for _,passenger in pairs(VD(self._id).passengers) do
-        passengers[#passengers+1] = passenger
+    for _, passenger in pairs(VD(self._id).passengers) do
+        passengers[#passengers + 1] = passenger
     end
     return passengers
 end
@@ -16,7 +16,7 @@ ts_vehicles.passengers.get_num_free_seats = function(self, def)
 end
 
 ts_vehicles.passengers.is_passenger = function(self, player)
-    for _,passenger in pairs(ts_vehicles.passengers.get_passenger_list(self)) do
+    for _, passenger in pairs(ts_vehicles.passengers.get_passenger_list(self)) do
         if passenger == player:get_player_name() then
             return true
         end
@@ -25,7 +25,7 @@ ts_vehicles.passengers.is_passenger = function(self, player)
 end
 
 ts_vehicles.passengers.get_next_empty_seat = function(self, def)
-    for idx,seat in ipairs(def.passenger_pos) do
+    for idx, seat in ipairs(def.passenger_pos) do
         if VD(self._id).passengers[idx] == nil then
             return idx, seat
         end
@@ -33,7 +33,7 @@ ts_vehicles.passengers.get_next_empty_seat = function(self, def)
 end
 
 ts_vehicles.passengers.get_seat_by_player = function(self, name)
-    for idx,passenger in pairs(VD(self._id).passengers) do
+    for idx, passenger in pairs(VD(self._id).passengers) do
         if passenger == name then
             return idx
         end
@@ -44,8 +44,8 @@ ts_vehicles.passengers.sit = function(self, player, def)
     local pos = self.object:get_pos()
     local seat_idx, seat_pos = ts_vehicles.passengers.get_next_empty_seat(self, def)
     VD(self._id).passengers[seat_idx] = player:get_player_name()
-    ts_vehicles.sit(pos, player, seat_pos)
-    player:set_attach(self.object, nil, seat_pos, {x=0,y=0,z=0})
+    ts_vehicles.sit(pos, player)
+    ts_vehicles.helpers.attach_player(player, self.object, seat_pos)
     player:set_look_horizontal(self.object:get_yaw() % (math.pi * 2))
 end
 
@@ -71,20 +71,10 @@ ts_vehicles.passengers.up_by_name = function(self, player_name)
 end
 
 ts_vehicles.passengers.turn = function(self, delta)
-    for _,passenger in ipairs(ts_vehicles.passengers.get_passenger_list(self)) do
+    for _, passenger in ipairs(ts_vehicles.passengers.get_passenger_list(self)) do
         local player = minetest.get_player_by_name(passenger)
         if player then
             ts_vehicles.helpers.turn_player(player, delta)
-        end
-    end
-end
-
-ts_vehicles.passengers.throw_all_out = function(self, reason)
-    for _,passenger in ipairs(ts_vehicles.passengers.get_passenger_list(self)) do
-        local player = minetest.get_player_by_name(passenger)
-        if player then
-            minetest.chat_send_player(passenger, minetest.colorize("#f00", "[Vehicle] "..reason))
-            ts_vehicles.passengers.up(self, player)
         end
     end
 end

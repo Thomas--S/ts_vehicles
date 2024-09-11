@@ -4,6 +4,37 @@ ts_vehicles.mod_storage = minetest.get_mod_storage()
 
 ts_vehicles.writing = minetest.global_exists("font_api")
 
+-- Map functions for tables
+ts_vehicles.map = function(t, fn)
+    local result = {}
+    for k, v in ipairs(t) do
+        result[k] = fn(v)
+    end
+    return result
+end
+
+ts_vehicles.map_keys = function(t, fn)
+    local result = {}
+    for k, v in pairs(t) do
+        result[fn(k)] = v
+    end
+    return result
+end
+
+ts_vehicles.map_values = function(t, fn)
+    local result = {}
+    for k, v in pairs(t) do
+        result[k] = fn(v)
+    end
+    return result
+end
+
+ts_vehicles.parts_to_string = function(parts)
+    return ts_vehicles.map(parts, function(stack)
+        return stack:to_string()
+    end)
+end
+
 local modpath = minetest.get_modpath("ts_vehicles_api")
 
 local vehicle_data = {}
@@ -32,6 +63,7 @@ function ts_vehicles.create()
         storage = {},
         connected_to = nil,
         last_seen_pos = nil,
+        y_ground_pos = nil,
         name = nil,
         dtime = math.random(),
         even_step = false,
@@ -42,6 +74,16 @@ function ts_vehicles.create()
     }
 
     return id
+end
+
+local part_to_itemstack = function(part)
+    local original_part_name = part:sub(1, part:find(" "))
+    local itemstack = ItemStack(part)
+    -- Add original part name to item metadata. Can be useful for migrating legacy data.
+    if itemstack:get_name() ~= original_part_name then
+        itemstack:get_meta():set_string("original_part_name", original_part_name)
+    end
+    return itemstack
 end
 
 function ts_vehicles.load(id)
@@ -59,10 +101,11 @@ function ts_vehicles.load(id)
         v = result.v,
         lights = result.lights,
         data = result.data,
-        parts = result.parts,
+        parts = ts_vehicles.map(result.parts, part_to_itemstack),
         storage = result.storage,
         connected_to = result.connected_to,
         last_seen_pos = result.last_seen_pos,
+        y_ground_pos = result.y_ground_pos,
         name = result.name,
         dtime = math.random(),
         even_step = false,
@@ -73,7 +116,6 @@ function ts_vehicles.load(id)
     }
 end
 
-
 function ts_vehicles.load_legacy(staticdata)
     local data = minetest.deserialize(staticdata)
     vehicle_data[data._id] = {
@@ -83,10 +125,11 @@ function ts_vehicles.load_legacy(staticdata)
         v = data._v,
         lights = data._lights,
         data = data._data,
-        parts = data._parts,
+        parts = ts_vehicles.map(data._parts, part_to_itemstack),
         storage = data._storage,
         connected_to = data._connected_to,
         last_seen_pos = nil,
+        y_ground_pos = nil,
         name = nil,
         dtime = math.random(),
         even_step = false,
@@ -99,7 +142,7 @@ function ts_vehicles.load_legacy(staticdata)
 end
 
 function ts_vehicles.get(id)
-    if not id then
+    if not id or type(id) ~= "number" then
         return
     end
     if not vehicle_data[id] then
@@ -116,7 +159,7 @@ function ts_vehicles.get(id)
 end
 
 function ts_vehicles.store(id)
-    local data = ts_vehicles.get(id)
+    local data = vehicle_data[id]
     if data then
         ts_vehicles.mod_storage:set_string(id, minetest.serialize({
             id = id,
@@ -125,10 +168,11 @@ function ts_vehicles.store(id)
             v = data.v,
             lights = data.lights,
             data = data.data,
-            parts = data.parts,
+            parts = ts_vehicles.parts_to_string(data.parts),
             storage = data.storage,
             connected_to = data.connected_to,
             last_seen_pos = data.last_seen_pos,
+            y_ground_pos = data.y_ground_pos,
             name = data.name,
         }))
     end
@@ -147,11 +191,11 @@ end
 function ts_vehicles.store_all()
     local num_vehicles = #vehicle_data
     local start = minetest.get_us_time()
-    for id,_ in pairs(vehicle_data) do
+    for id, _ in pairs(vehicle_data) do
         ts_vehicles.store(id)
     end
     local finish = minetest.get_us_time()
-    print("[ts_vehicles] Storing the data of "..num_vehicles.." vehicles in "..(finish-start).."µs.")
+    print("[ts_vehicles] Storing the data of " .. num_vehicles .. " vehicles in " .. (finish - start) .. "µs.")
 end
 
 -- Store all active data every 60 seconds
@@ -184,19 +228,18 @@ ts_vehicles.swap_vehicle_data = function(id1, id2)
     return true
 end
 
-
-dofile(modpath.."/helpers.lua")
-dofile(modpath.."/hose.lua")
-dofile(modpath.."/storage.lua")
-dofile(modpath.."/posture.lua")
-dofile(modpath.."/light.lua")
-dofile(modpath.."/formspec.lua")
-dofile(modpath.."/passengers.lua")
-dofile(modpath.."/hud.lua")
-dofile(modpath.."/handlers.lua")
-dofile(modpath.."/textures.lua")
-dofile(modpath.."/movement.lua")
-dofile(modpath.."/registration.lua")
+dofile(modpath .. "/helpers.lua")
+dofile(modpath .. "/hose.lua")
+dofile(modpath .. "/storage.lua")
+dofile(modpath .. "/posture.lua")
+dofile(modpath .. "/light.lua")
+dofile(modpath .. "/formspec.lua")
+dofile(modpath .. "/passengers.lua")
+dofile(modpath .. "/hud.lua")
+dofile(modpath .. "/handlers.lua")
+dofile(modpath .. "/textures.lua")
+dofile(modpath .. "/movement.lua")
+dofile(modpath .. "/registration.lua")
 
 if not math.round then
     function math.round(x)
@@ -210,7 +253,7 @@ end
 minetest.register_chatcommand("swap_vehicle_data", {
     params = "<vehicle 1 id> <vehicle 2 id>",
     description = "Swaps the vehicle data of two vehicles (specified by ID). Make sure to only swap the data for vehicles of the same type.",
-    privs = {[ts_vehicles.priv] = true},
+    privs = { [ts_vehicles.priv] = true },
     func = function(name, param)
         local id1, id2 = string.match(param or "", "^(%d+) (%d+)")
         if not (id1 and id2) then
@@ -228,9 +271,11 @@ minetest.register_chatcommand("swap_vehicle_data", {
 
 minetest.after(1, function()
     if not ts_vehicles.mod_storage:contains("migration:owner_mapping_and_name") then
-        for k,_ in pairs((ts_vehicles.mod_storage:to_table() or {}).fields) do
+        for k, _ in pairs((ts_vehicles.mod_storage:to_table() or {}).fields) do
             local id = tonumber(k)
-            if id and ts_vehicles.mod_storage:contains(id) then -- Numeric key, i.e. vehicle ID
+            if id and ts_vehicles.mod_storage:contains(id) then
+                -- Numeric key, i.e. vehicle ID
+
                 ts_vehicles.helpers.add_all_owner_mappings(id)
 
                 -- Try to add vd.name where possible
@@ -238,11 +283,11 @@ minetest.after(1, function()
                 if vd then
                     local base_name_match
                     local conflict = false
-                    for _,part in ipairs(vd.parts or {}) do
+                    for _, part in ipairs(vd.parts or {}) do
                         local number_of_matches = 0
                         local part_base_name_match
-                        for base_name,_ in pairs(ts_vehicles.registered_vehicle_bases) do
-                            if ts_vehicles.registered_compatibilities[base_name][part] then
+                        for base_name, _ in pairs(ts_vehicles.registered_vehicle_bases) do
+                            if ts_vehicles.registered_compatibilities[base_name][part:get_name()] then
                                 number_of_matches = number_of_matches + 1
                                 part_base_name_match = base_name
                             end
@@ -251,7 +296,7 @@ minetest.after(1, function()
                             if base_name_match == nil then
                                 base_name_match = part_base_name_match
                             elseif base_name_match ~= part_base_name_match then
-                                 conflict = true
+                                conflict = true
                             end
                         end
                     end

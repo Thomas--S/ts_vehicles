@@ -5,7 +5,6 @@ ts_vehicles.hose = {}
 
 local E = minetest.formspec_escape
 
-
 minetest.register_entity("ts_vehicles_api:hose", {
     initial_properties = {
         collisionbox = { 0, 0, 0, 0, 0, 0 },
@@ -27,13 +26,13 @@ minetest.register_entity("ts_vehicles_api:hose", {
     on_punch = function(self, player, time_from_last_punch, tool_capabilities, dir, damage)
     end,
     on_activate = function(self, staticdata, dtime_s)
-        self.object:set_armor_groups({immortal=1})
+        self.object:set_armor_groups({ immortal = 1 })
         local data = minetest.deserialize(staticdata)
         self._dtime = 0
         if data then
             self._connected_to = data._connected_to
             self._id = data._id
-            self.object:set_properties{
+            self.object:set_properties {
                 visual_size = data._visual_size,
             }
         end
@@ -72,10 +71,10 @@ ts_vehicles.hose.get_positions = function(entity, station_pos)
     local def = node_def._station
 
     local entity_def = ts_vehicles.registered_vehicle_bases[entity.name]
-    if not(def.type and entity_def and entity_def[def.type.."_hose_offset"]) then
+    if not (def.type and entity_def and entity_def[def.type .. "_hose_offset"]) then
         return nil, nil
     end
-    local p1 = vector.add(entity.object:get_pos(), vector.rotate(entity_def[def.type.."_hose_offset"], entity.object:get_rotation()))
+    local p1 = vector.add(entity.object:get_pos(), vector.rotate(entity_def[def.type .. "_hose_offset"], entity.object:get_rotation()))
     local station_rotation = vector.dir_to_rotation(minetest.facedir_to_dir(node.param2))
     local p2 = vector.add(station_pos, vector.rotate(def.hose_offset, station_rotation))
     return p1, p2
@@ -96,7 +95,7 @@ ts_vehicles.hose.connect = function(entity, station_pos)
     if object then
         object:set_rotation(rotation)
         object:set_properties({
-            visual_size = { x = .1, y = .1, z = length}
+            visual_size = { x = .1, y = .1, z = length }
         })
     end
     local hose_entity = object:get_luaentity()
@@ -135,7 +134,7 @@ ts_vehicles.hose.can_be_placed = function(entity, station_pos, maxlength)
     if p1 == nil or p2 == nil then
         return false, "No attachment positions found."
     end
-    if ts_vehicles.helpers.get_total_value(entity, def._station.type.."_capacity") <= 0 then
+    if ts_vehicles.helpers.get_total_value(entity._id, def._station.type .. "_capacity") <= 0 then
         return false, "No capacity."
     end
     if maxlength and vector.distance(p1, p2) > maxlength then
@@ -150,7 +149,7 @@ end
 ts_vehicles.hose.get_applicable_vehicles = function(station_pos, maxlength)
     local vehicles = {}
     local objects = minetest.get_objects_inside_radius(station_pos, maxlength + 2)
-    for _,object in ipairs(objects) do
+    for _, object in ipairs(objects) do
         local entity = object:get_luaentity()
         if entity then
             local can_be_connected = ts_vehicles.hose.can_be_placed(entity, station_pos, maxlength)
@@ -171,7 +170,7 @@ end
 
 ts_vehicles.hose.get_vehicle_by_id = function(id, station_pos, maxlength)
     local objects = minetest.get_objects_inside_radius(station_pos, maxlength + 2)
-    for _,object in ipairs(objects) do
+    for _, object in ipairs(objects) do
         local entity = object:get_luaentity()
         if entity and ts_vehicles.registered_vehicle_bases[entity.name] then
             local current_id = entity._id
@@ -199,7 +198,7 @@ ts_vehicles.hose.get_connected_vehicle = function(pos)
     end
     local def = minetest.registered_nodes[node.name]._station
     local objects = minetest.get_objects_inside_radius(pos, def.maxlength + 2)
-    for _,object in ipairs(objects) do
+    for _, object in ipairs(objects) do
         local entity = object:get_luaentity()
         if entity and ts_vehicles.registered_vehicle_bases[entity.name] then
             if tostring(entity._id) == connected_id then
@@ -221,48 +220,48 @@ ts_vehicles.hose.get_formspec = function(pos)
     local help_text = def.help_text or ""
     local color = def.color or "#000"
     local fs = "formspec_version[2]"
-    fs = fs.."size[12,10]"
-    fs = fs.."box[0,0;12,2;"..color.."]"
-    fs = fs.."style_type[label;font_size=*2]"
-    fs = fs.."style_type[label;font=bold]"
-    fs = fs.."label[.5,.5;"..E(title).."]"
-    fs = fs.."style_type[label;font_size=*1]"
-    fs = fs.."style_type[label;font=normal]"
-    fs = fs.."label[.5,1;"..E(help_text).."]"
-    fs = fs.."checkbox[.5,1.5;public;Public station (anyone can connect a vehicle);"..tostring(minetest.get_meta(pos):get_string("public")).."]"
+    fs = fs .. "size[12,10]"
+    fs = fs .. "box[0,0;12,2;" .. color .. "]"
+    fs = fs .. "style_type[label;font_size=*2]"
+    fs = fs .. "style_type[label;font=bold]"
+    fs = fs .. "label[.5,.5;" .. E(title) .. "]"
+    fs = fs .. "style_type[label;font_size=*1]"
+    fs = fs .. "style_type[label;font=normal]"
+    fs = fs .. "label[.5,1;" .. E(help_text) .. "]"
+    fs = fs .. "checkbox[.5,1.5;public;Public station (anyone can connect a vehicle);" .. tostring(minetest.get_meta(pos):get_string("public")) .. "]"
     if meta:get_string("ts_vehicles_hose_connection_id") == "" then
-        fs = fs.."label[1.75,2.5;ID]"
-        fs = fs.."label[3,2.5;Description]"
-        fs = fs.."style_type[box;colors=#fff0,#ffffff8c,#ffffff8c,#fff0]"
-        fs = fs.."box[0,2.7;.5,.05;]"
-        fs = fs.."style_type[box;colors=#ffffff8c,#fff0,#fff0,#ffffff8c]"
-        fs = fs.."box[11.5,2.7;.5,.05;]"
-        fs = fs.."style_type[box;colors=]"
-        fs = fs.."box[.5,2.7;11,.05;#fff]"
-        fs = fs.."container[0,3.25]"
+        fs = fs .. "label[1.75,2.5;ID]"
+        fs = fs .. "label[3,2.5;Description]"
+        fs = fs .. "style_type[box;colors=#fff0,#ffffff8c,#ffffff8c,#fff0]"
+        fs = fs .. "box[0,2.7;.5,.05;]"
+        fs = fs .. "style_type[box;colors=#ffffff8c,#fff0,#fff0,#ffffff8c]"
+        fs = fs .. "box[11.5,2.7;.5,.05;]"
+        fs = fs .. "style_type[box;colors=]"
+        fs = fs .. "box[.5,2.7;11,.05;#fff]"
+        fs = fs .. "container[0,3.25]"
         local y = 0
         local vehicles = ts_vehicles.hose.get_applicable_vehicles(pos, def.maxlength)
-        for idx,vehicle in ipairs(vehicles) do
+        for idx, vehicle in ipairs(vehicles) do
             if idx % 2 == 0 then
-                fs = fs.."style_type[box;colors=#fff0,#fff2,#fff2,#fff0]"
-                fs = fs.."box[0,"..(y-.5)..";.5,1;]"
-                fs = fs.."style_type[box;colors=#fff2,#fff0,#fff0,#fff2]"
-                fs = fs.."box[11.5,"..(y-.5)..";.5,1;]"
-                fs = fs.."style_type[box;colors=]"
-                fs = fs.."box[.5,"..(y-.5)..";11,1;#fff2]"
+                fs = fs .. "style_type[box;colors=#fff0,#fff2,#fff2,#fff0]"
+                fs = fs .. "box[0," .. (y - .5) .. ";.5,1;]"
+                fs = fs .. "style_type[box;colors=#fff2,#fff0,#fff0,#fff2]"
+                fs = fs .. "box[11.5," .. (y - .5) .. ";.5,1;]"
+                fs = fs .. "style_type[box;colors=]"
+                fs = fs .. "box[.5," .. (y - .5) .. ";11,1;#fff2]"
             end
-            fs = fs.."model[.5,"..(y-.5)..";1,1;vehicle_preview"..E(vehicle.id)..";"..E(vehicle.model)..";"..vehicle.texture..";-15,150;false;true;0,0]"
-            fs = fs.."label[1.75,"..y..";"..E(vehicle.id).."]"
-            fs = fs.."label[3,"..y..";"..E(vehicle.description).."]"
-            fs = fs.."button[7,"..(y-.375)..";2.5,.75;connect_"..E(vehicle.id)..";Connect]"
+            fs = fs .. "model[.5," .. (y - .5) .. ";1,1;vehicle_preview" .. E(vehicle.id) .. ";" .. E(vehicle.model) .. ";" .. vehicle.texture .. ";-15,150;false;true;0,0]"
+            fs = fs .. "label[1.75," .. y .. ";" .. E(vehicle.id) .. "]"
+            fs = fs .. "label[3," .. y .. ";" .. E(vehicle.description) .. "]"
+            fs = fs .. "button[7," .. (y - .375) .. ";2.5,.75;connect_" .. E(vehicle.id) .. ";Connect]"
             y = y + 1
         end
-        fs = fs.."container_end[]"
+        fs = fs .. "container_end[]"
     else
-        fs = fs.."button[4,3;4,1.5;disconnect;Disconnect]"
+        fs = fs .. "button[4,3;4,1.5;disconnect;Disconnect]"
     end
     if node_def._station.custom_fs_appendix then
-        fs = fs..node_def._station.custom_fs_appendix(pos)
+        fs = fs .. node_def._station.custom_fs_appendix(pos)
     end
     return fs
 end
@@ -304,7 +303,7 @@ ts_vehicles.hose.station_receive_fields = function(pos, formname, fields, player
                 local entity_id = tonumber(k:sub(9)) -- len("remove_owner_") = 8
                 local entity, reason = ts_vehicles.hose.get_vehicle_by_id(entity_id, pos, def.maxlength)
                 if not entity then
-                    minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] Cannot connect: "..reason))
+                    minetest.chat_send_player(player_name, minetest.colorize("#f00", "[Vehicle] Cannot connect: " .. reason))
                     return
                 end
                 ts_vehicles.hose.connect(entity, pos)

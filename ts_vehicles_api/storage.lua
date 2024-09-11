@@ -18,14 +18,14 @@ end
 
 ts_vehicles.storage.get_total_count = function(id)
     local total = 0
-    for _,item in ipairs(VD(id).storage) do
+    for _, item in ipairs(VD(id).storage) do
         total = total + item.count
     end
     return total
 end
 
 ts_vehicles.storage.get_index = function(id, itemstring)
-    for idx,item in ipairs(VD(id).storage) do
+    for idx, item in ipairs(VD(id).storage) do
         if item.itemstring == itemstring then
             return idx
         end
@@ -41,7 +41,7 @@ ts_vehicles.storage.add = function(self, itemstack)
     if serialized_item.count == 0 then
         return true, nil, itemstack
     end
-    local free_amount = ts_vehicles.helpers.get_total_value(self, "storage_capacity") - ts_vehicles.storage.get_total_count(self._id)
+    local free_amount = ts_vehicles.helpers.get_total_value(self._id, "storage_capacity") - ts_vehicles.storage.get_total_count(self._id)
     if free_amount <= 0 then
         return false, "Storage full!", itemstack
     end
@@ -80,7 +80,7 @@ ts_vehicles.storage.add_by_player = function(self, player)
     local itemstack = player:get_wielded_item()
     local got_added, message, leftover = ts_vehicles.storage.add(self, itemstack)
     if message then
-        minetest.chat_send_player(player_name, minetest.colorize(got_added and "#080" or "#f00", "[Vehicle] "..message))
+        minetest.chat_send_player(player_name, minetest.colorize(got_added and "#080" or "#f00", "[Vehicle] " .. message))
     end
     player:set_wielded_item(leftover)
 end
@@ -91,24 +91,23 @@ ts_vehicles.storage.take_by_player = function(self, player, idx, max)
     local leftover = inv:add_item("main", stack)
     if leftover:get_count() > 0 then
         minetest.chat_send_player(player:get_player_name(), minetest.colorize("#f00", "[Vehicle] Your inventory is full."))
-        local _,_,leftover_after_add = ts_vehicles.storage.add(self, leftover)
+        local _, _, leftover_after_add = ts_vehicles.storage.add(self, leftover)
         if leftover_after_add:get_count() > 0 then
             minetest.add_item(player:get_pos(), leftover_after_add)
         end
     end
 end
 
-
 local function get_vehicle(pos, param2, id)
     local dir = minetest.facedir_to_dir(param2)
     local center_pos = vector.add(pos, vector.multiply(dir, 3))
     local vehicle, min_distance
     local objects = minetest.get_objects_inside_radius(center_pos, 4)
-    for _,object in ipairs(objects) do
+    for _, object in ipairs(objects) do
         local entity = object:get_luaentity()
         if entity and ts_vehicles.registered_vehicle_bases[entity.name]
             and not (id and id ~= entity._id)
-            and ts_vehicles.helpers.get_total_value(entity, "storage_capacity") > 0
+            and ts_vehicles.helpers.get_total_value(entity._id, "storage_capacity") > 0
             and ts_vehicles.helpers.free_line_of_sight(pos, object:get_pos(), entity._id, pos)
         then
             local distance = vector.distance(pos, object:get_pos())
