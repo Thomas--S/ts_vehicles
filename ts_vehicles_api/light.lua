@@ -5,12 +5,14 @@ ts_vehicles.get_lamps_texture = function(base_texture, defs)
     local base = base_texture
     local light = ""
 
-    for _,def in ipairs(defs) do
-        if def.state then -- lamp is on
-            light = light.."^("..def.overlay_texture_on..")"
-            base = base.."^("..def.overlay_texture_on..")"
-        else -- lamp is off
-            base = base.."^("..def.overlay_texture_off..")"
+    for _, def in ipairs(defs) do
+        if def.state then
+            -- lamp is on
+            light = light .. "^(" .. def.overlay_texture_on .. ")"
+            base = base .. "^(" .. def.overlay_texture_on .. ")"
+        else
+            -- lamp is off
+            base = base .. "^(" .. def.overlay_texture_off .. ")"
         end
     end
 
@@ -30,9 +32,9 @@ end
 
 ts_vehicles.ensure_light_attached = function(self)
     if not ts_vehicles.get_light_entity(self) then
-        local entity = minetest.add_entity(self.object:get_pos(), self.name.."_lighting")
+        local entity = minetest.add_entity(self.object:get_pos(), self.name .. "_lighting")
         if entity then
-            entity:set_attach(self.object, nil, {x=0,y=0,z=0}, {x=0,y=0,z=0})
+            entity:set_attach(self.object, nil, { x = 0, y = 0, z = 0 }, { x = 0, y = 0, z = 0 })
         end
     end
 end
@@ -40,7 +42,7 @@ end
 ts_vehicles.place_light = function(pos)
     local node_name = minetest.get_node(pos).name
     if node_name == "air" then
-        minetest.set_node(pos, {name = "ts_vehicles_api:light"})
+        minetest.set_node(pos, { name = "ts_vehicles_api:light" })
     elseif node_name == "ts_vehicles_api:light" then
         minetest.get_node_timer(pos):start(2)
     end
@@ -56,6 +58,33 @@ ts_vehicles.car_light_beam = function(self)
 
         local p2 = vector.add(p1, vector.multiply(minetest.yaw_to_dir(vehicle:get_yaw()), 20))
         local collision = minetest.raycast(p1, p2, false, true):next()
+        if collision then
+            p2 = collision.above
+        end
+        ts_vehicles.place_light(p2)
+    end
+end
+
+ts_vehicles.helicopter_light_beam = function(self)
+    local vehicle = self.object
+    local vd = VD(self._id)
+    if vd.lights.ll and ts_vehicles.helpers.any_has_group(vd.parts, "landing_light") then
+        local p1 = vehicle:get_pos()
+        p1.y = p1.y + 1
+
+        local p2 = vector.add(p1, vector.multiply(minetest.yaw_to_dir(vehicle:get_yaw()), 10))
+        local collision = minetest.raycast(p1, vector.new(p2.x, p2.y - 5, p2.z), false, true):next()
+        if collision then
+            p2 = collision.above
+        end
+        ts_vehicles.place_light(p2)
+    end
+    if vd.lights.sl and ts_vehicles.helpers.any_has_group(vd.parts, "search_light") then
+        local p1 = vehicle:get_pos()
+        p1.y = p1.y + 1
+
+        local p2 = vector.add(p1, vector.multiply(minetest.yaw_to_dir(vehicle:get_yaw()), 30))
+        local collision = minetest.raycast(p1, vector.new(p2.x, p2.y - 20, p2.z), false, true):next()
         if collision then
             p2 = collision.above
         end
@@ -80,5 +109,5 @@ minetest.register_node("ts_vehicles_api:light", {
         minetest.remove_node(pos)
     end,
     light_source = 14,
-    groups = {not_in_creative_inventory=1},
+    groups = { not_in_creative_inventory = 1 },
 })

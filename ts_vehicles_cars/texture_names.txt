@@ -34,10 +34,25 @@ ts_vehicles_crtr_tp.png: Truck Panel Light Red
 ts_vehicles_crtrb.png: Roof Top Light Red and Blue
 ts_vehicles_crtrb_tp.png: Truck Panel Light Red and Blue
 ts_vehicles_cs.png: Car Side
-ts_vehicles_csb.png: Car Chassis Stripe Back
-ts_vehicles_csf.png: Car Chassis Stripe Front
 ts_vehicles_csl_.png: Car Special Light On
-ts_vehicles_css.png: Car Chassis Stripe Side
+ts_vehicles_cws1b.png: Car Wrapping Side Stripe Back
+ts_vehicles_cws1f.png: Car Wrapping Side Stripe Front
+ts_vehicles_cws1s.png: Car Wrapping Side Stripe Side
+ts_vehicles_cwf1.png: Car Wrapping Front Stripe
+ts_vehicles_cwb1.png: Car Wrapping Back Stripe
+ts_vehicles_cws2b.png: Car Wrapping Side Lines Back
+ts_vehicles_cws2f.png: Car Wrapping Side Lines Front
+ts_vehicles_cws2s.png: Car Wrapping Side Lines Side
+ts_vehicles_cwf2.png: Car Wrapping Front Lines
+ts_vehicles_cwb2.png: Car Wrapping Back Lines
+ts_vehicles_cws3b.png: Car Wrapping Side Battenberg A Back
+ts_vehicles_cws3f.png: Car Wrapping Side Battenberg A Front
+ts_vehicles_cws3s.png: Car Wrapping Side Battenberg A Side
+ts_vehicles_cwb3.png: Car Wrapping Back Chevron A
+ts_vehicles_cws4b.png: Car Wrapping Side Battenberg B Back
+ts_vehicles_cws4f.png: Car Wrapping Side Battenberg B Front
+ts_vehicles_cws4s.png: Car Wrapping Side Battenberg B Side
+ts_vehicles_cwb4.png: Car Wrapping Back Chevron B
 ts_vehicles_ct.png: Tire
 ts_vehicles_ctbl.png: Truck Back Light
 ts_vehicles_ctbl_.png: Truck Back Light On
@@ -65,7 +80,18 @@ ts_vehicles_ctpt.png: Truck Payload Tank
 ts_vehicles_ctpt_.png: Truck Payload Tank Platform Overlay
 ts_vehicles_ctrl.png: Truck Reversing Light
 ts_vehicles_ctrl_.png: Truck Reversing Light On
-ts_vehicles_cts.png: Truck Cabin Stripe
+ts_vehicles_ctwc1.png: Truck Wrapping Cabin Stripe
+ts_vehicles_ctwc2.png: Truck Wrapping Cabin Lines
+ts_vehicles_ctwc3.png: Truck Wrapping Cabin Battenberg A
+ts_vehicles_ctwc4.png: Truck Wrapping Cabin Battenberg B
+ts_vehicles_ctwps1.png: Truck Wrapping Panel Side Battenberg A
+ts_vehicles_ctwps2.png: Truck Wrapping Panel Side Battenberg B
+ts_vehicles_ctwpb1.png: Truck Wrapping Panel Back Chevron A
+ts_vehicles_ctwpb2.png: Truck Wrapping Panel Back Chevron B
+ts_vehicles_ctwtb1.png: Truck Wrapping Tarp Back Stripe
+ts_vehicles_ctwtb2.png: Truck Wrapping Tarp Back Lines
+ts_vehicles_ctwtb3.png: Truck Wrapping Tarp Back Chevron A
+ts_vehicles_ctwtb4.png: Truck Wrapping Tarp Back Chevron B
 ts_vehicles_ctsl_.png: Truck Special Light On
 ts_vehicles_ctsp.png: Truck Side Panels
 ts_vehicles_ctt.png: Truck Tarp

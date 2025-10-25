@@ -39,7 +39,7 @@ minetest.register_node("ts_vehicles_common:gasoline_station", {
     paramtype = "light",
     paramtype2 = "facedir",
     on_rotate = screwdriver.disallow,
-    groups = {cracky=2},
+    groups = { cracky = 2 },
     is_ground_content = false,
     sounds = default.node_sound_metal_defaults(),
     _station = {
@@ -53,7 +53,7 @@ minetest.register_node("ts_vehicles_common:gasoline_station", {
     on_receive_fields = ts_vehicles.hose.station_receive_fields
 })
 
-liquid.register_nodes({"ts_vehicles_common:gasoline_station"}, Pipe, "tank", {"D"}, {
+liquid.register_nodes({ "ts_vehicles_common:gasoline_station" }, Pipe, "tank", { "D" }, {
     capa = 1000000,
     peek = function(...) return nil end,
     put = function(pos, indir, name, amount)
@@ -66,7 +66,7 @@ liquid.register_nodes({"ts_vehicles_common:gasoline_station"}, Pipe, "tank", {"D
         end
         local entity = object:get_luaentity()
         local vd = VD(entity._id)
-        local max = ts_vehicles.helpers.get_total_value(entity, "gasoline_capacity")
+        local max = ts_vehicles.helpers.get_total_value(entity._id, "gasoline_capacity")
         local to_be_added = math.max(math.min(amount, max - (vd.data.gasoline or 0)), 0)
         vd.data.gasoline = (vd.data.gasoline or 0) + to_be_added
         return amount - to_be_added
@@ -80,13 +80,11 @@ liquid.register_nodes({"ts_vehicles_common:gasoline_station"}, Pipe, "tank", {"D
 minetest.register_craft({
     output = "ts_vehicles_common:gasoline_station",
     recipe = {
-        {"ts_vehicles_common:composite_material", "basic_materials:ic", ""},
-        {"techage:ta3_pipeS", "basic_materials:concrete_block", "techage:ta3_barrel_empty"},
-        {"", "techage:ta3_pipeS", ""},
+        { "ts_vehicles_common:composite_material", "basic_materials:ic", "" },
+        { "techage:ta3_pipeS", "basic_materials:concrete_block", "techage:ta3_barrel_empty" },
+        { "", "techage:ta3_pipeS", "" },
     },
 })
-
-
 
 minetest.register_node("ts_vehicles_common:hydrogen_station", {
     description = "Hydrogen Station",
@@ -116,7 +114,7 @@ minetest.register_node("ts_vehicles_common:hydrogen_station", {
     paramtype = "light",
     paramtype2 = "facedir",
     on_rotate = screwdriver.disallow,
-    groups = {cracky=2},
+    groups = { cracky = 2 },
     is_ground_content = false,
     sounds = default.node_sound_metal_defaults(),
     _station = {
@@ -130,7 +128,7 @@ minetest.register_node("ts_vehicles_common:hydrogen_station", {
     on_receive_fields = ts_vehicles.hose.station_receive_fields
 })
 
-liquid.register_nodes({"ts_vehicles_common:hydrogen_station"}, Pipe, "tank", {"D"}, {
+liquid.register_nodes({ "ts_vehicles_common:hydrogen_station" }, Pipe, "tank", { "D" }, {
     capa = 1000000,
     peek = function(...) return nil end,
     put = function(pos, indir, name, amount)
@@ -143,7 +141,7 @@ liquid.register_nodes({"ts_vehicles_common:hydrogen_station"}, Pipe, "tank", {"D
         end
         local entity = object:get_luaentity()
         local vd = VD(entity._id)
-        local max = ts_vehicles.helpers.get_total_value(entity, "hydrogen_capacity")
+        local max = ts_vehicles.helpers.get_total_value(entity._id, "hydrogen_capacity")
         local to_be_added = math.max(math.min(amount, max - (vd.data.hydrogen or 0)), 0)
         vd.data.hydrogen = (vd.data.hydrogen or 0) + to_be_added
         return amount - to_be_added
@@ -157,13 +155,11 @@ liquid.register_nodes({"ts_vehicles_common:hydrogen_station"}, Pipe, "tank", {"D
 minetest.register_craft({
     output = "ts_vehicles_common:hydrogen_station",
     recipe = {
-        {"ts_vehicles_common:composite_material", "basic_materials:ic", ""},
-        {"techage:ta3_pipeS", "basic_materials:concrete_block", "techage:ta3_cylinder_large"},
-        {"", "techage:ta3_pipeS", ""},
+        { "ts_vehicles_common:composite_material", "basic_materials:ic", "" },
+        { "techage:ta3_pipeS", "basic_materials:concrete_block", "techage:ta3_cylinder_large" },
+        { "", "techage:ta3_pipeS", "" },
     },
 })
-
-
 
 local electricity_tiles = {
     -- up, down, right, left, back, front
@@ -175,15 +171,14 @@ local electricity_tiles = {
     "basic_materials_concrete_block.png^(ts_vehicles_common_station.png^[multiply:@@40c20e)",
 }
 
-local _, _, node_name_ta4 =
-techage.register_consumer("electricity_station", "Charging Station", { act = electricity_tiles, pas = electricity_tiles }, {
+local _, _, node_name_ta4 = techage.register_consumer("electricity_station", "Charging Station", { act = electricity_tiles, pas = electricity_tiles }, {
     drawtype = "normal",
     paramtype = "light",
     cycle_time = 1,
     standby_ticks = 3,
     formspec = function(self, pos, nvm)
         return ts_vehicles.hose.get_formspec(pos)
-    end ,
+    end,
     tubing = {
         on_recv_message = function(pos, src, topic, payload)
             return CRD(pos).State:on_receive_message(pos, topic, payload)
@@ -200,7 +195,7 @@ techage.register_consumer("electricity_station", "Charging Station", { act = ele
         if object then
             local entity = object:get_luaentity()
             local vd = VD(entity._id)
-            local max = ts_vehicles.helpers.get_total_value(entity, "electricity_capacity")
+            local max = ts_vehicles.helpers.get_total_value(entity._id, "electricity_capacity")
             local to_be_added = math.max(math.min(10, max - (vd.data.electricity or 0)), 0)
             vd.data.electricity = (vd.data.electricity or 0) + to_be_added
             crd.State:keep_running(pos, nvm, 1)
@@ -219,9 +214,9 @@ techage.register_consumer("electricity_station", "Charging Station", { act = ele
         local nvm = techage.get_nvm(pos)
         CRD(pos).State:state_button_event(pos, nvm, fields)
     end,
-    groups = {cracky=2},
+    groups = { cracky = 2 },
     sounds = default.node_sound_metal_defaults(),
-    power_consumption = {0,10,10,10},
+    power_consumption = { 0, 10, 10, 10 },
     power_sides = { D = 1 },
     _station = {
         hose_offset = vector.new(.25, .25, -0.55),
@@ -233,26 +228,21 @@ techage.register_consumer("electricity_station", "Charging Station", { act = ele
         custom_fs_appendix = function(pos)
             local state = CRD(pos).State
             local nvm = techage.get_nvm(pos)
-            local fs = "image_button[10.5,0.5;1,1;".. state:get_state_button_image(nvm) ..";state_button;]"
-            fs = fs.."tooltip[10.5,0.5;1,1;"..state:get_state_tooltip(nvm).."]"
+            local fs = "image_button[10.5,0.5;1,1;" .. state:get_state_button_image(nvm) .. ";state_button;]"
+            fs = fs .. "tooltip[10.5,0.5;1,1;" .. state:get_state_tooltip(nvm) .. "]"
             return fs
         end,
     },
-}, {false, false, false, true}, "ts_vehicles_common:ta")
+}, { false, false, false, true }, "ts_vehicles_common:ta")
 
 minetest.register_craft({
     output = node_name_ta4,
     recipe = {
-        {"ts_vehicles_common:composite_material", "basic_materials:ic", ""},
-        {"techage:electric_cableS", "basic_materials:concrete_block", "basic_materials:copper_wire"},
-        {"", "techage:electric_cableS", ""},
+        { "ts_vehicles_common:composite_material", "basic_materials:ic", "" },
+        { "techage:electric_cableS", "basic_materials:concrete_block", "basic_materials:copper_wire" },
+        { "", "techage:electric_cableS", "" },
     },
 })
-
-
-
-
-
 
 minetest.register_node("ts_vehicles_common:tank_terminal", {
     description = "Tank Terminal",
@@ -282,7 +272,7 @@ minetest.register_node("ts_vehicles_common:tank_terminal", {
     paramtype = "light",
     paramtype2 = "facedir",
     on_rotate = screwdriver.disallow,
-    groups = {cracky=2},
+    groups = { cracky = 2 },
     is_ground_content = false,
     sounds = default.node_sound_metal_defaults(),
     _station = {
@@ -296,7 +286,7 @@ minetest.register_node("ts_vehicles_common:tank_terminal", {
     on_receive_fields = ts_vehicles.hose.station_receive_fields
 })
 
-liquid.register_nodes({"ts_vehicles_common:tank_terminal"}, Pipe, "tank", {"B", "D"}, {
+liquid.register_nodes({ "ts_vehicles_common:tank_terminal" }, Pipe, "tank", { "B", "D" }, {
     capa = 1000000,
     peek = function(pos, indir)
         local object = ts_vehicles.hose.get_connected_vehicle(pos)
@@ -318,7 +308,7 @@ liquid.register_nodes({"ts_vehicles_common:tank_terminal"}, Pipe, "tank", {"B", 
         if tank_content_name ~= nil and name ~= tank_content_name then
             return amount
         end
-        local max = ts_vehicles.helpers.get_total_value(entity, "payload_tank_capacity")
+        local max = ts_vehicles.helpers.get_total_value(entity._id, "payload_tank_capacity")
         local to_be_added = math.max(math.min(amount, max - (vd.data.payload_tank_amount or 0)), 0)
         vd.data.payload_tank_amount = (vd.data.payload_tank_amount or 0) + to_be_added
         vd.data.payload_tank_name = name
@@ -360,7 +350,7 @@ liquid.register_nodes({"ts_vehicles_common:tank_terminal"}, Pipe, "tank", {"B", 
         if tank_content_name ~= nil and name ~= tank_content_name then
             return amount
         end
-        local max = ts_vehicles.helpers.get_total_value(entity, "payload_tank_capacity")
+        local max = ts_vehicles.helpers.get_total_value(entity._id, "payload_tank_capacity")
         local to_be_added = math.max(math.min(amount, max - (vd.data.payload_tank_amount or 0)), 0)
         vd.data.payload_tank_amount = (vd.data.payload_tank_amount or 0) + to_be_added
         vd.data.payload_tank_name = name
@@ -371,8 +361,8 @@ liquid.register_nodes({"ts_vehicles_common:tank_terminal"}, Pipe, "tank", {"B", 
 minetest.register_craft({
     output = "ts_vehicles_common:tank_terminal",
     recipe = {
-        {"ts_vehicles_common:composite_material", "basic_materials:ic", ""},
-        {"techage:ta3_pipeS", "basic_materials:concrete_block", "default:mese_crystal"},
-        {"", "techage:ta3_pipeS", ""},
+        { "ts_vehicles_common:composite_material", "basic_materials:ic", "" },
+        { "techage:ta3_pipeS", "basic_materials:concrete_block", "default:mese_crystal" },
+        { "", "techage:ta3_pipeS", "" },
     },
 })

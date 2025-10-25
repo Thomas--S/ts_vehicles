@@ -1,0 +1,30 @@
+ts_vehicles_hcs.png: Helicopter Control Stick
+ts_vehicles_hw.png: Helicopter Windows
+ts_vehicles_hmr.png: Helicopter Main Rotor
+ts_vehicles_htr.png: Helicopter Tail Rotor
+ts_vehicles_ht.png: Helicopter Tail
+ts_vehicles_hh.png: Helicopter Hull
+ts_vehicles_hwh1.png: Helicopter Wrapping Hull Stripe
+ts_vehicles_hwh2.png: Helicopter Wrapping Hull Lines
+ts_vehicles_hi.png: Helicopter Interior
+ts_vehicles_hi_.png: Helicopter Interior Overlay
+ts_vehicles_hip.png: Helicopter Interior Control Panel
+ts_vehicles_hipe.png: Helicopter Interior Control Panel Engine Light
+ts_vehicles_hipf.png: Helicopter Interior Control Panel Fuel Light
+ts_vehicles_hipw.png: Helicopter Interior Control Panel Fuel Warning Light
+ts_vehicles_hipn.png: Helicopter Interior Control Panel Navigation Light
+ts_vehicles_hipa.png: Helicopter Interior Control Panel Anti Collision Light
+ts_vehicles_hipl.png: Helicopter Interior Control Panel Landing Light
+ts_vehicles_hips.png: Helicopter Interior Control Panel Search Light
+ts_vehicles_hlr.png: Helicopter Light Red
+ts_vehicles_hlr_.png: Helicopter Light Red On
+ts_vehicles_hlg.png: Helicopter Light Green
+ts_vehicles_hlg_.png: Helicopter Light Green On
+ts_vehicles_hlw.png: Helicopter Light White
+ts_vehicles_hlw_.png: Helicopter Light White On
+ts_vehicles_hll.png: Helicopter Landing Light
+ts_vehicles_hll_.png: Helicopter Landing Light On
+ts_vehicles_hsl.png: Helicopter Search Light
+ts_vehicles_hsl_.png: Helicopter Search Light On
+ts_vehicles_hg.png: Helicopter Gray
+ts_vehicles_hpt_.png: Helicopter Payload Tank Overlay

@@ -13,6 +13,36 @@ ts_vehicles.helpers.clamp = function(value, lower, upper)
     return math.max(math.min(value, upper), lower)
 end
 
+minetest.register_entity("ts_vehicles_api:attach", {
+    initial_properties = {
+        collisionbox = { 0, 0, 0, 0, 0, 0 },
+        selectionbox = { 0, 0, 0, 0, 0, 0 },
+        visual_size = { x = 0, y = 0, z = 0 },
+        static_save = false,
+        physical = false,
+        textures = { "ts_vehicles_api_blank.png" },
+    },
+    on_activate = function(self)
+        self.object:set_armor_groups({ immortal = 1 })
+        self._dtime = 0
+    end,
+    on_step = function(self, dtime)
+        self._dtime = self._dtime + dtime
+        if self._dtime > 1 then
+            self._dtime = 0
+            if #self.object:get_children() == 0 or not self.object:get_attach() then
+                self.object:remove()
+            end
+        end
+    end
+})
+
+ts_vehicles.helpers.attach_player = function(player, parent, position)
+    local entity = minetest.add_entity(position, "ts_vehicles_api:attach")
+    entity:set_attach(parent, nil, position, { x = 0, y = 0, z = 0 })
+    player:set_attach(entity, nil, { x = 0, y = 0, z = 0 }, { x = 0, y = 0, z = 0 })
+end
+
 ts_vehicles.helpers.turn_player = function(player, delta)
     if player then
         player:set_look_horizontal(player:get_look_horizontal() + delta)
@@ -27,18 +57,19 @@ ts_vehicles.helpers.call = function(func, ...)
 end
 
 ts_vehicles.helpers.any_has_group = function(parts, group)
-    for _,part in ipairs(parts) do
-        local def = ts_vehicles.registered_parts[part]
+    for _, part in ipairs(parts) do
+        local def = ts_vehicles.registered_parts[part:get_name()]
         if def and def.groups and def.groups[group] then
             return true
         end
     end
+    return false
 end
 
 ts_vehicles.helpers.multiple_have_group = function(parts, group)
     local first = false
-    for _,part in ipairs(parts) do
-        local def = ts_vehicles.registered_parts[part]
+    for _, part in ipairs(parts) do
+        local def = ts_vehicles.registered_parts[part:get_name()]
         if def and def.groups and def.groups[group] then
             if first then
                 return true
@@ -47,6 +78,7 @@ ts_vehicles.helpers.multiple_have_group = function(parts, group)
             end
         end
     end
+    return false
 end
 
 ts_vehicles.helpers.part_get_property = function(property, part, vehicle, fallback)
@@ -64,7 +96,7 @@ ts_vehicles.helpers.part_get_property = function(property, part, vehicle, fallba
 end
 
 ts_vehicles.helpers.contains = function(list, value)
-    for _,element in ipairs(list or {}) do
+    for _, element in ipairs(list or {}) do
         if element == value then
             return true
         end
@@ -73,7 +105,7 @@ ts_vehicles.helpers.contains = function(list, value)
 end
 
 ts_vehicles.helpers.index_of = function(list, value)
-    for idx,element in ipairs(list) do
+    for idx, element in ipairs(list) do
         if element == value then
             return idx
         end
@@ -85,17 +117,18 @@ ts_vehicles.helpers.starts_with = function(whole_string, start_string)
     return string.sub(whole_string, 1, string.len(start_string)) == start_string
 end
 
-ts_vehicles.helpers.get_total_value = function(self, property_name, parts)
-    parts = parts or VD(self._id).parts
+ts_vehicles.helpers.get_total_value = function(id, property_name, parts)
+    local vd = VD(id)
+    parts = parts or vd.parts
     local total = 0
-    for _,part in ipairs(parts) do
-        total = total + ts_vehicles.helpers.part_get_property(property_name, part, self.name, 0)
+    for _, part in ipairs(parts) do
+        total = total + ts_vehicles.helpers.part_get_property(property_name, part:get_name(), vd.name, 0)
     end
     return total
 end
 
 ts_vehicles.helpers.get_ground_pos_from_moveresult = function(moveresult)
-    for _,collision in ipairs(moveresult.collisions or {}) do
+    for _, collision in ipairs(moveresult.collisions or {}) do
         if collision.type == "node" and collision.axis == "y" then
             return collision.node_pos
         end
@@ -104,11 +137,11 @@ end
 
 ts_vehicles.helpers.create_texture_for_fs_mesh = function(textures)
     local texture_string = ""
-    for _,texture in ipairs(textures) do
+    for _, texture in ipairs(textures) do
         if texture_string ~= "" then
-            texture_string = texture_string..","
+            texture_string = texture_string .. ","
         end
-        texture_string = texture_string..minetest.formspec_escape(texture)
+        texture_string = texture_string .. minetest.formspec_escape(texture)
     end
     return texture_string
 end
@@ -118,8 +151,8 @@ ts_vehicles.helpers.pitch_vehicle = function(self, delta_y, length, def)
     local collisionbox = obj:get_properties().collisionbox
     local selectionbox = obj:get_properties().selectionbox
     local rotation = obj:get_rotation()
-    local pitch = math.atan(delta_y/length)
-    local box_offset = math.abs(delta_y/2)
+    local pitch = math.atan(delta_y / length)
+    local box_offset = math.abs(delta_y / 2)
     if (math.abs(rotation.x - pitch) > 0.01) then
         obj:set_rotation(vector.new(pitch, rotation.y, rotation.z))
     end
@@ -155,7 +188,7 @@ ts_vehicles.helpers.get_rotated_collisionbox_corners = function(self)
     local collisionbox = obj:get_properties().collisionbox
     local rotation = obj:get_rotation()
     local pos = obj:get_pos()
-    local yaw_rotation = vector.new(0,rotation.y,0)
+    local yaw_rotation = vector.new(0, rotation.y, 0)
     return {
         vector.add(pos, vector.rotate(vector.new(collisionbox[1], collisionbox[2], collisionbox[6]), yaw_rotation)),
         vector.add(pos, vector.rotate(vector.new(collisionbox[4], collisionbox[2], collisionbox[6]), yaw_rotation)),
@@ -163,7 +196,6 @@ ts_vehicles.helpers.get_rotated_collisionbox_corners = function(self)
         vector.add(pos, vector.rotate(vector.new(collisionbox[4], collisionbox[2], collisionbox[3]), yaw_rotation)),
     }, collisionbox[6] - collisionbox[3]
 end
-
 
 ts_vehicles.helpers.get_payload_tank_content_name = function(id)
     local vd = VD(id)
@@ -202,29 +234,29 @@ ts_vehicles.helpers.free_line_of_sight = function(p1, p2, ignore_id, ignore_node
 end
 
 ts_vehicles.helpers.add_owner_mapping = function(id, owner)
-    local ids = minetest.deserialize(ts_vehicles.mod_storage:get_string("owner:"..owner)) or {}
+    local ids = minetest.deserialize(ts_vehicles.mod_storage:get_string("owner:" .. owner)) or {}
     if not ts_vehicles.helpers.contains(ids, id) then
         table.insert(ids, id)
     end
-    ts_vehicles.mod_storage:set_string("owner:"..owner, minetest.serialize(ids))
+    ts_vehicles.mod_storage:set_string("owner:" .. owner, minetest.serialize(ids))
 end
 
 ts_vehicles.helpers.remove_owner_mapping = function(id, owner)
-    local ids = minetest.deserialize(ts_vehicles.mod_storage:get_string("owner:"..owner)) or {}
+    local ids = minetest.deserialize(ts_vehicles.mod_storage:get_string("owner:" .. owner)) or {}
     table.remove(ids, ts_vehicles.helpers.index_of(ids, id))
-    ts_vehicles.mod_storage:set_string("owner:"..owner, minetest.serialize(ids))
+    ts_vehicles.mod_storage:set_string("owner:" .. owner, minetest.serialize(ids))
 end
 
 ts_vehicles.helpers.add_all_owner_mappings = function(id)
     local vd = VD(id)
-    for _,owner in ipairs(vd.owners or {}) do
+    for _, owner in ipairs(vd.owners or {}) do
         ts_vehicles.helpers.add_owner_mapping(id, owner)
     end
 end
 
 ts_vehicles.helpers.remove_all_owner_mappings = function(id)
     local vd = VD(id)
-    for _,owner in ipairs(vd.owners or {}) do
+    for _, owner in ipairs(vd.owners or {}) do
         ts_vehicles.helpers.remove_owner_mapping(id, owner)
     end
 end
@@ -254,4 +286,56 @@ end
 ts_vehicles.helpers.is_owner = function(id, name)
     local vd = VD(id)
     return vd and vd.owners and ts_vehicles.helpers.contains(vd.owners, name)
+end
+
+ts_vehicles.get_part_color = function(part)
+    local color = part:get_meta():get_string("color")
+    if not color or color == "" then
+        return ts_vehicles.helpers.part_get_property("default_color", part:get_name(), nil, "#fff")
+    end
+    return color
+end
+
+ts_vehicles.write = function(text, w, h, lines, color, scale, ignore_empty)
+    if not ts_vehicles.writing or not text or text == "" then
+        if ignore_empty then
+            return nil
+        else
+            return string.format("[combine:%dx%d", w, h)
+        end
+    end
+    local resize = ""
+    if scale and scale ~= 1 then
+        resize = string.format("^[resize:%dx%d", w * scale, h * scale)
+    end
+    return font_api.get_font("metro"):render(text or "", w, h, {
+        lines = lines,
+        halign = "center",
+        valign = "center",
+        color = color,
+    }) .. resize
+end
+
+ts_vehicles.get_fuel_ratio = function(id)
+    local vd = VD(id)
+
+    local gasoline_consumption = ts_vehicles.helpers.get_total_value(id, "gasoline_consumption")
+    local hydrogen_consumption = ts_vehicles.helpers.get_total_value(id, "hydrogen_consumption")
+    local electricity_consumption = ts_vehicles.helpers.get_total_value(id, "electricity_consumption")
+
+    local gasoline_capacity = ts_vehicles.helpers.get_total_value(id, "gasoline_capacity")
+    local hydrogen_capacity = ts_vehicles.helpers.get_total_value(id, "hydrogen_capacity")
+    local electricity_capacity = ts_vehicles.helpers.get_total_value(id, "electricity_capacity")
+
+    if gasoline_consumption > 0 and gasoline_capacity > 0 then
+        return (vd.data.gasoline or 0) / gasoline_capacity
+    end
+    if hydrogen_consumption > 0 and hydrogen_capacity > 0 then
+        return (vd.data.hydrogen or 0) / hydrogen_capacity
+    end
+    if electricity_consumption > 0 and electricity_capacity > 0 then
+        return (vd.data.electricity or 0) / electricity_capacity
+    end
+
+    return 0
 end
