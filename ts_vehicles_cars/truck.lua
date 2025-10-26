@@ -83,7 +83,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:truck", {
         local vd = VD(id)
         parts = parts or vd.parts
         local has = function(group) return ts_vehicles.helpers.any_has_group(parts, group) end
-        local has_multiple = function(group) return ts_vehicles.helpers.multiple_have_group(parts, group) end
+        local has_multiple = function(group, max) return ts_vehicles.helpers.multiple_have_group(parts, group, max) end
         if has_multiple("undercarriage") then
             return false, "A truck cannot have multiple undercarriages."
         end
@@ -155,6 +155,9 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:truck", {
         end
         if has("wrapping") and not (has("cabin") and has("platform")) then
             return false, "A cabin and a platform are required to install a wrapping."
+        end
+        if has_multiple("wrapping", 10) then
+            return false, "Too many wrappings."
         end
         if has("roof_attachment") and not (has("roof") and has("platform")) then
             return false, "A roof and a platform are required to mount a roof top attachment."
@@ -487,8 +490,8 @@ ts_vehicles.register_part("ts_vehicles_cars:warning_board", {
         if fields.text and fields.symbol and fields.set then
             local current_data = vd.data.warning_board[vd.data.warning_board.current_slot]
             if current_data then
-                current_data.symbol = fields.symbol
-                current_data.text = fields.text
+                current_data.symbol = fields.symbol:sub(1, 300)
+                current_data.text = fields.text:sub(1, 200)
             end
         end
         if fields.slot1 then vd.data.warning_board.current_slot = "slot1" end

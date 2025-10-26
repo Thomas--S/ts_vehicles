@@ -66,16 +66,16 @@ ts_vehicles.helpers.any_has_group = function(parts, group)
     return false
 end
 
-ts_vehicles.helpers.multiple_have_group = function(parts, group)
-    local first = false
+ts_vehicles.helpers.multiple_have_group = function(parts, group, max)
+    max = max or 1
+    local count = 0
     for _, part in ipairs(parts) do
         local def = ts_vehicles.registered_parts[part:get_name()]
         if def and def.groups and def.groups[group] then
-            if first then
+            if count >= max then
                 return true
-            else
-                first = true
             end
+            count = count + 1
         end
     end
     return false

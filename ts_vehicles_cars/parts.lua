@@ -146,7 +146,7 @@ ts_vehicles.register_part("ts_vehicles_cars:license_plate", {
     on_receive_fields = function(self, player, fields)
         if fields.text and (fields.set or fields.key_enter_field == "text") then
             local vd = VD(self._id)
-            vd.data.license_plate_text = fields.text
+            vd.data.license_plate_text = fields.text:sub(1, 15)
             vd.tmp.base_textures_set = false
         end
     end,

@@ -44,7 +44,7 @@ ts_vehicles_common.register_text = function()
                 meta:set_int("set", 1)
                 for text_id, text_def in pairs(texts) do
                     if not text_def.requires or ts_vehicles.helpers.any_has_group(vd.parts, text_def.requires) then
-                        meta:set_string(text_id, fields[text_id .. "_text"] or "")
+                        meta:set_string(text_id, (fields[text_id .. "_text"] or ""):sub(1, 50 * (text_def.lines or 1)))
                     end
                 end
                 vd.tmp.base_textures_set = false

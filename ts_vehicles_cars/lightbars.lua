@@ -59,7 +59,7 @@ for _, def in ipairs(ts_vehicles_cars.lightbars) do
             if fields.text and (fields.set or fields.key_enter_field == "text") then
                 local vd = VD(self._id)
                 vd.tmp.light_textures_set = false
-                vd.data.roof_top_text = fields.text
+                vd.data.roof_top_text = fields.text:sub(1, 15)
             end
         end,
         after_part_remove = function(self, drop)

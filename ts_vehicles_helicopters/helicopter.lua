@@ -80,7 +80,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_helicopters:helicopter", {
         local vd = VD(id)
         parts = parts or vd.parts
         local has = function(group) return ts_vehicles.helpers.any_has_group(parts, group) end
-        local has_multiple = function(group) return ts_vehicles.helpers.multiple_have_group(parts, group) end
+        local has_multiple = function(group, max) return ts_vehicles.helpers.multiple_have_group(parts, group, max) end
         if has_multiple("hull") then
             return false, "A helicopter cannot have multiple hulls."
         end
@@ -146,6 +146,9 @@ ts_vehicles.register_vehicle_base("ts_vehicles_helicopters:helicopter", {
         end
         if has("wrapping") and not (has("hull") and has("tail")) then
             return false, "A hull and a tail are required to install a wrapping."
+        end
+        if has_multiple("wrapping", 10) then
+            return false, "Too many wrappings."
         end
         if has("gas_turbine") and not (has("hull") and has("tail")) then
             return false, "A hull and a tail are required to mount the gas turbine."

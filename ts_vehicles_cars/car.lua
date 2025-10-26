@@ -74,7 +74,7 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:car", {
         local vd = VD(id)
         parts = parts or vd.parts
         local has = function(group) return ts_vehicles.helpers.any_has_group(parts, group) end
-        local has_multiple = function(group) return ts_vehicles.helpers.multiple_have_group(parts, group) end
+        local has_multiple = function(group, max) return ts_vehicles.helpers.multiple_have_group(parts, group, max) end
         if has_multiple("base_plate") then
             return false, "A car cannot have multiple base plates."
         end
@@ -148,6 +148,9 @@ ts_vehicles.register_vehicle_base("ts_vehicles_cars:car", {
         end
         if has("wrapping") and not (has("chassis_front") and has("chassis_back") and has("doors")) then
             return false, "A full chassis (incl. doors) is required to install a wrapping."
+        end
+        if has_multiple("wrapping", 10) then
+            return false, "Too many wrappings."
         end
         if has("roof_attachment") and not has("roof") then
             return false, "A roof is required to mount a roof top attachment."
