@@ -367,7 +367,7 @@ ts_vehicles.helicopter_on_step = function(self, dtime, moveresult, def, is_full_
 
     if is_full_second then
         ts_vehicles.helicopter_light_beam(self)
-        if moveresult.touching_ground then
+        if moveresult and moveresult.touching_ground then
             local tire_pos, car_length = ts_vehicles.helpers.get_rotated_collisionbox_corners(self)
             local max_depth = def.stepheight * car_length * 1.5
             local front_downwards_space = math.max(ts_vehicles.helpers.downwards_space(tire_pos[1], max_depth),
@@ -376,9 +376,10 @@ ts_vehicles.helicopter_on_step = function(self, dtime, moveresult, def, is_full_
                 ts_vehicles.helpers.downwards_space(tire_pos[4], max_depth))
             local delta_y = front_downwards_space - back_downwards_space
             ts_vehicles.helpers.pitch_vehicle(self, delta_y, car_length, def)
-        else
+        elseif moveresult then
             ts_vehicles.helpers.pitch_vehicle(self, -new_velocity.horizontal / 70, 3, def)
         end
+        -- Do nothing if there is no moveresult (e.g. because the vehicle is moved via techage move controller).
     end
     if vehicle:get_velocity().y < -20 then
         ts_vehicles.throw_all_out(self, "The vehicle is falling too fast.")

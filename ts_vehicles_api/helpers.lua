@@ -128,7 +128,7 @@ ts_vehicles.helpers.get_total_value = function(id, property_name, parts)
 end
 
 ts_vehicles.helpers.get_ground_pos_from_moveresult = function(moveresult)
-    for _, collision in ipairs(moveresult.collisions or {}) do
+    for _, collision in ipairs((moveresult or {}).collisions or {}) do
         if collision.type == "node" and collision.axis == "y" then
             return collision.node_pos
         end

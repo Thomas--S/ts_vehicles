@@ -177,7 +177,7 @@ ts_vehicles.register_vehicle_base = function(name, def)
             if is_full_second then
                 local pos = self.object:get_pos()
                 vd.last_seen_pos = pos
-                if vd.tmp.gravity_set and moveresult.touching_ground then
+                if vd.tmp.gravity_set and moveresult and moveresult.touching_ground then
                     vd.y_ground_pos = pos.y
                 end
             end
