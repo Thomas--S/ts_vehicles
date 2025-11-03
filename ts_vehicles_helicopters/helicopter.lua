@@ -739,7 +739,7 @@ ts_vehicles.register_part("ts_vehicles_helicopters:payload_tank", {
     description = "Payload Tank for Helicopters",
     inventory_image = "ts_vehicles_helicopters_payload_tank.png",
     groups = { payload_tank = 1, },
-    storage_capacity = -4000,
+    storage_capacity = -3000,
     payload_tank_capacity = 2000,
 })
 

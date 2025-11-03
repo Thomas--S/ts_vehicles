@@ -423,7 +423,7 @@ ts_vehicles.register_part("ts_vehicles_cars:payload_tank", {
     inventory_image = "ts_vehicles_cars_payload_tank.png",
     groups = { payload_tank = 1 },
     colorable = true,
-    storage_capacity = -7500,
+    storage_capacity = -6000,
     payload_tank_capacity = 4000,
 })
 

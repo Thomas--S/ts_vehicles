@@ -102,7 +102,7 @@ ts_vehicles_common.register_auxiliary_gasoline_tank = function()
     ts_vehicles.register_part("ts_vehicles_common:auxiliary_gasoline_tank", {
         inventory_image = "ts_vehicles_common_gasoline_tank.png^ts_vehicles_common_aux_overlay.png",
         description = "Auxiliary Gasoline Tank",
-        storage_capacity = -4000,
+        storage_capacity = -500,
         gasoline_capacity = 70,
         groups = { auxiliary_tank = 1, }
     })
@@ -127,7 +127,7 @@ ts_vehicles_common.register_auxiliary_hydrogen_tank = function()
     ts_vehicles.register_part("ts_vehicles_common:auxiliary_hydrogen_tank", {
         inventory_image = "ts_vehicles_common_hydrogen_tank.png^ts_vehicles_common_aux_overlay.png",
         description = "Auxiliary Hydrogen Tank",
-        storage_capacity = -4000,
+        storage_capacity = -1000,
         hydrogen_capacity = 500,
         groups = { auxiliary_tank = 1, }
     })
@@ -152,7 +152,7 @@ ts_vehicles_common.register_auxiliary_battery = function()
     ts_vehicles.register_part("ts_vehicles_common:auxiliary_battery", {
         inventory_image = "ts_vehicles_common_battery.png^ts_vehicles_common_aux_overlay.png",
         description = "Auxiliary Battery",
-        storage_capacity = -4000,
+        storage_capacity = -1000,
         electricity_capacity = 1000,
         groups = { auxiliary_tank = 1, }
     })
