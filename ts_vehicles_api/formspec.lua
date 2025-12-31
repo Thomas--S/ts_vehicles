@@ -7,14 +7,16 @@ ts_vehicles.player_currently_editing_part = {}
 local E = minetest.formspec_escape
 local items_per_page = 12
 
--- "Encode" colons
-local ec = function(val)
-    return val:gsub(":", "___")
-end
-
--- "Decode" colons
-local dc = function(val)
-    return val:gsub("___", ":")
+local get_sanitized_itemstring = function(stack)
+    local itemstack = ItemStack(stack)
+    local new_meta = {}
+    for _, key in ipairs({ "description", "short_description", "color", "palette_index" }) do
+        if itemstack:get_meta():contains(key) then
+            new_meta[key] = itemstack:get_meta():get_string(key)
+        end
+    end
+    itemstack:get_meta():from_table({ fields = new_meta })
+    return itemstack:to_string()
 end
 
 local function create_card(self, player, part, i)
@@ -22,7 +24,7 @@ local function create_card(self, player, part, i)
     local description = part:get_short_description()
     local fs = ts_vehicles.helpers.part_get_property("get_formspec", part:get_name(), self.name, function(...) return nil end)(self, player, part)
     local f = "box[0,0;2.375,3;#fff]"
-    f = f .. "item_image[.6875,.125;1,1;" .. part:to_string() .. "]"
+    f = f .. "item_image[.6875,.125;1,1;" .. get_sanitized_itemstring(part) .. "]"
     f = f .. "style[label_" .. index .. ";textcolor=black;content_offset=0,0]"
     f = f .. "tooltip[.125,.125;2.125,1.625;" .. description .. "]"
     if #description > 17 then
@@ -123,16 +125,7 @@ ts_vehicles.show_formspec = function(self, player, open_part)
                     fs = fs .. "box[.5," .. (y - .3125) .. ";16,.625;#fff2]"
                 end
                 local itemstack = ItemStack(item.itemstring)
-                local new_meta = {}
-                for _, key in ipairs({ "description", "short_description", "color", "palette_index" }) do
-                    if itemstack:get_meta():contains(key) then
-                        new_meta[key] = itemstack:get_meta():get_string(key)
-                    end
-                end
-                itemstack:get_meta():from_table({ fields = new_meta })
-                local itemstring = itemstack:to_string()
-
-                fs = fs .. "item_image[.5," .. (y - .25) .. ";.5,.5;" .. itemstring .. "]"
+                fs = fs .. "item_image[.5," .. (y - .25) .. ";.5,.5;" .. get_sanitized_itemstring(itemstack) .. "]"
                 fs = fs .. "label[1.125," .. y .. ";" .. E(itemstack:get_short_description()) .. "]"
                 fs = fs .. "label[9," .. y .. ";" .. tostring(item.count) .. "]"
                 fs = fs .. "button[11," .. (y - .25) .. ";1.5,.5;storage_take_one_" .. idx .. ";Take 1]"
