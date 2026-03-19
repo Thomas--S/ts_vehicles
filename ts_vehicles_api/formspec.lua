@@ -12,7 +12,7 @@ local get_sanitized_itemstring = function(stack)
     local new_meta = {}
     for _, key in ipairs({ "description", "short_description", "color", "palette_index" }) do
         if itemstack:get_meta():contains(key) then
-            new_meta[key] = itemstack:get_meta():get_string(key)
+            new_meta[key] = itemstack:get_meta():get_string(key):gsub("%[", "("):gsub("%]", ")")
         end
     end
     itemstack:get_meta():from_table({ fields = new_meta })
